@@ -8,6 +8,8 @@ function Messagerie() {
     { id: 1, name: 'Alice Martin', role: 'Gestionnaire', lastMessage: 'Bonjour, concernant la maintenance...', time: '10:30' },
     { id: 2, name: 'Thomas Dubois', role: 'Propriétaire', lastMessage: 'Merci pour votre réponse...', time: '09:15' },
     { id: 3, name: 'Marie Lambert', role: 'Gestionnaire', lastMessage: 'Le rendez-vous est confirmé...', time: 'Hier' },
+    { id: 4, name: 'Benoit Dujardin', role: 'Gestionnaire', lastMessage: 'Le rendez-vous est confirmé...', time: 'Hier' },
+
   ];
 
   return (

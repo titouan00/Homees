@@ -1,4 +1,3 @@
-import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 
 function Layout() {
@@ -10,8 +9,8 @@ function Layout() {
       <header className="bg-white/80 backdrop-blur-sm fixed w-full z-50 transition-all duration-300 hover:bg-white/90">
         <nav className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="text-2xl font-bold bg-gradient-to-r from-primary via-primary-dark to-cyan bg-clip-text text-transparent hover:scale-105 transition-all duration-300"
             >
               Homees
@@ -21,26 +20,25 @@ function Layout() {
                 <>
                   <a href="#features" className="nav-link text-gray-600 hover:text-primary transition-all duration-300">Fonctionnalités</a>
                   <a href="#benefits" className="nav-link text-gray-600 hover:text-primary transition-all duration-300">Avantages</a>
-                  <a href="#contact" className="nav-link text-gray-600 hover:text-primary transition-all duration-300">Contact</a>
                 </>
               ) : (
                 <>
                   <Link to="/dashboard" className="nav-link text-gray-600 hover:text-primary transition-all duration-300">Dashboard</Link>
                   <Link to="/messagerie" className="nav-link text-gray-600 hover:text-primary transition-all duration-300">Messagerie</Link>
-                  <Link to="/assistance" className="nav-link text-gray-600 hover:text-primary transition-all duration-300">Assistance</Link>
+                  <Link to="/contact" className="nav-link text-gray-600 hover:text-primary transition-all duration-300">Contact</Link>
                 </>
               )}
             </div>
             {isLanding ? (
-              <Link 
-                to="/inscription" 
+              <Link
+                to="/inscription"
                 className="btn-primary px-6 py-2 rounded-lg text-white shadow-lg shadow-primary/20 hover:scale-105 hover:shadow-xl transition-all duration-300"
               >
                 Commencer
               </Link>
             ) : (
-              <Link 
-                to="/profile" 
+              <Link
+                to="/profile"
                 className="btn-primary px-6 py-2 rounded-lg text-white shadow-lg shadow-primary/20 hover:scale-105 hover:shadow-xl transition-all duration-300"
               >
                 Mon Profil
