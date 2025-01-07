@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import Messagerie from './pages/Messagerie';
 import Dashboard from './pages/Dashboard';
 import Assistance from './pages/Assistance';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="messagerie" element={<Messagerie />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="assistance" element={<Assistance />} />
+        <Route path="contact" element={<Contact />} />
       </Route>
     </Routes>
   );
