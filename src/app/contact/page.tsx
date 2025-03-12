@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Send, MapPin, Phone, Mail, Bot, User } from 'lucide-react';
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { Send, MapPin, Phone, Mail, Bot, User } from "lucide-react";
 
 interface Message {
   id: number;
@@ -8,11 +10,11 @@ interface Message {
   timestamp: Date;
 }
 
-function Contact() {
+export default function Contact() {
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, text: "Bonjour ! Je suis l'assistant virtuel de Homees. Comment puis-je vous aider aujourd'hui ?", isBot: true, timestamp: new Date() }
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
 
@@ -29,23 +31,26 @@ function Contact() {
     setTimeout(() => {
       let response = botResponses.default;
       const lowerText = text.toLowerCase();
-      
-      if (lowerText.includes('bonjour') || lowerText.includes('salut')) {
+
+      if (lowerText.includes("bonjour") || lowerText.includes("salut")) {
         response = botResponses.hello;
-      } else if (lowerText.includes('prix') || lowerText.includes('tarif')) {
+      } else if (lowerText.includes("prix") || lowerText.includes("tarif")) {
         response = botResponses.pricing;
-      } else if (lowerText.includes('fonctionnalité') || lowerText.includes('service')) {
+      } else if (lowerText.includes("fonctionnalité") || lowerText.includes("service")) {
         response = botResponses.features;
-      } else if (lowerText.includes('contact') || lowerText.includes('joindre')) {
+      } else if (lowerText.includes("contact") || lowerText.includes("joindre")) {
         response = botResponses.contact;
       }
 
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        text: response,
-        isBot: true,
-        timestamp: new Date()
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          text: response,
+          isBot: true,
+          timestamp: new Date(),
+        },
+      ]);
       setIsTyping(false);
     }, 1000);
   };
@@ -54,14 +59,17 @@ function Contact() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    setMessages(prev => [...prev, {
-      id: Date.now(),
-      text: input,
-      isBot: false,
-      timestamp: new Date()
-    }]);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        text: input,
+        isBot: false,
+        timestamp: new Date(),
+      },
+    ]);
     simulateBotResponse(input);
-    setInput('');
+    setInput("");
   };
 
   useEffect(() => {
@@ -74,16 +82,12 @@ function Contact() {
     <div className="container mx-auto px-6 py-12">
       <div className="grid md:grid-cols-2 gap-12">
         {/* Contact Info */}
-        <div className="space-y-8 slide-in">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Contactez-nous</h1>
-            <p className="text-lg text-gray-600">
-              Notre équipe est là pour répondre à toutes vos questions.
-            </p>
-          </div>
+        <div className="space-y-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Contactez-nous</h1>
+          <p className="text-lg text-gray-600">Notre équipe est là pour répondre à toutes vos questions.</p>
 
           <div className="space-y-6">
-            <div className="flex items-center space-x-4 card p-4 rounded-lg bg-white">
+            <div className="flex items-center space-x-4 p-4 rounded-lg bg-white shadow">
               <div className="bg-primary/10 p-3 rounded-full">
                 <MapPin className="h-6 w-6 text-primary" />
               </div>
@@ -93,7 +97,7 @@ function Contact() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4 card p-4 rounded-lg bg-white">
+            <div className="flex items-center space-x-4 p-4 rounded-lg bg-white shadow">
               <div className="bg-primary/10 p-3 rounded-full">
                 <Phone className="h-6 w-6 text-primary" />
               </div>
@@ -103,7 +107,7 @@ function Contact() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4 card p-4 rounded-lg bg-white">
+            <div className="flex items-center space-x-4 p-4 rounded-lg bg-white shadow">
               <div className="bg-primary/10 p-3 rounded-full">
                 <Mail className="h-6 w-6 text-primary" />
               </div>
@@ -116,7 +120,7 @@ function Contact() {
         </div>
 
         {/* Chatbot */}
-        <div className="bg-white rounded-2xl shadow-xl p-6 slide-in" style={{ animationDelay: '0.2s' }}>
+        <div className="bg-white rounded-2xl shadow-xl p-6">
           <div className="flex items-center space-x-3 mb-6">
             <Bot className="h-8 w-8 text-primary" />
             <div>
@@ -127,41 +131,26 @@ function Contact() {
 
           <div ref={chatRef} className="h-[400px] overflow-y-auto space-y-4 mb-4">
             {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex items-start space-x-2 ${
-                  message.isBot ? '' : 'flex-row-reverse space-x-reverse'
-                } fade-in`}
-              >
-                <div className={`p-2 rounded-full ${
-                  message.isBot ? 'bg-primary/10' : 'bg-gray-100'
-                }`}>
-                  {message.isBot ? (
-                    <Bot className="h-5 w-5 text-primary" />
-                  ) : (
-                    <User className="h-5 w-5 text-gray-600" />
-                  )}
+              <div key={message.id} className={`flex items-start space-x-2 ${message.isBot ? "" : "flex-row-reverse space-x-reverse"}`}>
+                <div className={`p-2 rounded-full ${message.isBot ? "bg-primary/10" : "bg-gray-100"}`}>
+                  {message.isBot ? <Bot className="h-5 w-5 text-primary" /> : <User className="h-5 w-5 text-gray-600" />}
                 </div>
-                <div className={`max-w-[80%] p-3 rounded-lg ${
-                  message.isBot ? 'bg-primary/5' : 'bg-primary text-white'
-                }`}>
+                <div className={`max-w-[80%] p-3 rounded-lg ${message.isBot ? "bg-primary/5" : "bg-primary text-white"}`}>
                   <p>{message.text}</p>
-                  <span className="text-xs opacity-50 mt-1 block">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+                  <span className="text-xs opacity-50 mt-1 block">{message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                 </div>
               </div>
             ))}
             {isTyping && (
-              <div className="flex items-center space-x-2 fade-in">
+              <div className="flex items-center space-x-2">
                 <div className="bg-primary/10 p-2 rounded-full">
                   <Bot className="h-5 w-5 text-primary" />
                 </div>
                 <div className="bg-primary/5 p-3 rounded-lg">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                    <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                    <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
+                    <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }} />
                   </div>
                 </div>
               </div>
@@ -174,12 +163,9 @@ function Contact() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Écrivez votre message..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
             />
-            <button
-              type="submit"
-              className="btn-primary p-2 rounded-lg text-white hover:scale-105 transition-transform"
-            >
+            <button type="submit" className="bg-primary p-2 rounded-lg text-white hover:scale-105 transition-transform">
               <Send className="h-5 w-5" />
             </button>
           </form>
@@ -188,5 +174,3 @@ function Contact() {
     </div>
   );
 }
-
-export default Contact;

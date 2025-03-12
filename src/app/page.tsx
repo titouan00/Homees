@@ -1,8 +1,10 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
+import Image from 'next/image';
 import { Wrench, History, Shield, ArrowRight, CheckCircle2 } from 'lucide-react';
 
-function Landing() {
+export default function Landing() {
   return (
     <>
       {/* Hero Section */}
@@ -13,10 +15,10 @@ function Landing() {
               Simplifiez la gestion de vos biens immobiliers
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              Une plateforme tout-en-un pour trouver efficacement des gestionnaires qui peuvent entretenir vos bien immobiliers .
+              Une plateforme tout-en-un pour trouver efficacement des gestionnaires qui peuvent entretenir vos biens immobiliers.
             </p>
             <div className="flex space-x-4">
-              <Link to="/inscription" className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+              <Link href="/inscription" className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
                 Démarrer gratuitement
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
@@ -26,9 +28,11 @@ function Landing() {
             </div>
           </div>
           <div className="relative">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1073&q=80"
               alt="Property Management"
+              width={500}
+              height={500}
               className="rounded-2xl shadow-2xl"
             />
           </div>
@@ -42,21 +46,9 @@ function Landing() {
             Fonctionnalités principales
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={<Wrench className="h-8 w-8 text-blue-600" />}
-              title="Maintenance simplifiée"
-              description="Accédez à un réseau d'artisans certifiés et gérez facilement vos interventions."
-            />
-            <FeatureCard
-              icon={<History className="h-8 w-8 text-blue-600" />}
-              title="Suivi détaillé"
-              description="Gardez un historique complet des interventions et des rapports de maintenance."
-            />
-            <FeatureCard
-              icon={<Shield className="h-8 w-8 text-blue-600" />}
-              title="Artisans certifiés"
-              description="Collaborez avec des professionnels vérifiés et fiables pour vos travaux."
-            />
+            <FeatureCard icon={<Wrench className="h-8 w-8 text-blue-600" />} title="Maintenance simplifiée" description="Accédez à un réseau d'artisans certifiés et gérez facilement vos interventions." />
+            <FeatureCard icon={<History className="h-8 w-8 text-blue-600" />} title="Suivi détaillé" description="Gardez un historique complet des interventions et des rapports de maintenance." />
+            <FeatureCard icon={<Shield className="h-8 w-8 text-blue-600" />} title="Artisans certifiés" description="Collaborez avec des professionnels vérifiés et fiables pour vos travaux." />
           </div>
         </div>
       </section>
@@ -84,7 +76,7 @@ function Landing() {
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">
             Prêt à simplifier la gestion de vos biens ?
           </h2>
-          <Link to="/inscription" className="bg-white text-blue-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors inline-block">
+          <Link href="/inscription" className="bg-white text-blue-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors inline-block">
             Commencer maintenant
           </Link>
         </div>
@@ -111,5 +103,3 @@ function BenefitItem({ text }) {
     </div>
   );
 }
-
-export default Landing;

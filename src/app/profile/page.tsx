@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { UserCircle2, Mail, Building2, Phone, MapPin } from 'lucide-react';
+"use client";
 
-function Profile() {
+import { useState } from "react";
+import { UserCircle2, Mail, Building2, Phone, MapPin } from "lucide-react";
+
+export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
-  const [role] = useState('proprietaire'); // This would come from auth context in a real app
+  const [role] = useState("proprietaire"); // Ce rôle viendrait d'un contexte d'authentification en prod
 
   return (
     <div className="container mx-auto px-6 py-12">
@@ -14,7 +16,7 @@ function Profile() {
             onClick={() => setIsEditing(!isEditing)}
             className="text-blue-600 hover:text-blue-700"
           >
-            {isEditing ? 'Sauvegarder' : 'Modifier'}
+            {isEditing ? "Sauvegarder" : "Modifier"}
           </button>
         </div>
 
@@ -25,7 +27,9 @@ function Profile() {
             </div>
             <div>
               <h2 className="text-xl font-semibold">John Doe</h2>
-              <p className="text-gray-600">{role === 'proprietaire' ? 'Propriétaire' : 'Gestionnaire'}</p>
+              <p className="text-gray-600">
+                {role === "proprietaire" ? "Propriétaire" : "Gestionnaire"}
+              </p>
             </div>
           </div>
 
@@ -60,7 +64,7 @@ function Profile() {
               </div>
             </div>
 
-            {role === 'proprietaire' ? (
+            {role === "proprietaire" ? (
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Adresse du bien
@@ -114,5 +118,3 @@ function Profile() {
     </div>
   );
 }
-
-export default Profile;

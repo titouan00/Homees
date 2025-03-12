@@ -1,35 +1,37 @@
-import React, { useState } from 'react';
-import { MessageCircle, HelpCircle, Search, ChevronRight } from 'lucide-react';
+"use client";
 
-function Assistance() {
+import { useState } from "react";
+import { MessageCircle, HelpCircle, Search, ChevronRight } from "lucide-react";
+
+export default function Assistance() {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const faqCategories = [
     {
       id: 1,
-      title: 'Compte et inscription',
+      title: "Compte et inscription",
       questions: [
         {
-          q: 'Comment créer un compte ?',
-          a: 'Pour créer un compte, cliquez sur le bouton "Commencer" en haut de la page et suivez les étapes d\'inscription.'
+          q: "Comment créer un compte ?",
+          a: "Pour créer un compte, cliquez sur le bouton \"Commencer\" en haut de la page et suivez les étapes d'inscription."
         },
         {
-          q: 'Comment changer mon mot de passe ?',
-          a: 'Vous pouvez changer votre mot de passe dans les paramètres de votre compte, section "Sécurité".'
+          q: "Comment changer mon mot de passe ?",
+          a: "Vous pouvez changer votre mot de passe dans les paramètres de votre compte, section \"Sécurité\"."
         }
       ]
     },
     {
       id: 2,
-      title: 'Gestion des biens',
+      title: "Gestion des biens",
       questions: [
         {
-          q: 'Comment ajouter un nouveau bien ?',
-          a: 'Dans votre tableau de bord, cliquez sur "Ajouter un bien" et remplissez les informations requises.'
+          q: "Comment ajouter un nouveau bien ?",
+          a: "Dans votre tableau de bord, cliquez sur \"Ajouter un bien\" et remplissez les informations requises."
         },
         {
-          q: 'Comment modifier les informations d\'un bien ?',
-          a: 'Accédez à la page du bien concerné et cliquez sur "Modifier" pour mettre à jour les informations.'
+          q: "Comment modifier les informations d'un bien ?",
+          a: "Accédez à la page du bien concerné et cliquez sur \"Modifier\" pour mettre à jour les informations."
         }
       ]
     }
@@ -104,5 +106,3 @@ function Assistance() {
     </div>
   );
 }
-
-export default Assistance;

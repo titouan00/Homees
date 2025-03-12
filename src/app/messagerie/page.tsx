@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+'use client';
+
+import { useState } from 'react';
 import { Send, Search, UserCircle2 } from 'lucide-react';
 
-function Messagerie() {
+export default function Messagerie() {
   const [selectedContact, setSelectedContact] = useState(null);
 
   const contacts = [
@@ -9,7 +11,6 @@ function Messagerie() {
     { id: 2, name: 'Thomas Dubois', role: 'Propriétaire', lastMessage: 'Merci pour votre réponse...', time: '09:15' },
     { id: 3, name: 'Marie Lambert', role: 'Gestionnaire', lastMessage: 'Le rendez-vous est confirmé...', time: 'Hier' },
     { id: 4, name: 'Benoit Dujardin', role: 'Gestionnaire', lastMessage: 'Le rendez-vous est confirmé...', time: 'Hier' },
-
   ];
 
   return (
@@ -101,5 +102,3 @@ function Messagerie() {
     </div>
   );
 }
-
-export default Messagerie;
