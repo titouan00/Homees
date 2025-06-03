@@ -18,7 +18,7 @@ export default function Landing() {
               Une plateforme tout-en-un pour trouver efficacement des gestionnaires qui peuvent entretenir vos biens immobiliers.
             </p>
             <div className="flex space-x-4">
-              <Link href="/inscription" className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+              <Link href="/signup" className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
                 Démarrer gratuitement
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
@@ -76,7 +76,7 @@ export default function Landing() {
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">
             Prêt à simplifier la gestion de vos biens ?
           </h2>
-          <Link href="/inscription" className="bg-white text-blue-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors inline-block">
+          <Link href="/signup" className="bg-white text-blue-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors inline-block">
             Commencer maintenant
           </Link>
         </div>
@@ -85,7 +85,11 @@ export default function Landing() {
   );
 }
 
-function FeatureCard({ icon, title, description }) {
+function FeatureCard({ icon, title, description }: { 
+  icon: React.ReactNode; 
+  title: string; 
+  description: string; 
+}) {
   return (
     <div className="bg-white p-8 rounded-xl shadow-lg">
       <div className="mb-4">{icon}</div>
@@ -95,7 +99,7 @@ function FeatureCard({ icon, title, description }) {
   );
 }
 
-function BenefitItem({ text }) {
+function BenefitItem({ text }: { text: string }) {
   return (
     <div className="flex items-center space-x-3">
       <CheckCircle2 className="h-6 w-6 text-blue-600 flex-shrink-0" />

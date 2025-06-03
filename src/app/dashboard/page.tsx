@@ -53,7 +53,13 @@ function Dashboard() {
   );
 }
 
-function StatCard({ icon, title, value, trend, change }) {
+function StatCard({ icon, title, value, trend, change }: { 
+  icon: React.ReactNode; 
+  title: string; 
+  value: string; 
+  trend?: 'up' | 'down'; 
+  change?: string; 
+}) {
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
       <div className="flex items-center justify-between">
@@ -104,7 +110,13 @@ function RecentActivities() {
   );
 }
 
-function ActivityItem({ activity }) {
+function ActivityItem({ activity }: { 
+  activity: { 
+    title: string; 
+    description: string; 
+    time: string; 
+  } 
+}) {
   return (
     <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
       <div className="bg-blue-100 p-2 rounded-full">
@@ -153,7 +165,14 @@ function UpcomingInterventions() {
   );
 }
 
-function InterventionItem({ intervention }) {
+function InterventionItem({ intervention }: { 
+  intervention: { 
+    title: string; 
+    location: string; 
+    date: string; 
+    status: string; 
+  } 
+}) {
   return (
     <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
       <div className={`p-2 rounded-full ${
