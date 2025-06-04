@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, User, Bot, Minimize2, Maximize2 } from 'lucide-react';
+import { MessageCircle, X, Send, User, Bot, Minimize2, Maximize2, Maximize } from 'lucide-react';
 
 /**
  * Interface pour les messages du chat
@@ -14,43 +14,23 @@ interface Message {
 }
 
 /**
- * Questions prédéfinies fréquemment posées
- */
-const PREDEFINED_QUESTIONS = [
-  "Comment fonctionne le comparateur ?",
-  "Quels sont vos tarifs ?",
-  "Comment devenir partenaire ?",
-  "Où êtes-vous disponibles ?",
-  "Comment contacter un gestionnaire ?"
-];
-
-/**
- * Réponses automatiques du bot
- */
-const BOT_RESPONSES: Record<string, string> = {
-  "comment fonctionne le comparateur": "Notre comparateur vous permet de rechercher et comparer les gestionnaires immobiliers en 3 étapes simples : 1) Décrivez vos besoins 2) Consultez les offres personnalisées 3) Choisissez le gestionnaire idéal. Tout est transparent et gratuit !",
-  "quels sont vos tarifs": "Homees est entièrement gratuit pour les propriétaires ! Nous sommes rémunérés uniquement par nos partenaires gestionnaires. Vous pouvez comparer et choisir sans aucun frais.",
-  "comment devenir partenaire": "Pour devenir gestionnaire partenaire, vous devez être certifié et répondre à nos critères de qualité. Contactez-nous via le formulaire en précisant 'Partenariat' et nous vous expliquerons la procédure.",
-  "où êtes-vous disponibles": "Actuellement, Homees est disponible à Paris uniquement. Nous prévoyons d'étendre notre service à Lyon (Q2 2024), Marseille (Q3 2024) et d'autres grandes villes.",
-  "comment contacter un gestionnaire": "Une fois votre recherche effectuée, vous pouvez contacter directement les gestionnaires via notre messagerie sécurisée intégrée. Vos coordonnées restent privées jusqu'à ce que vous choisissiez de les partager."
-};
-
-/**
- * Composant Chatbot pour l'assistance client en temps réel
+ * Composant Chatbot pour l'assistance client en temps réel avec OpenAI
  */
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "👋 Bonjour ! Je suis l'assistant virtuel Homees. Comment puis-je vous aider aujourd'hui ?",
+      text: "👋 Bonjour ! Je suis l'assistant virtuel Homees. Comment puis-je vous aider avec notre plateforme de gestion immobilière aujourd'hui ?",
       isUser: false,
       timestamp: new Date()
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   /**
@@ -65,34 +45,65 @@ export default function Chatbot() {
   }, [messages]);
 
   /**
-   * Génère une réponse automatique du bot
+   * Réponse de fallback en cas d'erreur API - spécialisée Homees
    */
-  const getBotResponse = (userMessage: string): string => {
+  const getFallbackResponse = (userMessage: string): string => {
     const normalizedMessage = userMessage.toLowerCase();
     
-    // Recherche de mots-clés dans les réponses prédéfinies
-    for (const [key, response] of Object.entries(BOT_RESPONSES)) {
-      if (normalizedMessage.includes(key.split(' ')[0]) || 
-          normalizedMessage.includes(key)) {
-        return response;
-      }
-    }
-
-    // Réponses génériques basées sur des mots-clés
-    if (normalizedMessage.includes('prix') || normalizedMessage.includes('coût')) {
-      return BOT_RESPONSES["quels sont vos tarifs"];
+    if (normalizedMessage.includes('tarif') || normalizedMessage.includes('prix') || normalizedMessage.includes('coût') || normalizedMessage.includes('gratuit')) {
+      return "Homees est entièrement gratuit pour les propriétaires ! Aucun frais d'inscription, aucun abonnement. Nous sommes rémunérés uniquement par nos partenaires gestionnaires via des commissions. Nos tarifs sont très compétitifs par rapport à la concurrence traditionnelle.";
     }
     
-    if (normalizedMessage.includes('contact') || normalizedMessage.includes('joindre')) {
-      return "Vous pouvez nous contacter par téléphone au 01 23 45 67 89, par email à contact@homees.fr, ou directement via ce chat. Notre équipe vous répondra rapidement !";
+    if (normalizedMessage.includes('comment') && (normalizedMessage.includes('marche') || normalizedMessage.includes('fonctionne'))) {
+      return "Notre plateforme vous permet de comparer les gestionnaires immobiliers en 3 étapes simples : 1) Recherchez selon vos critères (localisation, type de bien, services) 2) Consultez les profils détaillés et avis authentiques 3) Contactez directement les gestionnaires qui vous intéressent via notre messagerie sécurisée.";
+    }
+    
+    if (normalizedMessage.includes('gestionnaire') || normalizedMessage.includes('partenaire') || normalizedMessage.includes('rejoindre')) {
+      return "Pour devenir gestionnaire partenaire chez Homees, vous devez être certifié et répondre à nos critères de qualité. Le processus inclut la vérification de vos certifications et la création de votre profil détaillé. Contactez-nous via notre formulaire en précisant 'Candidature Gestionnaire'.";
     }
 
-    if (normalizedMessage.includes('problème') || normalizedMessage.includes('bug')) {
-      return "Désolé pour la gêne occasionnée ! Pouvez-vous me décrire le problème rencontré ? Notre équipe technique interviendra rapidement pour le résoudre.";
+    if (normalizedMessage.includes('zone') || normalizedMessage.includes('ville') || normalizedMessage.includes('disponible') || normalizedMessage.includes('paris') || normalizedMessage.includes('lyon') || normalizedMessage.includes('marseille')) {
+      return "Actuellement, Homees est disponible à Paris uniquement. Nous prévoyons d'étendre notre service à Lyon au Q2 2024, puis à Marseille au Q3 2024. L'expansion vers d'autres grandes villes françaises suivra progressivement.";
     }
 
-    // Réponse par défaut
-    return "Je ne suis pas sûr de comprendre votre question. Puis-je vous rediriger vers l'un de ces sujets populaires ou préférez-vous parler à un conseiller humain ?";
+    if (normalizedMessage.includes('avis') || normalizedMessage.includes('note') || normalizedMessage.includes('évaluation')) {
+      return "Notre système d'avis est 100% authentique : seuls les propriétaires ayant réellement échangé avec un gestionnaire via notre plateforme peuvent laisser un avis. Cela garantit la fiabilité des notes et commentaires que vous consultez.";
+    }
+    
+    return "Je suis là pour vous aider avec toutes vos questions sur Homees ! Pour une assistance personnalisée, n'hésitez pas à contacter notre équipe via le formulaire de contact ou à explorer notre plateforme pour découvrir nos services de mise en relation entre propriétaires et gestionnaires.";
+  };
+
+  /**
+   * Appel à l'API OpenAI
+   */
+  const getAIResponse = async (userMessage: string): Promise<string> => {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          conversationHistory: messages.slice(-7) // Garde les 7 derniers messages pour le contexte
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur API');
+      }
+
+      const data = await response.json();
+      
+      if (data.error && data.fallback) {
+        return getFallbackResponse(userMessage);
+      }
+      
+      return data.response || getFallbackResponse(userMessage);
+    } catch (error) {
+      console.error('Erreur lors de l\'appel à l\'API:', error);
+      return getFallbackResponse(userMessage);
+    }
   };
 
   /**
@@ -100,7 +111,7 @@ export default function Chatbot() {
    */
   const sendMessage = async (messageText?: string) => {
     const textToSend = messageText || inputMessage.trim();
-    if (!textToSend) return;
+    if (!textToSend || isLoading) return;
 
     // Ajouter le message de l'utilisateur
     const userMessage: Message = {
@@ -113,19 +124,38 @@ export default function Chatbot() {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsTyping(true);
+    setIsLoading(true);
 
-    // Simuler un délai de réponse du bot
-    setTimeout(() => {
+    try {
+      // Obtenir la réponse de l'IA
+      const aiResponse = await getAIResponse(textToSend);
+      
+      // Simuler un délai de frappe réaliste
+      await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
+      
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: getBotResponse(textToSend),
+        text: aiResponse,
         isUser: false,
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, botResponse]);
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du message:', error);
+      
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "Désolé, je rencontre un problème technique temporaire. Notre équipe travaille à le résoudre rapidement. Vous pouvez également nous contacter directement via notre formulaire de contact pour une assistance immédiate.",
+        isUser: false,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 1000); // Délai réaliste de 1-2 secondes
+      setIsLoading(false);
+    }
   };
 
   /**
@@ -146,6 +176,23 @@ export default function Chatbot() {
     });
   };
 
+  /**
+   * Basculer en mode plein écran
+   */
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+    setIsMinimized(false); // S'assurer que ce n'est pas minimisé en plein écran
+  };
+
+  /**
+   * Fermer le chat
+   */
+  const closeChat = () => {
+    setIsOpen(false);
+    setIsFullscreen(false);
+    setIsMinimized(false);
+  };
+
   return (
     <>
       {/* Bouton d'ouverture du chat */}
@@ -160,8 +207,12 @@ export default function Chatbot() {
 
       {/* Fenêtre de chat */}
       {isOpen && (
-        <div className={`fixed bottom-6 right-6 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 transition-all duration-300 ${
-          isMinimized ? 'w-80 h-16' : 'w-80 h-96'
+        <div className={`fixed bg-white rounded-2xl shadow-2xl border border-gray-200 z-50 transition-all duration-300 ${
+          isFullscreen 
+            ? 'inset-4 w-auto h-auto rounded-3xl' 
+            : isMinimized 
+              ? 'bottom-6 right-6 w-80 h-16' 
+              : 'bottom-6 right-6 w-80 h-96'
         }`}>
           {/* Header du chat */}
           <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
@@ -171,19 +222,43 @@ export default function Chatbot() {
               </div>
               <div>
                 <h3 className="font-semibold text-sm">Assistant Homees</h3>
-                <p className="text-emerald-100 text-xs">En ligne</p>
+                <p className="text-emerald-100 text-xs">
+                  {isLoading ? 'En train d\'écrire...' : 'En ligne'}
+                </p>
               </div>
             </div>
             <div className="flex space-x-2">
+              {!isFullscreen && (
+                <button
+                  onClick={toggleFullscreen}
+                  className="text-white/80 hover:text-white transition-colors"
+                  title="Plein écran"
+                >
+                  <Maximize className="h-4 w-4" />
+                </button>
+              )}
+              {isFullscreen && (
+                <button
+                  onClick={toggleFullscreen}
+                  className="text-white/80 hover:text-white transition-colors"
+                  title="Mode widget"
+                >
+                  <Minimize2 className="h-4 w-4" />
+                </button>
+              )}
+              {!isFullscreen && (
+                <button
+                  onClick={() => setIsMinimized(!isMinimized)}
+                  className="text-white/80 hover:text-white transition-colors"
+                  title={isMinimized ? "Agrandir" : "Réduire"}
+                >
+                  {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+                </button>
+              )}
               <button
-                onClick={() => setIsMinimized(!isMinimized)}
+                onClick={closeChat}
                 className="text-white/80 hover:text-white transition-colors"
-              >
-                {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
-              </button>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-white/80 hover:text-white transition-colors"
+                title="Fermer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -193,15 +268,17 @@ export default function Chatbot() {
           {!isMinimized && (
             <>
               {/* Messages */}
-              <div className="h-64 overflow-y-auto p-4 space-y-4">
+              <div className={`overflow-y-auto p-4 space-y-4 ${
+                isFullscreen ? 'h-[calc(100vh-200px)]' : 'h-64'
+              }`}>
                 {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`flex items-start space-x-2 max-w-[80%] ${
-                      message.isUser ? 'flex-row-reverse space-x-reverse' : ''
-                    }`}>
+                    <div className={`flex items-start space-x-2 ${
+                      isFullscreen ? 'max-w-[70%]' : 'max-w-[80%]'
+                    } ${message.isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
                       <div className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                         message.isUser 
                           ? 'bg-emerald-500 text-white' 
@@ -214,10 +291,12 @@ export default function Chatbot() {
                           ? 'bg-emerald-500 text-white'
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        <p className="text-sm">{message.text}</p>
-                        <p className={`text-xs mt-1 ${
-                          message.isUser ? 'text-emerald-100' : 'text-gray-500'
-                        }`}>
+                        <p className={`whitespace-pre-wrap ${
+                          isFullscreen ? 'text-base' : 'text-sm'
+                        }`}>{message.text}</p>
+                        <p className={`mt-1 ${
+                          isFullscreen ? 'text-sm' : 'text-xs'
+                        } ${message.isUser ? 'text-emerald-100' : 'text-gray-500'}`}>
                           {formatTime(message.timestamp)}
                         </p>
                       </div>
@@ -228,7 +307,9 @@ export default function Chatbot() {
                 {/* Indicateur de frappe */}
                 {isTyping && (
                   <div className="flex justify-start">
-                    <div className="flex items-start space-x-2 max-w-[80%]">
+                    <div className={`flex items-start space-x-2 ${
+                      isFullscreen ? 'max-w-[70%]' : 'max-w-[80%]'
+                    }`}>
                       <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center">
                         <Bot className="h-4 w-4 text-gray-600" />
                       </div>
@@ -246,24 +327,6 @@ export default function Chatbot() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Questions prédéfinies */}
-              {messages.length === 1 && (
-                <div className="px-4 pb-2">
-                  <p className="text-xs text-gray-500 mb-2">Questions fréquentes :</p>
-                  <div className="flex flex-wrap gap-1">
-                    {PREDEFINED_QUESTIONS.slice(0, 3).map((question, index) => (
-                      <button
-                        key={index}
-                        onClick={() => sendMessage(question)}
-                        className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded-full transition-colors"
-                      >
-                        {question}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Zone de saisie */}
               <div className="p-4 border-t border-gray-200">
                 <form onSubmit={handleSubmit} className="flex space-x-2">
@@ -271,12 +334,15 @@ export default function Chatbot() {
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="Tapez votre message..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+                    placeholder={isLoading ? "Veuillez patienter..." : "Posez votre question sur Homees..."}
+                    disabled={isLoading}
+                    className={`flex-1 px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed ${
+                      isFullscreen ? 'text-base' : 'text-sm'
+                    }`}
                   />
                   <button
                     type="submit"
-                    disabled={!inputMessage.trim() || isTyping}
+                    disabled={!inputMessage.trim() || isLoading}
                     className="bg-emerald-500 text-white p-2 rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="h-4 w-4" />
