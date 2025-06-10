@@ -173,7 +173,7 @@ export default function ProprietaireDashboard() {
   const stats = [
     { name: 'Mes biens', value: profile?.nombre_biens?.toString() || '0', icon: Building, color: 'text-blue-600', bg: 'bg-blue-100' },
     { name: 'Gestionnaires trouvés', value: '8', icon: Users, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-    { name: 'Budget disponible', value: profile?.budget_investissement ? `${profile.budget_investissement.toLocaleString()}€` : 'N/A', icon: Euro, color: 'text-yellow-600', bg: 'bg-yellow-100' },
+    { name: 'Budget d\'investissement', value: profile?.budget_investissement ? `${profile.budget_investissement.toLocaleString()}€` : 'N/A', icon: Euro, color: 'text-yellow-600', bg: 'bg-yellow-100' },
     { name: 'Demandes actives', value: '3', icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-100' }
   ];
 

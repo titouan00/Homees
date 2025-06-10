@@ -717,7 +717,7 @@ export default function SignupPage() {
                     {/* Budget d'investissement */}
                     <div>
                       <label className="block text-white font-medium mb-2 text-sm">
-                        Budget d'investissement (€)
+                        Budget disponible pour investissements (€)
                       </label>
                       <input
                         name="budget_investissement"
@@ -729,6 +729,9 @@ export default function SignupPage() {
                         className="w-full px-4 py-2.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all text-sm"
                         placeholder="200000"
                       />
+                      <p className="text-purple-200 text-xs mt-1 opacity-80">
+                        Montant que vous souhaitez investir dans de nouveaux biens
+                      </p>
                     </div>
 
                     {/* Profession */}
