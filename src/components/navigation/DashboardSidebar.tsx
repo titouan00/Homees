@@ -117,7 +117,7 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
     <div className="flex flex-col h-full bg-white border-r border-gray-200">
       {/* Logo */}
       <div className="flex items-center h-16 px-6 border-b border-gray-200">
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href="/dashboard" className="flex items-center space-x-2">
           <Home className="h-8 w-8 text-emerald-600" />
           <span className="text-xl font-bold text-gray-900">Homees</span>
         </Link>
