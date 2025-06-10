@@ -36,10 +36,49 @@ export default function LoginPage() {
 
       if (error) {
         setError(error.message);
-      } else {
-        router.push('/dashboard');
+      } else if (data.user) {
+        // Récupérer le rôle de l'utilisateur depuis la base de données
+        const { data: userData, error: userError } = await supabase
+          .from('utilisateurs')
+          .select('"rôle"')
+          .eq('id', data.user.id)
+          .single();
+
+        if (userError) {
+          console.error('Erreur récupération rôle:', userError);
+          setError('Erreur lors de la connexion');
+        } else {
+          // Redirection intelligente selon le rôle
+          const role = (userData as any)?.rôle;
+          
+          if (!role) {
+            setError('Rôle utilisateur non trouvé');
+            return;
+          }
+          
+          // Vérifier s'il y a un paramètre redirect dans l'URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectPath = urlParams.get('redirect');
+          
+          if (redirectPath) {
+            // Redirection vers la page demandée (si autorisée pour ce rôle)
+            if (
+              (role === 'proprietaire' && redirectPath === '/dashboard/proprietaire') ||
+              (role === 'gestionnaire' && redirectPath === '/dashboard/gestionnaire')
+            ) {
+              router.push(redirectPath);
+            } else {
+              // Redirection vers le bon dashboard pour ce rôle
+              router.push(`/dashboard/${role}`);
+            }
+          } else {
+            // Redirection par défaut selon le rôle
+            router.push(`/dashboard/${role}`);
+          }
+        }
       }
     } catch (err) {
+      console.error('Erreur login:', err);
       setError('Une erreur inattendue s\'est produite');
     } finally {
       setLoading(false);
