@@ -1,60 +1,78 @@
 import Link from 'next/link';
+import { MapPin, Phone, Mail, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 
 export default function Footer() {
-    return (
-    <>
-    <footer className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white py-12">
-          <div className="container mx-auto px-6">
-            <div className="grid md:grid-cols-4 gap-8">
-              <div className="slide-in">
-                <div className="mb-6">
-                  <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text hover:scale-105 transition-all duration-300">
-                    Homees
-                  </Link>
-                </div>
-                <p className="text-white/80">
-                  Le comparateur transparent de gestionnaires immobiliers pour trouver le partenaire idéal pour vos biens.
-                </p>
+  return (
+    <footer className="bg-gray-900 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Logo et description */}
+          <div className="col-span-1 md:col-span-2">
+            <Link href="/" className="flex items-center space-x-3 mb-4">
+              <div className="h-10 w-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">H</span>
               </div>
-              <div className="slide-in" style={{ animationDelay: '0.1s' }}>
-                <h3 className="text-lg font-semibold mb-4">Comparateur</h3>
-                <ul className="space-y-2 text-white/80">
-                  <li><Link href="/recherche" className="hover:text-white transition-colors">Rechercher un gestionnaire</Link></li>
-                  <li><Link href="/gestionnaires" className="hover:text-white transition-colors">Tous les gestionnaires</Link></li>
-                  <li><Link href="/tarifs" className="hover:text-white transition-colors">Comparer les tarifs</Link></li>
-                  <li><Link href="/avis" className="hover:text-white transition-colors">Avis clients</Link></li>
-                </ul>
-              </div>
-              <div className="slide-in" style={{ animationDelay: '0.2s' }}>
-                <h3 className="text-lg font-semibold mb-4">Entreprise</h3>
-                <ul className="space-y-2 text-white/80">
-                  <li><Link href="/a-propos" className="hover:text-white transition-colors">À propos</Link></li>
-                  <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                  <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
-                  <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-                </ul>
-              </div>
-              <div className="slide-in" style={{ animationDelay: '0.3s' }}>
-                <h3 className="text-lg font-semibold mb-4">Légal</h3>
-                <ul className="space-y-2 text-white/80">
-                  <li><Link href="/mentions-legales" className="hover:text-white transition-colors">Mentions légales</Link></li>
-                  <li><Link href="/confidentialite" className="hover:text-white transition-colors">Politique de confidentialité</Link></li>
-                  <li><Link href="/cgu" className="hover:text-white transition-colors">CGU</Link></li>
-                </ul>
-              </div>
-            </div>
-            <div className="border-t border-white/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-white/80">
-              <p className="hover:text-white transition-all duration-300">&copy; 2025 Homees. Tous droits réservés.</p>
-              <div className="flex space-x-4 mt-4 md:mt-0">
-                <a href="https://twitter.com" className="hover:text-white transition-colors">Twitter</a>
-                <a href="https://linkedin.com" className="hover:text-white transition-colors">LinkedIn</a>
-                <a href="https://facebook.com" className="hover:text-white transition-colors">Facebook</a>
-              </div>
+              <span className="text-2xl font-bold">Homees</span>
+            </Link>
+            <p className="text-gray-300 mb-6 max-w-md">
+              La plateforme de mise en relation entre propriétaires et gestionnaires immobiliers certifiés. 
+              Trouvez le partenaire idéal pour optimiser vos investissements.
+            </p>
+            <div className="flex space-x-4">
+              <a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors">
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors">
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors">
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-emerald-400 transition-colors">
+                <Instagram className="h-5 w-5" />
+              </a>
             </div>
           </div>
-        </footer>
-    </>
-    )
+
+          {/* Liens rapides */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Liens rapides</h3>
+            <ul className="space-y-2">
+              <li><Link href="/" className="text-gray-300 hover:text-emerald-400 transition-colors">Accueil</Link></li>
+              <li><Link href="/recherche" className="text-gray-300 hover:text-emerald-400 transition-colors">Rechercher</Link></li>
+              <li><Link href="/gestionnaires" className="text-gray-300 hover:text-emerald-400 transition-colors">Gestionnaires</Link></li>
+              <li><Link href="/contact" className="text-gray-300 hover:text-emerald-400 transition-colors">Contact</Link></li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Contact</h3>
+            <ul className="space-y-3">
+              <li className="flex items-center space-x-3">
+                <MapPin className="h-5 w-5 text-emerald-400" />
+                <span className="text-gray-300">Paris, France</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <Phone className="h-5 w-5 text-emerald-400" />
+                <span className="text-gray-300">01 23 45 67 89</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <Mail className="h-5 w-5 text-emerald-400" />
+                <span className="text-gray-300">contact@homees.fr</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+          <p className="text-gray-400">
+            © 2024 Homees. Tous droits réservés.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
 }
 
 

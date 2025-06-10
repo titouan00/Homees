@@ -6,10 +6,12 @@ import {
   Send, 
   ArrowRight, 
   CheckCircle, 
-  Mail,
   Sparkles
 } from 'lucide-react';
 
+/**
+ * Page Contact temporairement simplifiée pour débuggage
+ */
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     nom: '',
@@ -37,7 +39,6 @@ export default function ContactPage() {
       setSuccess(true);
       setFormData({ nom: '', email: '', typeUtilisateur: '', message: '' });
       
-      // Auto-hide success message after 5 seconds
       setTimeout(() => setSuccess(false), 5000);
     }, 1000);
   };
