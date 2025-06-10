@@ -9,8 +9,6 @@ export default function Header() {
 
   const navigation = [
     { name: 'Fonctionnalités', href: '/#features' },
-    { name: 'Rechercher', href: '/recherche' },
-    { name: 'Gestionnaires', href: '/gestionnaires' },
     { name: 'Contact', href: '/contact' },
   ];
 
@@ -20,6 +18,9 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
+            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-2 rounded-lg">
+              <Home className="h-6 w-6 text-white" />
+            </div>
             <span className="text-xl font-bold text-gray-900">Homees</span>
           </Link>
 

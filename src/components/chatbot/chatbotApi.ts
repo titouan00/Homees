@@ -29,12 +29,26 @@ export const getFallbackResponse = (userMessage: string): string => {
   if (normalizedMessage.includes('avis') || normalizedMessage.includes('note') || normalizedMessage.includes('évaluation')) {
     return "Notre système d'avis est 100% authentique : seuls les propriétaires ayant réellement échangé avec un gestionnaire via notre plateforme peuvent laisser un avis. Cela garantit la fiabilité des notes et commentaires que vous consultez.";
   }
+
+  if (normalizedMessage.includes('contact') || normalizedMessage.includes('aide') || normalizedMessage.includes('support')) {
+    return "Pour une assistance personnalisée, vous pouvez nous contacter via notre formulaire de contact disponible sur notre site. Notre équipe vous répondra rapidement pour vous accompagner dans vos démarches.";
+  }
+
+  if (normalizedMessage.includes('inscription') || normalizedMessage.includes('compte') || normalizedMessage.includes('inscrire')) {
+    return "L'inscription sur Homees est simple et gratuite ! Cliquez sur 'S'inscrire' en haut à droite, choisissez votre profil (propriétaire ou gestionnaire), et complétez vos informations. Vous aurez immédiatement accès à notre plateforme.";
+  }
+
+  if (normalizedMessage.includes('merci') || normalizedMessage.includes('parfait') || normalizedMessage.includes('bien')) {
+    return "Je suis ravi d'avoir pu vous aider ! N'hésitez pas si vous avez d'autres questions sur Homees. 😊";
+  }
   
-  return "Je suis là pour vous aider avec toutes vos questions sur Homees ! Pour une assistance personnalisée, n'hésitez pas à contacter notre équipe via le formulaire de contact ou à explorer notre plateforme pour découvrir nos services de mise en relation entre propriétaires et gestionnaires.";
+  // Réponse par défaut différente pour éviter la boucle
+  return "Je comprends votre demande. Voici ce que je peux vous dire : Homees est votre plateforme de référence pour trouver le gestionnaire immobilier idéal. Vous pouvez comparer les tarifs, consulter les avis et contacter directement les professionnels. Avez-vous une question spécifique sur nos services ?";
 };
 
 /**
- * Appel à l'API OpenAI
+ * Appel à l'API Groq via notre route Next.js
+ * Utilise l'intelligence artificielle avec le contexte métier Homees
  */
 export const getAIResponse = async (userMessage: string, messages: Message[]): Promise<string> => {
   try {
@@ -45,23 +59,31 @@ export const getAIResponse = async (userMessage: string, messages: Message[]): P
       },
       body: JSON.stringify({
         message: userMessage,
-        conversationHistory: messages.slice(-7) // Garde les 7 derniers messages pour le contexte
+        conversationHistory: messages
       }),
     });
 
     if (!response.ok) {
-      throw new Error('Erreur API');
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
     
-    if (data.error && data.fallback) {
-      return getFallbackResponse(userMessage);
+    if (data.success && data.response) {
+      return data.response;
     }
     
-    return data.response || getFallbackResponse(userMessage);
+    // Si l'API retourne un fallback
+    if (data.fallback && data.response) {
+      return data.response;
+    }
+    
+    throw new Error('Réponse API invalide');
+    
   } catch (error) {
-    console.error('Erreur lors de l\'appel à l\'API:', error);
+    console.error('Erreur API Groq:', error);
+    
+    // En cas d'erreur, utiliser notre système de fallback local
     return getFallbackResponse(userMessage);
   }
-}; 
+};

@@ -5,7 +5,13 @@
 export { default as Button } from './Button';
 export { default as Input } from './Input';
 export { default as Card } from './Card';
-export { default as FeatureCard } from './FeatureCard';
-export { default as StepCard } from './StepCard';
-export { default as BenefitItem } from './BenefitItem';
+
+// Composants Auth
+export { default as AuthBackground } from './AuthBackground';
+export { default as AuthCard } from './AuthCard';
+export { default as AuthInput } from './AuthInput';
+export { default as AuthButton } from './AuthButton';
+export { default as ErrorMessage } from './ErrorMessage';
+
+// Styles
 export { default as AnimationStyles } from './AnimationStyles'; 

@@ -1,208 +1,243 @@
 import { NextRequest, NextResponse } from 'next/server';
+import Groq from 'groq-sdk';
 
-// Utilisation de l'API Groq (gratuite et rapide)
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+// Initialisation du client Groq
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
-const HOMEES_CONTEXT = `
-Tu es l'assistant virtuel officiel de Homees, spécialisé dans l'aide aux propriétaires et gestionnaires immobiliers.
+/**
+ * Fonction pour détecter si une question est liée à Homees/immobilier
+ */
+function isHomeeesRelated(message: string): boolean {
+  const normalizedMessage = message.toLowerCase();
+  
+  // Mots-clés liés à Homees et l'immobilier
+  const homeesKeywords = [
+    'homees', 'gestionnaire', 'immobilier', 'propriétaire', 'gestion locative',
+    'location', 'loyer', 'bien immobilier', 'appartement', 'maison',
+    'tarif', 'prix', 'commission', 'plateforme', 'agence',
+    'paris', 'lyon', 'marseille', 'ville', 'zone',
+    'avis', 'note', 'évaluation', 'service', 'mandataire',
+    'investissement', 'locatif', 'bail', 'tenant', 'landlord',
+    'inscription', 'compte', 'profil', 'comparaison',
+    'contact', 'aide', 'support', 'comment', 'fonctionne'
+  ];
+  
+  // Vérifier si au moins un mot-clé est présent
+  return homeesKeywords.some(keyword => normalizedMessage.includes(keyword));
+}
 
-RÈGLES IMPORTANTES : 
-- Tu réponds uniquement aux questions utiles pour nos utilisateurs : propriétaires et gestionnaires immobiliers
-- Tu évites les sujets confidentiels/internes (stratégie business, finances internes, développement technique)
-- Tu te concentres sur l'aide pratique et les informations publiques de la plateforme
-- Si une question porte sur des domaines complètement étrangers (météo, cuisine, sport, etc.), redirige poliment
+/**
+ * Fonction pour compter les questions hors-sujet consécutives
+ */
+function countConsecutiveOffTopic(conversationHistory: any[]): number {
+  if (!conversationHistory || conversationHistory.length === 0) return 0;
+  
+  let count = 0;
+  // Parcourir l'historique en sens inverse pour compter les questions utilisateur consécutives hors-sujet
+  for (let i = conversationHistory.length - 1; i >= 0; i--) {
+    const msg = conversationHistory[i];
+    if (msg.isUser && msg.text) {
+      if (!isHomeeesRelated(msg.text)) {
+        count++;
+      } else {
+        break; // Arrêter dès qu'on trouve une question pertinente
+      }
+    }
+  }
+  
+  return count;
+}
 
-INFORMATIONS PUBLIQUES SUR HOMEES POUR LES UTILISATEURS :
+/**
+ * Prompt système spécialisé pour Homees
+ * Basé sur le Business Model Canvas et l'analyse projet
+ */
+const HOMEES_SYSTEM_PROMPT = `Tu es l'assistant virtuel de Homees, la plateforme française de mise en relation entre propriétaires et gestionnaires immobiliers certifiés.
 
-🏠 QUI SOMMES-NOUS :
-Homees est une plateforme web de mise en relation entre propriétaires et gestionnaires immobiliers certifiés, centrée sur la transparence et la simplicité d'usage.
+## À PROPOS D'HOMEES :
 
-💰 INFORMATIONS TARIFAIRES (PUBLIQUES) :
-- Service 100% GRATUIT pour les propriétaires (pas de frais d'inscription, pas d'abonnement)
-- Modèle freemium pour les gestionnaires
-- Nous sommes rémunérés uniquement par nos partenaires gestionnaires
-- Inscription gratuite pour tous
-- Services premium disponibles pour gestionnaires (promotion de profil, outils avancés)
-- Tarifs compétitifs par rapport à la concurrence traditionnelle
+**Mission** : Révolutionner la gestion immobilière par la transparence et la simplicité.
 
-🎯 SERVICES POUR NOS UTILISATEURS :
-1. Comparateur transparent de gestionnaires immobiliers
-2. Profils détaillés des gestionnaires certifiés  
-3. Filtres avancés (localisation, tarifs, services, avis, type de biens)
-4. Messagerie sécurisée propriétaires-gestionnaires
-5. Tableaux de bord personnalisés
-6. Système d'avis et notation authentiques
-7. Proposition commerciale intégrée
+**Proposition de valeur unique** :
+- Transparence totale : historique complet, localisations, rapports, avis authentiques
+- Réseau Certifié : seuls les gestionnaires validés (certifications, assurances, diplômes)
+- Comparaison intelligente : filtres avancés (tarifs, services, zones, notation)
+- Chat intégré : communication directe et sécurisée
+- Visibilité des gestionnaires sur la plateforme
 
-📍 ZONES COUVERTES :
+**Business Model** :
+- GRATUIT pour les propriétaires (inscription, comparaison, contact)
+- FREEMIUM pour gestionnaires : profil basique gratuit, premium payant
+- Revenue : commissions sur contrats signés (5-10% premier loyer), abonnements premium, leads sponsorisés
+
+**Segments clients** :
+- Propriétaires immobiliers (particuliers et SCI, 1-10 biens, budget 200-500k)
+- Petites agences immobilières (moyennes 10 employés, 200-500 mandats)
+- Artisans/sociétés de gestion (auto-entrepreneurs, PME)
+
+**Zones couvertes** :
 - Actuellement : Paris uniquement
-- Prochainement : Extension prévue à Lyon puis Marseille
-- Expansion progressive vers autres grandes villes françaises
+- 2024 Q2 : Extension Lyon
+- 2024 Q3 : Extension Marseille
+- Puis expansion progressive autres grandes villes
 
-👥 COMMENT UTILISER HOMEES :
+**Services clés** :
+- Comparateur de gestionnaires (critères : localisation, tarifs, services, avis)
+- Profils gestionnaires détaillés (certifications, zone intervention, tarifs)
+- Messagerie sécurisée intégrée
+- Système d'avis authentiques (seuls vrais clients peuvent noter)
+- Tableaux de bord personnalisés
+- Support client dédié
 
-POUR LES PROPRIÉTAIRES :
-- Inscription gratuite sur la plateforme
-- Recherche de gestionnaires selon vos critères
-- Consultation des profils et avis authentiques
-- Contact direct via messagerie sécurisée
-- Réception et comparaison des propositions
-- Choix du gestionnaire idéal
+## TON RÔLE :
+- Aide les propriétaires à trouver le gestionnaire idéal
+- Explique comment fonctionne la plateforme
+- Renseigne sur les tarifs, zones, processus
+- Guide vers l'inscription et l'utilisation
+- Assiste les gestionnaires pour rejoindre le réseau
 
-POUR LES GESTIONNAIRES :
-- Candidature en ligne avec vérification des certifications
-- Création de profil détaillé sur la plateforme
-- Réception des demandes de propriétaires
-- Envoi de propositions personnalisées
-- Gestion des mandats via tableau de bord
+## STYLE DE COMMUNICATION :
+- Professionnel mais accessible
+- Expertise immobilière claire
+- Transparent sur les tarifs et processus
+- Encourage l'utilisation de la plateforme
+- Français impeccable, tutoiement
 
-🆚 AVANTAGES VS CONCURRENCE :
-- Plus de choix qu'un réseau unique
-- Transparence tarifaire totale
-- Avis authentiques vérifiés
-- Interface moderne et intuitive
-- Processus simplifié
+## IMPORTANT - LIMITATION DE CONTEXTE :
+Tu ne réponds QU'AUX QUESTIONS liées à Homees, l'immobilier, la gestion locative et les services connexes.
+Pour toute question hors-sujet, redirige poliment vers ton domaine d'expertise.
 
-⚙️ FONCTIONNALITÉS PRATIQUES :
-- Comparateur avec filtres avancés
-- Profils gestionnaires détaillés
-- Messagerie intégrée
-- Notifications en temps réel
-- Système d'avis post-service
-
-🔒 SÉCURITÉ ET CONFIANCE :
-- Plateforme sécurisée
-- Gestionnaires certifiés et vérifiés
-- Avis authentiques uniquement
-- Données protégées
-
-📞 AIDE ET SUPPORT :
-- Formulaire de contact sur le site
-- Support client disponible
-- Assistance pour utilisation de la plateforme
-
-INSTRUCTIONS DE RÉPONSE :
-- Aide pratique pour utiliser la plateforme
-- Informations sur nos services publics
-- Processus d'inscription et d'utilisation
-- Conseils pour propriétaires et gestionnaires
-- Explications sur le fonctionnement
-- ÉVITE les détails techniques internes, financiers confidentiels, ou stratégiques
-- Redirige pour les sujets complètement hors immobilier/plateforme
-
-Tu représentes l'équipe support Homees pour aider nos utilisateurs au quotidien.
-`;
+Réponds toujours en restant dans ton rôle d'assistant Homees avec cette expertise métier.`;
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, conversationHistory = [] } = await request.json();
-
-    if (!message) {
+    // Amélioration de la gestion des erreurs JSON
+    let body;
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      console.error('Erreur de parsing JSON:', jsonError);
       return NextResponse.json(
-        { error: 'Message requis' },
+        { error: 'Format JSON invalide' },
         { status: 400 }
       );
     }
 
-    // Vérifier que la clé API est configurée
-    if (!GROQ_API_KEY || GROQ_API_KEY === 'your_groq_api_key_here') {
-      console.error('Clé API Groq non configurée');
+    const { message, conversationHistory } = body;
+
+    if (!message || typeof message !== 'string') {
       return NextResponse.json(
-        { 
-          error: 'Configuration manquante. Veuillez configurer la clé API Groq.',
-          fallback: true
-        },
-        { status: 500 }
+        { error: 'Message requis et doit être une chaîne' },
+        { status: 400 }
       );
     }
 
-    // Détection plus permissive - seulement pour des sujets vraiment hors contexte
-    const messageToCheck = message.toLowerCase();
+    // Vérification du contexte Homees
+    const isCurrentMessageRelated = isHomeeesRelated(message);
+    const consecutiveOffTopicCount = countConsecutiveOffTopic(conversationHistory || []);
     
-    // Sujets complètement hors contexte qui n'ont rien à voir avec l'immobilier/services
-    const offTopicKeywords = [
-      'météo', 'cuisine', 'recette', 'sport', 'football', 'politique', 'actualité', 'santé', 'médecine',
-      'voyage', 'vacances', 'shopping', 'mode', 'musique', 'film', 'série', 'jeu', 'gaming',
-      'crypto', 'bitcoin', 'bourse', 'trading', 'programmation', 'code', 'développement',
-      'religion', 'philosophie', 'histoire', 'géographie', 'mathématiques', 'physique', 'chimie'
-    ];
-    
-    // Vérification uniquement pour les sujets vraiment étrangers
-    const isCompletelyOffTopic = offTopicKeywords.some(keyword => messageToCheck.includes(keyword));
-    
-    // Ne bloquer que si c'est clairement hors sujet ET qu'il n'y a aucun mot lié à l'immobilier
-    const realEstateKeywords = [
-      'homees', 'immobilier', 'propriétaire', 'gestionnaire', 'gestion', 'loyer', 'bien', 'appartement', 'maison',
-      'location', 'bail', 'mandat', 'agence', 'comparateur', 'tarif', 'prix', 'commission', 'avis', 'notation',
-      'paris', 'lyon', 'marseille', 'plateforme', 'service', 'gratuit', 'inscription', 'contact', 'partenaire',
-      'logement', 'locataire', 'propriété', 'immeuble', 'studio', 'terrain', 'vente', 'achat'
-    ];
-    
-    const hasRealEstateContext = realEstateKeywords.some(keyword => messageToCheck.includes(keyword));
-    
-    // Bloquer seulement si complètement hors sujet ET aucun contexte immobilier
-    if (isCompletelyOffTopic && !hasRealEstateContext && messageToCheck.length > 15) {
+    // Si la question actuelle est hors-sujet ET on a déjà 2 questions hors-sujet consécutives
+    if (!isCurrentMessageRelated && consecutiveOffTopicCount >= 2) {
       return NextResponse.json({
-        response: "Bonjour ! Je suis l'assistant Homees, spécialisé dans l'aide aux propriétaires et gestionnaires immobiliers. Je peux vous aider avec notre plateforme de mise en relation, nos services, ou toute question liée à la gestion immobilière. Comment puis-je vous accompagner aujourd'hui ? 🏠"
+        response: `🏠 **Attention** : Je suis l'assistant spécialisé de **Homees**, votre plateforme immobilière.
+
+Je ne peux répondre qu'aux questions concernant :
+✅ **Homees** et nos services
+✅ **Gestion immobilière** et gestion locative  
+✅ **Propriétaires** et **gestionnaires**
+✅ **Investissement locatif**
+✅ **Nos zones** (Paris, Lyon, Marseille)
+
+💡 **Comment puis-je vous aider avec votre projet immobilier ?**
+- Trouver un gestionnaire pour vos biens ?
+- Comprendre nos tarifs et services ?
+- Rejoindre notre réseau de partenaires ?
+
+Posez-moi une question sur l'immobilier, je serai ravi de vous aider ! 😊`,
+        success: true,
+        contextWarning: true
       });
     }
 
-    // Construire l'historique de conversation avec le contexte (7 derniers messages)
-    const messages = [
+    // Préparer l'historique de conversation pour Groq
+    const messages: Array<{role: 'system' | 'user' | 'assistant', content: string}> = [
       {
         role: 'system' as const,
-        content: HOMEES_CONTEXT
-      },
-      ...conversationHistory.slice(-7).map((msg: any) => ({
-        role: msg.isUser ? 'user' as const : 'assistant' as const,
-        content: msg.text
-      })),
-      {
-        role: 'user' as const,
-        content: message
+        content: HOMEES_SYSTEM_PROMPT
       }
     ];
 
-    // Appel à l'API Groq avec gestion d'erreur améliorée
-    const response = await fetch(GROQ_API_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama3-8b-8192', // Modèle plus stable et gratuit
-        messages: messages,
-        max_tokens: 500,
-        temperature: 0.7,
-        stream: false
-      }),
-    });
-
-    // Gestion d'erreur détaillée
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Erreur API Groq:', response.status, response.statusText, errorText);
+    // Ajouter l'historique de conversation (maximum 10 derniers messages)
+    if (conversationHistory && Array.isArray(conversationHistory)) {
+      const recentHistory = conversationHistory.slice(-10);
       
-      // Fallback en cas d'erreur API
-      return NextResponse.json({
-        response: "Je rencontre actuellement un problème technique temporaire. En attendant, je peux vous dire que Homees est une plateforme gratuite pour les propriétaires qui permet de comparer les gestionnaires immobiliers certifiés. Comment puis-je vous aider autrement ?"
+      recentHistory.forEach((msg: any) => {
+        if (msg.text && typeof msg.text === 'string') {
+          messages.push({
+            role: msg.isUser ? ('user' as const) : ('assistant' as const),
+            content: msg.text
+          });
+        }
       });
     }
 
-    const data = await response.json();
-    const aiResponse = data.choices[0]?.message?.content || 
-      "Désolé, je n'ai pas pu traiter votre demande. Pouvez-vous reformuler votre question sur Homees ?";
+    // Ajouter le message actuel
+    messages.push({
+      role: 'user' as const,
+      content: message
+    });
 
-    return NextResponse.json({ response: aiResponse });
+    // Appel à l'API Groq avec le nouveau modèle
+    const completion = await groq.chat.completions.create({
+      messages,
+      model: 'llama-3.1-8b-instant', // Modèle rapide et disponible
+      temperature: 0.7, // Créativité modérée
+      max_tokens: 500, // Réponses concises
+      top_p: 0.9,
+      stream: false
+    });
+
+    const responseText = completion.choices[0]?.message?.content;
+
+    if (!responseText) {
+      throw new Error('Pas de réponse de Groq');
+    }
+
+    return NextResponse.json({
+      response: responseText,
+      success: true,
+      isHomeeesRelated: isCurrentMessageRelated
+    });
 
   } catch (error) {
     console.error('Erreur API Groq:', error);
     
-    // Réponse de fallback spécialisée Homees
+    // Réponse de fallback en cas d'erreur
+    const fallbackResponse = `Je rencontre un problème technique temporaire. En attendant, voici ce que je peux vous dire : 
+
+🏠 **Homees** est votre plateforme de référence pour trouver le gestionnaire immobilier idéal à Paris.
+
+✅ **Totalement gratuit** pour les propriétaires
+✅ **Comparaison transparente** des tarifs et services  
+✅ **Avis authentiques** de vrais clients
+✅ **Gestionnaires certifiés** et vérifiés
+
+Pour une assistance immédiate, contactez-nous via notre formulaire de contact. Notre équipe vous répondra rapidement !`;
+
     return NextResponse.json({
-      response: "Je rencontre un problème technique temporaire. Pour toute question sur Homees, notre plateforme de mise en relation propriétaires-gestionnaires, vous pouvez nous contacter directement via notre formulaire de contact. Homees reste 100% gratuit pour les propriétaires !"
+      response: fallbackResponse,
+      success: false,
+      fallback: true
     });
   }
+}
+
+// Gérer les autres méthodes HTTP
+export async function GET() {
+  return NextResponse.json(
+    { error: 'Méthode non autorisée' },
+    { status: 405 }
+  );
 } 

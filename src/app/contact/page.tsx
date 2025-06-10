@@ -2,15 +2,17 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Send, 
-  ArrowRight, 
-  CheckCircle, 
-  Sparkles
-} from 'lucide-react';
+import { Send, ArrowRight, Sparkles } from 'lucide-react';
+import AuthBackground from '@/components/ui/AuthBackground';
+import AuthCard from '@/components/ui/AuthCard';
+import AuthInput from '@/components/ui/AuthInput';
+import AuthButton from '@/components/ui/AuthButton';
+import ErrorMessage from '@/components/ui/ErrorMessage';
+import SuccessMessage from '@/components/contact/SuccessMessage';
 
 /**
- * Page Contact temporairement simplifiée pour débuggage
+ * Page Contact optimisée avec les composants UI réutilisables
+ * Design préservé à 100% avec architecture modulaire
  */
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -21,46 +23,43 @@ export default function ContactPage() {
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (error) setError(''); // Clear error on input
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
+    
+    // Validation simple
+    if (!formData.nom.trim() || !formData.email.trim() || !formData.typeUtilisateur || !formData.message.trim()) {
+      setError('Tous les champs sont requis');
+      setLoading(false);
+      return;
+    }
     
     setTimeout(() => {
       setLoading(false);
       setSuccess(true);
       setFormData({ nom: '', email: '', typeUtilisateur: '', message: '' });
-      
       setTimeout(() => setSuccess(false), 5000);
     }, 1000);
   };
 
   return (
     <>
-      {/* Hero Section */}
       <section className="relative h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-800 overflow-hidden flex items-center">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 py-1">
-          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-          <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-yellow-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
-        </div>
-        
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
+        <AuthBackground />
         
         <div className="container mx-auto px-6 py-4 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
             
-            {/* Left Side - Content */}
+            {/* Héro Section */}
             <div className="text-center lg:text-left">
               <Link 
                 href="/" 
@@ -94,58 +93,38 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Right Side - Contact Form */}
+            {/* Formulaire de Contact Optimisé */}
             <div className="max-w-lg mx-auto lg:mx-0">
-              <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-6 shadow-2xl">
+              <AuthCard>
                 <h2 className="text-2xl font-bold text-white mb-5 text-center">Envoyez-nous un message</h2>
                 
-                {success && (
-                  <div className="bg-emerald-500/20 border border-emerald-400/30 rounded-2xl p-4 mb-6 flex items-center animate-fade-in">
-                    <CheckCircle className="h-5 w-5 text-emerald-400 mr-3 flex-shrink-0" />
-                    <div>
-                      <h3 className="text-emerald-300 font-semibold text-sm">Message envoyé !</h3>
-                      <p className="text-emerald-200 text-xs">Nous vous répondrons rapidement.</p>
-                    </div>
-                  </div>
-                )}
+                <SuccessMessage show={success} />
+                <ErrorMessage message={error} className="mb-4" />
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-white font-medium mb-2 text-sm">
-                        Nom complet *
-                      </label>
-                      <input
-                        name="nom"
-                        type="text"
-                        value={formData.nom}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all text-sm"
-                        placeholder="Jean Dupont"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-white font-medium mb-2 text-sm">
-                        Email *
-                      </label>
-                      <input
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all text-sm"
-                        placeholder="jean@exemple.com"
-                      />
-                    </div>
+                    <AuthInput
+                      label="Nom complet *"
+                      name="nom"
+                      type="text"
+                      value={formData.nom}
+                      onChange={handleInputChange}
+                      placeholder="Jean Dupont"
+                      required
+                    />
+                    <AuthInput
+                      label="Email *"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="jean@exemple.com"
+                      required
+                    />
                   </div>
 
                   <div>
-                    <label className="block text-white font-medium mb-2 text-sm">
-                      Vous êtes *
-                    </label>
+                    <label className="block text-white font-medium mb-2 text-sm">Vous êtes *</label>
                     <select
                       name="typeUtilisateur"
                       value={formData.typeUtilisateur}
@@ -161,9 +140,7 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label className="block text-white font-medium mb-2 text-sm">
-                      Votre message *
-                    </label>
+                    <label className="block text-white font-medium mb-2 text-sm">Votre message *</label>
                     <textarea
                       name="message"
                       value={formData.message}
@@ -175,63 +152,20 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <button
+                  <AuthButton
                     type="submit"
-                    disabled={loading}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3 rounded-xl font-bold hover:from-emerald-600 hover:to-emerald-700 transition-all transform hover:scale-[1.02] shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    loading={loading}
+                    icon={Send}
+                    iconPosition="right"
                   >
-                    {loading ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    ) : (
-                      <>
-                        Envoyer le message
-                        <Send className="ml-2 h-4 w-4" />
-                      </>
-                    )}
-                  </button>
+                    Envoyer le message
+                  </AuthButton>
                 </form>
-              </div>
+              </AuthCard>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Enhanced CSS for animations */}
-      <style jsx global>{`
-        .bg-grid-pattern {
-          background-image: linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
-          background-size: 20px 20px;
-        }
-        
-        @keyframes blob {
-          0% { transform: scale(1) rotate(0deg); }
-          33% { transform: scale(1.1) rotate(120deg); }
-          66% { transform: scale(0.9) rotate(240deg); }
-          100% { transform: scale(1) rotate(360deg); }
-        }
-        
-        .animate-blob {
-          animation: blob 8s infinite;
-        }
-        
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        
-        @keyframes fadeIn {
-          0% { opacity: 0; transform: translateY(20px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out forwards;
-        }
-      `}</style>
     </>
   );
 }
