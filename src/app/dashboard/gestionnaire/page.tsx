@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { User, Home, Building2, Settings, LogOut, Shield, MapPin, Euro, Award, Users } from 'lucide-react';
+import { Shield, MapPin, Euro, Award, Users, TrendingUp, Building2 } from 'lucide-react';
+import DashboardLayout from '@/components/navigation/DashboardLayout';
 
 interface UserProfile {
   id: string;
@@ -24,7 +25,7 @@ interface GestionnaireProfile {
 }
 
 /**
- * Dashboard Gestionnaire - Page protégée
+ * Dashboard Gestionnaire - Page protégée avec sidebar moderne
  * Accessible uniquement aux utilisateurs connectés avec le rôle "gestionnaire"
  */
 export default function GestionnaireDashboard() {
@@ -50,12 +51,11 @@ export default function GestionnaireDashboard() {
       }
 
       if (!session) {
-        // Pas connecté → redirection vers login avec redirect
         router.push('/login?redirect=/dashboard/gestionnaire');
         return;
       }
 
-      // Récupérer les données utilisateur depuis la table utilisateurs
+      // Récupérer les données utilisateur
       const { data: userData, error: userError } = await supabase
         .from('utilisateurs')
         .select('*')
@@ -65,7 +65,6 @@ export default function GestionnaireDashboard() {
       if (userError) {
         console.error('Erreur profil utilisateur:', userError);
         if (userError.code === 'PGRST116') {
-          // Utilisateur n'existe pas dans la table utilisateurs
           setError('Profil utilisateur introuvable. Veuillez vous réinscrire.');
         } else {
           setError('Erreur lors du chargement du profil');
@@ -76,7 +75,6 @@ export default function GestionnaireDashboard() {
 
       // Vérifier le rôle
       if (userData.rôle !== 'gestionnaire') {
-        // Mauvais rôle → redirection intelligente
         if (userData.rôle === 'proprietaire') {
           router.push('/dashboard/proprietaire');
         } else if (userData.rôle === 'admin') {
@@ -89,7 +87,7 @@ export default function GestionnaireDashboard() {
         return;
       }
 
-      // Utilisateur valide → charger le profil complet
+      // Utilisateur valide
       setUser({
         id: userData.id,
         nom: userData.nom,
@@ -98,7 +96,7 @@ export default function GestionnaireDashboard() {
         créé_le: userData.créé_le
       });
 
-      // Charger le profil gestionnaire spécifique
+      // Charger le profil gestionnaire
       const { data: profileData, error: profileError } = await supabase
         .from('profil_gestionnaire')
         .select('*')
@@ -107,7 +105,6 @@ export default function GestionnaireDashboard() {
 
       if (profileError) {
         console.warn('Profil gestionnaire non trouvé:', profileError);
-        // Profil gestionnaire optionnel - peut ne pas exister
       } else {
         setProfile({
           nom_agence: profileData.nom_agence,
@@ -124,15 +121,6 @@ export default function GestionnaireDashboard() {
       setError('Erreur de connexion');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      router.push('/');
-    } catch (err) {
-      console.error('Erreur déconnexion:', err);
     }
   };
 
@@ -181,197 +169,135 @@ export default function GestionnaireDashboard() {
     );
   }
 
-  // Dashboard principal
+  // Statistiques fictives pour la démo
+  const stats = [
+    { name: 'Biens gérés', value: '24', icon: Building2, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { name: 'Demandes reçues', value: '16', icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { name: 'Revenus ce mois', value: '3,250€', icon: Euro, color: 'text-yellow-600', bg: 'bg-yellow-100' },
+    { name: 'Note moyenne', value: '4.8/5', icon: Award, color: 'text-purple-600', bg: 'bg-purple-100' }
+  ];
+
+  if (!user) return null;
+
+  // Dashboard principal avec nouvelle sidebar
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo et navigation */}
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center space-x-2">
-                <Home className="h-8 w-8 text-emerald-600" />
-                <span className="text-xl font-bold text-gray-900">Homees</span>
-              </Link>
-              <div className="hidden sm:block">
-                <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
-                  Dashboard Gestionnaire
-                </span>
+    <DashboardLayout 
+      userProfile={user}
+      title="Tableau de bord"
+      subtitle="Gérez vos biens et suivez vos performances"
+    >
+      <div className="p-6">
+        {/* Statistiques */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <div key={stat.name} className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center">
+                  <div className={`${stat.bg} rounded-lg p-3`}>
+                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">{stat.name}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {/* Actions utilisateur */}
-            <div className="flex items-center space-x-4">
-              <div className="hidden sm:flex items-center space-x-2 text-gray-700">
-                <User className="h-5 w-5" />
-                <span className="font-medium">{user?.nom}</span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <LogOut className="h-5 w-5" />
-                <span className="hidden sm:inline">Déconnexion</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Contenu principal */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="flex items-center space-x-4">
-            <div className="bg-emerald-100 rounded-full p-3">
-              <Building2 className="h-8 w-8 text-emerald-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Bienvenue, {user?.nom} ! 🏢
-              </h1>
-              <p className="text-gray-600">
-                Vous êtes connecté en tant que <span className="font-medium text-emerald-600">Gestionnaire</span>
-                {profile?.nom_agence && (
-                  <span> - {profile.nom_agence}</span>
-                )}
-              </p>
-              <p className="text-sm text-gray-500">
-                Membre depuis le {user?.créé_le ? new Date(user.créé_le).toLocaleDateString('fr-FR') : 'N/A'}
-              </p>
-            </div>
-          </div>
+            );
+          })}
         </div>
 
-        {/* Informations du profil */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Infos de base */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Vos informations</h3>
-            <div className="space-y-2 text-sm">
+        {/* Contenu principal */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Profil gestionnaire */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Profil Gestionnaire</h2>
+            
+            <div className="space-y-4">
               <div>
-                <span className="text-gray-500">Email :</span>
-                <span className="ml-2 font-medium">{user?.email}</span>
+                <h3 className="text-lg font-semibold text-emerald-700 mb-2">
+                  Bienvenue {user.nom} !
+                </h3>
+                <p className="text-gray-600">
+                  Compte créé le {new Date(user.créé_le).toLocaleDateString('fr-FR')}
+                </p>
               </div>
-              <div>
-                <span className="text-gray-500">Rôle :</span>
-                <span className="ml-2 font-medium capitalize">{user?.rôle}</span>
-              </div>
-              {profile?.nom_agence && (
-                <div className="flex items-center">
-                  <Building2 className="h-4 w-4 text-gray-400 mr-1" />
-                  <span className="text-gray-500">Agence :</span>
-                  <span className="ml-2 font-medium">{profile.nom_agence}</span>
-                </div>
-              )}
-              {profile?.zone_intervention && (
-                <div className="flex items-center">
-                  <MapPin className="h-4 w-4 text-gray-400 mr-1" />
-                  <span className="text-gray-500">Zone :</span>
-                  <span className="ml-2 font-medium">{profile.zone_intervention}</span>
-                </div>
-              )}
-            </div>
-          </div>
 
-          {/* Profil professionnel */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Profil professionnel</h3>
-            {profile ? (
-              <div className="space-y-2 text-sm">
-                {profile.tarif_base && (
+              {profile ? (
+                <div className="space-y-3">
                   <div className="flex items-center">
-                    <Euro className="h-4 w-4 text-gray-400 mr-1" />
-                    <span className="text-gray-500">Tarif base :</span>
-                    <span className="ml-2 font-medium">{profile.tarif_base}%</span>
+                    <Building2 className="h-5 w-5 text-gray-400 mr-3" />
+                    <span className="font-medium">{profile.nom_agence}</span>
                   </div>
-                )}
-                {profile.certifications && (
                   <div className="flex items-center">
-                    <Award className="h-4 w-4 text-gray-400 mr-1" />
-                    <span className="text-gray-500">Certifications :</span>
-                    <span className="ml-2 font-medium">{profile.certifications}</span>
+                    <MapPin className="h-5 w-5 text-gray-400 mr-3" />
+                    <span>{profile.zone_intervention}</span>
                   </div>
-                )}
-                {profile.services_offerts && profile.services_offerts.length > 0 && (
-                  <div>
-                    <span className="text-gray-500">Services :</span>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {profile.services_offerts.slice(0, 3).map((service, index) => (
-                        <span key={index} className="inline-block bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded">
-                          {service}
-                        </span>
-                      ))}
-                      {profile.services_offerts.length > 3 && (
-                        <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                          +{profile.services_offerts.length - 3}
-                        </span>
-                      )}
+                  <div className="flex items-center">
+                    <Euro className="h-5 w-5 text-gray-400 mr-3" />
+                    <span>{profile.tarif_base}€/mois</span>
+                  </div>
+                  {profile.certifications && (
+                    <div className="flex items-start">
+                      <Award className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                      <span className="text-sm">{profile.certifications}</span>
                     </div>
-                  </div>
-                )}
-                {profile.description && (
-                  <div className="mt-2">
-                    <span className="text-gray-500">Description :</span>
-                    <p className="text-xs text-gray-600 mt-1 line-clamp-3">{profile.description}</p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                <User className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500 text-sm">Profil non complété</p>
-                <button className="mt-2 text-emerald-600 hover:text-emerald-700 text-sm font-medium">
-                  Compléter le profil
-                </button>
-              </div>
-            )}
+                  )}
+                </div>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-yellow-800 text-sm">
+                    Votre profil gestionnaire n'est pas encore complété.
+                  </p>
+                  <Link
+                    href="/dashboard/gestionnaire/profil"
+                    className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
+                  >
+                    Compléter mon profil →
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Actions rapides */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Actions rapides</h3>
-            <div className="space-y-2">
-              <button className="w-full text-left text-sm text-emerald-600 hover:text-emerald-700 p-2 hover:bg-emerald-50 rounded">
-                Voir les demandes reçues
-              </button>
-              <button className="w-full text-left text-sm text-emerald-600 hover:text-emerald-700 p-2 hover:bg-emerald-50 rounded">
-                Modifier mon profil
-              </button>
-              <button className="w-full text-left text-sm text-emerald-600 hover:text-emerald-700 p-2 hover:bg-emerald-50 rounded">
-                Gérer mes mandats
-              </button>
-              <button className="w-full text-left text-sm text-emerald-600 hover:text-emerald-700 p-2 hover:bg-emerald-50 rounded">
-                Statistiques
-              </button>
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Actions rapides</h2>
+            
+            <div className="space-y-3">
+              <Link
+                href="/dashboard/gestionnaire/biens"
+                className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center">
+                  <Building2 className="h-5 w-5 text-emerald-600 mr-3" />
+                  <span className="font-medium">Gérer mes biens</span>
+                </div>
+              </Link>
+              
+              <Link
+                href="/dashboard/gestionnaire/demandes"
+                className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center">
+                  <Users className="h-5 w-5 text-blue-600 mr-3" />
+                  <span className="font-medium">Nouvelles demandes</span>
+                </div>
+              </Link>
+              
+              <Link
+                href="/dashboard/gestionnaire/messagerie"
+                className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center">
+                  <TrendingUp className="h-5 w-5 text-purple-600 mr-3" />
+                  <span className="font-medium">Messagerie</span>
+                </div>
+              </Link>
             </div>
           </div>
         </div>
-
-        {/* Section principale du dashboard */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Tableau de bord gestionnaire</h2>
-          <div className="text-center py-12">
-            <Building2 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Bienvenue sur votre espace gestionnaire !
-            </h3>
-            <p className="text-gray-600 max-w-md mx-auto">
-              Ici vous pourrez gérer vos demandes, suivre vos mandats en cours 
-              et optimiser votre visibilité sur la plateforme.
-            </p>
-            <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-              <button className="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition-colors">
-                Voir les demandes
-              </button>
-              <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                Modifier mon profil
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 } 

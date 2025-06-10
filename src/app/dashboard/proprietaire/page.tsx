@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { User, Home, Building, Settings, LogOut, Shield, Phone, MapPin, TrendingUp } from 'lucide-react';
+import { Shield, Phone, MapPin, TrendingUp, Building, Euro, Users } from 'lucide-react';
+import DashboardLayout from '@/components/navigation/DashboardLayout';
 
 interface UserProfile {
   id: string;
@@ -24,7 +25,7 @@ interface ProprietaireProfile {
 }
 
 /**
- * Dashboard Propriétaire - Page protégée
+ * Dashboard Propriétaire - Page protégée avec sidebar moderne
  * Accessible uniquement aux utilisateurs connectés avec le rôle "proprietaire"
  */
 export default function ProprietaireDashboard() {
@@ -50,12 +51,11 @@ export default function ProprietaireDashboard() {
       }
 
       if (!session) {
-        // Pas connecté → redirection vers login avec redirect
         router.push('/login?redirect=/dashboard/proprietaire');
         return;
       }
 
-      // Récupérer les données utilisateur depuis la table utilisateurs
+      // Récupérer les données utilisateur
       const { data: userData, error: userError } = await supabase
         .from('utilisateurs')
         .select('*')
@@ -65,7 +65,6 @@ export default function ProprietaireDashboard() {
       if (userError) {
         console.error('Erreur profil utilisateur:', userError);
         if (userError.code === 'PGRST116') {
-          // Utilisateur n'existe pas dans la table utilisateurs
           setError('Profil utilisateur introuvable. Veuillez vous réinscrire.');
         } else {
           setError('Erreur lors du chargement du profil');
@@ -76,7 +75,6 @@ export default function ProprietaireDashboard() {
 
       // Vérifier le rôle
       if (userData.rôle !== 'proprietaire') {
-        // Mauvais rôle → redirection intelligente
         if (userData.rôle === 'gestionnaire') {
           router.push('/dashboard/gestionnaire');
         } else if (userData.rôle === 'admin') {
@@ -89,7 +87,7 @@ export default function ProprietaireDashboard() {
         return;
       }
 
-      // Utilisateur valide → charger le profil complet
+      // Utilisateur valide
       setUser({
         id: userData.id,
         nom: userData.nom,
@@ -98,7 +96,7 @@ export default function ProprietaireDashboard() {
         créé_le: userData.créé_le
       });
 
-      // Charger le profil propriétaire spécifique
+      // Charger le profil propriétaire
       const { data: profileData, error: profileError } = await supabase
         .from('profil_proprietaire')
         .select('*')
@@ -107,7 +105,6 @@ export default function ProprietaireDashboard() {
 
       if (profileError) {
         console.warn('Profil propriétaire non trouvé:', profileError);
-        // Profil propriétaire optionnel - peut ne pas exister
       } else {
         setProfile({
           type_investisseur: profileData.type_investisseur,
@@ -124,15 +121,6 @@ export default function ProprietaireDashboard() {
       setError('Erreur de connexion');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      router.push('/');
-    } catch (err) {
-      console.error('Erreur déconnexion:', err);
     }
   };
 
@@ -181,179 +169,139 @@ export default function ProprietaireDashboard() {
     );
   }
 
-  // Dashboard principal
+  // Statistiques fictives pour la démo
+  const stats = [
+    { name: 'Mes biens', value: profile?.nombre_biens?.toString() || '0', icon: Building, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { name: 'Gestionnaires trouvés', value: '8', icon: Users, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { name: 'Budget disponible', value: profile?.budget_investissement ? `${profile.budget_investissement.toLocaleString()}€` : 'N/A', icon: Euro, color: 'text-yellow-600', bg: 'bg-yellow-100' },
+    { name: 'Demandes actives', value: '3', icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-100' }
+  ];
+
+  if (!user) return null;
+
+  // Dashboard principal avec nouvelle sidebar
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo et navigation */}
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center space-x-2">
-                <Home className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold text-gray-900">Homees</span>
-              </Link>
-              <div className="hidden sm:block">
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                  Dashboard Propriétaire
-                </span>
-              </div>
-            </div>
-
-            {/* Actions utilisateur */}
-            <div className="flex items-center space-x-4">
-              <div className="hidden sm:flex items-center space-x-2 text-gray-700">
-                <User className="h-5 w-5" />
-                <span className="font-medium">{user?.nom}</span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <LogOut className="h-5 w-5" />
-                <span className="hidden sm:inline">Déconnexion</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Contenu principal */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="flex items-center space-x-4">
-            <div className="bg-blue-100 rounded-full p-3">
-              <Building className="h-8 w-8 text-blue-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Bienvenue, {user?.nom} ! 👋
-              </h1>
-              <p className="text-gray-600">
-                Vous êtes connecté en tant que <span className="font-medium text-blue-600">Propriétaire</span>
-              </p>
-              <p className="text-sm text-gray-500">
-                Membre depuis le {user?.créé_le ? new Date(user.créé_le).toLocaleDateString('fr-FR') : 'N/A'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Informations du profil */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Infos de base */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Vos informations</h3>
-            <div className="space-y-2 text-sm">
-              <div>
-                <span className="text-gray-500">Email :</span>
-                <span className="ml-2 font-medium">{user?.email}</span>
-              </div>
-              <div>
-                <span className="text-gray-500">Rôle :</span>
-                <span className="ml-2 font-medium capitalize">{user?.rôle}</span>
-              </div>
-              {profile?.telephone && (
+    <DashboardLayout 
+      userProfile={user}
+      title="Tableau de bord"
+      subtitle="Gérez vos biens et trouvez les meilleurs gestionnaires"
+    >
+      <div className="p-6">
+        {/* Statistiques */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <div key={stat.name} className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center">
-                  <Phone className="h-4 w-4 text-gray-400 mr-1" />
-                  <span className="text-gray-500">Téléphone :</span>
-                  <span className="ml-2 font-medium">{profile.telephone}</span>
+                  <div className={`${stat.bg} rounded-lg p-3`}>
+                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">{stat.name}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  </div>
                 </div>
-              )}
-              {profile?.profession && (
-                <div>
-                  <span className="text-gray-500">Profession :</span>
-                  <span className="ml-2 font-medium">{profile.profession}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Contenu principal */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Profil propriétaire */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Profil Propriétaire</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-blue-700 mb-2">
+                  Bienvenue {user.nom} !
+                </h3>
+                <p className="text-gray-600">
+                  Compte créé le {new Date(user.créé_le).toLocaleDateString('fr-FR')}
+                </p>
+              </div>
+
+              {profile ? (
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <TrendingUp className="h-5 w-5 text-gray-400 mr-3" />
+                    <span className="font-medium">{profile.type_investisseur}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <MapPin className="h-5 w-5 text-gray-400 mr-3" />
+                    <span>{profile.zone_recherche}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Phone className="h-5 w-5 text-gray-400 mr-3" />
+                    <span>{profile.telephone}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Building className="h-5 w-5 text-gray-400 mr-3" />
+                    <span>{profile.nombre_biens} bien{profile.nombre_biens > 1 ? 's' : ''}</span>
+                  </div>
+                  {profile.profession && (
+                    <div className="flex items-start">
+                      <Users className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                      <span className="text-sm">{profile.profession}</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-yellow-800 text-sm">
+                    Votre profil propriétaire n'est pas encore complété.
+                  </p>
+                  <Link
+                    href="/dashboard/proprietaire/profil"
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
+                    Compléter mon profil →
+                  </Link>
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Profil investisseur */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Profil investisseur</h3>
-            {profile ? (
-              <div className="space-y-2 text-sm">
-                <div>
-                  <span className="text-gray-500">Type :</span>
-                  <span className="ml-2 font-medium capitalize">{profile.type_investisseur}</span>
-                </div>
-                <div className="flex items-center">
-                  <Building className="h-4 w-4 text-gray-400 mr-1" />
-                  <span className="text-gray-500">Biens :</span>
-                  <span className="ml-2 font-medium">{profile.nombre_biens}</span>
-                </div>
-                {profile.budget_investissement && (
-                  <div className="flex items-center">
-                    <TrendingUp className="h-4 w-4 text-gray-400 mr-1" />
-                    <span className="text-gray-500">Budget :</span>
-                    <span className="ml-2 font-medium">{profile.budget_investissement.toLocaleString('fr-FR')} €</span>
-                  </div>
-                )}
-                {profile.zone_recherche && (
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 text-gray-400 mr-1" />
-                    <span className="text-gray-500">Zone :</span>
-                    <span className="ml-2 font-medium">{profile.zone_recherche}</span>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                <User className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500 text-sm">Profil non complété</p>
-                <button className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  Compléter le profil
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Actions rapides */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Actions rapides</h3>
-            <div className="space-y-2">
-              <button className="w-full text-left text-sm text-blue-600 hover:text-blue-700 p-2 hover:bg-blue-50 rounded">
-                Chercher un gestionnaire
-              </button>
-              <button className="w-full text-left text-sm text-blue-600 hover:text-blue-700 p-2 hover:bg-blue-50 rounded">
-                Ajouter un bien
-              </button>
-              <button className="w-full text-left text-sm text-blue-600 hover:text-blue-700 p-2 hover:bg-blue-50 rounded">
-                Voir mes demandes
-              </button>
-              <button className="w-full text-left text-sm text-blue-600 hover:text-blue-700 p-2 hover:bg-blue-50 rounded">
-                Paramètres du compte
-              </button>
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Actions rapides</h2>
+            
+            <div className="space-y-3">
+              <Link
+                href="/dashboard/proprietaire/biens"
+                className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center">
+                  <Building className="h-5 w-5 text-blue-600 mr-3" />
+                  <span className="font-medium">Gérer mes biens</span>
+                </div>
+              </Link>
+              
+              <Link
+                href="/dashboard/proprietaire/comparateur"
+                className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center">
+                  <Users className="h-5 w-5 text-emerald-600 mr-3" />
+                  <span className="font-medium">Comparer les gestionnaires</span>
+                </div>
+              </Link>
+              
+              <Link
+                href="/dashboard/proprietaire/demandes"
+                className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center">
+                  <TrendingUp className="h-5 w-5 text-purple-600 mr-3" />
+                  <span className="font-medium">Mes demandes</span>
+                </div>
+              </Link>
             </div>
           </div>
         </div>
-
-        {/* Section principale du dashboard */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Tableau de bord propriétaire</h2>
-          <div className="text-center py-12">
-            <Building className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Bienvenue sur votre espace propriétaire !
-            </h3>
-            <p className="text-gray-600 max-w-md mx-auto">
-              Ici vous pourrez gérer vos biens immobiliers, rechercher des gestionnaires 
-              et suivre l'évolution de vos investissements.
-            </p>
-            <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Ajouter un bien
-              </button>
-              <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                Chercher un gestionnaire
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 } 
