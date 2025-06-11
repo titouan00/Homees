@@ -1,6 +1,6 @@
 'use client';
 
-import { Robot, X, Minus, ArrowsOut, ArrowsOut } from 'phosphor-react';
+import { Robot, X, Minus, ArrowsOut } from 'phosphor-react';
 import { ChatState, ChatActions } from './types';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
