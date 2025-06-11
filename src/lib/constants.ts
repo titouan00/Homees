@@ -104,4 +104,53 @@ export const TIMEOUTS = {
   mapLoad: 10000,      // 10 secondes pour charger Google Maps
   searchDebounce: 300, // 300ms de délai pour l'autocomplétion
   warningDisplay: 5000 // 5 secondes d'affichage pour les avertissements
-} as const; 
+} as const;
+
+/**
+ * Options pour les filtres du comparateur
+ */
+export const LANGUES_DISPONIBLES = [
+  { code: 'français', label: 'Français', flag: '🇫🇷' },
+  { code: 'anglais', label: 'Anglais', flag: '🇬🇧' },
+  { code: 'espagnol', label: 'Espagnol', flag: '🇪🇸' },
+  { code: 'italien', label: 'Italien', flag: '🇮🇹' },
+  { code: 'allemand', label: 'Allemand', flag: '🇩🇪' },
+  { code: 'chinois', label: 'Chinois', flag: '🇨🇳' },
+  { code: 'arabe', label: 'Arabe', flag: '🇸🇦' },
+  { code: 'portugais', label: 'Portugais', flag: '🇵🇹' },
+  { code: 'russe', label: 'Russe', flag: '🇷🇺' },
+  { code: 'japonais', label: 'Japonais', flag: '🇯🇵' }
+] as const;
+
+export const TYPES_GESTIONNAIRE = [
+  { 
+    code: 'independant', 
+    label: 'Gestionnaire Indépendant',
+    description: 'Professionnel indépendant ou petite structure',
+    icon: '👤'
+  },
+  { 
+    code: 'agence_locale', 
+    label: 'Agence Locale',
+    description: 'Agence immobilière de quartier',
+    icon: '🏠'
+  },
+  { 
+    code: 'agence_nationale', 
+    label: 'Agence Nationale',
+    description: 'Réseau national (Foncia, Orpi...)',
+    icon: '🏢'
+  },
+  { 
+    code: 'syndic', 
+    label: 'Syndic de Copropriété',
+    description: 'Spécialisé en gestion de copropriétés',
+    icon: '🏘️'
+  },
+  { 
+    code: 'cabinet_expertise', 
+    label: 'Cabinet d\'Expertise',
+    description: 'Expertise et conseil immobilier',
+    icon: '📊'
+  }
+] as const; 
