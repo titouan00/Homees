@@ -13,6 +13,7 @@ interface GrilleGestionnairesProps {
   totalCount: number;
   onPageChange: (page: number) => void;
   onContact: (gestionnaire: Gestionnaire) => void;
+  onViewProfile: (gestionnaire: Gestionnaire) => void;
 }
 
 /**
@@ -26,7 +27,8 @@ export default function GrilleGestionnaires({
   totalPages,
   totalCount,
   onPageChange,
-  onContact
+  onContact,
+  onViewProfile
 }: GrilleGestionnairesProps) {
   
   if (error) {
@@ -89,6 +91,7 @@ export default function GrilleGestionnaires({
             key={gestionnaire.gestionnaire_id}
             gestionnaire={gestionnaire}
             onContact={onContact}
+            onViewProfile={onViewProfile}
           />
         ))}
       </div>

@@ -117,6 +117,11 @@ export default function ComparateurPage() {
     router.push(`/dashboard/proprietaire/messages?gestionnaire=${gestionnaire.gestionnaire_id}`);
   }, [router]);
 
+  const handleViewProfile = useCallback((gestionnaire: Gestionnaire) => {
+    // Redirection vers la page de profil du gestionnaire
+    router.push(`/dashboard/proprietaire/profil-gestionnaire/${gestionnaire.gestionnaire_id}`);
+  }, [router]);
+
   // Écran de chargement pendant l'authentification
   if (authLoading) {
     return (
@@ -160,6 +165,7 @@ export default function ComparateurPage() {
           totalCount={totalCount}
           onPageChange={handlePageChange}
           onContact={handleContact}
+          onViewProfile={handleViewProfile}
         />
       </div>
     </DashboardLayout>
