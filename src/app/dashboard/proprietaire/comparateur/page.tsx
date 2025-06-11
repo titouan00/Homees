@@ -110,13 +110,6 @@ export default function ComparateurPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const handleContact = useCallback((gestionnaire: Gestionnaire) => {
-    // TODO: Implémenter la logique de contact/messagerie
-    console.log('Contacter gestionnaire:', gestionnaire);
-    // Redirection vers la page de contact ou ouverture d'une modal
-    router.push(`/dashboard/proprietaire/messages?gestionnaire=${gestionnaire.gestionnaire_id}`);
-  }, [router]);
-
   // Écran de chargement pendant l'authentification
   if (authLoading) {
     return (
@@ -159,7 +152,6 @@ export default function ComparateurPage() {
           totalPages={totalPages}
           totalCount={totalCount}
           onPageChange={handlePageChange}
-          onContact={handleContact}
         />
       </div>
     </DashboardLayout>

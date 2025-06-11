@@ -1,34 +1,35 @@
 'use client';
 
-import { Star, MapPin, Phone, Globe, Envelope, ChatCircle, CheckCircle, Buildings } from 'phosphor-react';
+import { useState } from 'react';
+import Image from 'next/image';
+import { Star, Phone, Globe, MapPin, Buildings, CheckCircle } from 'phosphor-react';
 import { Gestionnaire } from '@/types/gestionnaire';
 import { TYPES_GESTIONNAIRE, LANGUES_DISPONIBLES } from '@/lib/constants';
-import Image from 'next/image';
+import ContactButton from '@/components/messaging/ContactButton';
 
 interface CarteGestionnaireProps {
   gestionnaire: Gestionnaire;
-  onContact: (gestionnaire: Gestionnaire) => void;
 }
 
 /**
- * Composant carte pour afficher un gestionnaire
+ * Carte d'affichage d'un gestionnaire immobilier
  */
-export default function CarteGestionnaire({ gestionnaire, onContact }: CarteGestionnaireProps) {
+export default function CarteGestionnaire({ gestionnaire }: CarteGestionnaireProps) {
   const {
     nom_agence,
     nom,
+    logo_url,
     description,
+    telephone,
+    site_web,
+    type_gestionnaire,
     zone_intervention,
-    tarif_base,
+    langues_parlees,
     note_moyenne,
     nombre_avis,
-    services_offerts,
-    logo_url,
-    site_web,
-    telephone,
+    tarif_base,
     certifications,
-    langues_parlees,
-    type_gestionnaire
+    services_offerts
   } = gestionnaire;
 
   const renderStars = (note: number) => {
@@ -122,7 +123,7 @@ export default function CarteGestionnaire({ gestionnaire, onContact }: CarteGest
       <div className="flex items-center gap-2 mb-3">
         <Buildings className="h-4 w-4 text-gray-400" />
         <span className="text-sm text-gray-600">
-          {TYPES_GESTIONNAIRE.find(t => t.code === type_gestionnaire)?.label || type_gestionnaire}
+          {TYPES_GESTIONNAIRE.find((t: any) => t.code === type_gestionnaire)?.label || type_gestionnaire}
         </span>
       </div>
 
@@ -145,7 +146,7 @@ export default function CarteGestionnaire({ gestionnaire, onContact }: CarteGest
           </div>
           <div className="flex flex-wrap gap-1">
             {langues_parlees.slice(0, 3).map((langue) => {
-              const langueInfo = LANGUES_DISPONIBLES.find(l => l.code === langue);
+              const langueInfo = LANGUES_DISPONIBLES.find((l: any) => l.code === langue);
               return (
                 <span
                   key={langue}
@@ -199,13 +200,11 @@ export default function CarteGestionnaire({ gestionnaire, onContact }: CarteGest
       {/* Actions */}
       <div className="flex gap-2 pt-4 border-t border-gray-100">
         {/* Contact principal */}
-        <button
-          onClick={() => onContact(gestionnaire)}
-          className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors font-medium flex items-center justify-center gap-2"
-        >
-          <ChatCircle className="h-4 w-4" />
-          Contacter
-        </button>
+        <ContactButton
+          gestionnaireId={gestionnaire.gestionnaire_id}
+          gestionnaireNom={gestionnaire.nom_agence}
+          className="flex-1"
+        />
 
         {/* Actions secondaires */}
         <div className="flex gap-1">

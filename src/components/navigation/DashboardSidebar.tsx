@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useProprietesCount } from '@/hooks';
+import { useProprietesCount, useUnreadMessages } from '@/hooks';
 import { NavigationItem } from './NavigationItem';
 import {
   SquaresFour,
@@ -46,6 +46,12 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
     userProfile.rôle === 'proprietaire' ? userProfile.id : undefined
   );
 
+  // Hook pour récupérer le nombre de messages non lus
+  const { unreadCount: messagesCount, isLoading: messagesLoading } = useUnreadMessages(
+    userProfile.id,
+    userProfile.rôle as 'proprietaire' | 'gestionnaire'
+  );
+
   // Navigation principale - Section "Général"
   const generalNavigation = [
     {
@@ -81,10 +87,13 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
       current: pathname.includes('/propositions')
     },
     {
-      name: 'Messagerie',
-      href: `/dashboard/${userProfile.rôle}/messagerie`,
+      name: 'Messages',
+      href: `/dashboard/messages`,
       icon: ChatCircle,
-      current: pathname.includes('/messagerie')
+      current: pathname.includes('/messages'),
+      isSpecialBadge: true,
+      specialBadgeCount: messagesCount,
+      specialBadgeLoading: messagesLoading
     }
   ];
 
@@ -147,9 +156,9 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   icon={item.icon}
                   current={item.current}
                   badge={item.badge}
-                  isSpecialBadge={item.name === 'Mes biens' && userProfile.rôle === 'proprietaire'}
-                  specialBadgeCount={biensCount}
-                  specialBadgeLoading={biensLoading}
+                  isSpecialBadge={item.isSpecialBadge || (item.name === 'Mes biens' && userProfile.rôle === 'proprietaire')}
+                  specialBadgeCount={item.specialBadgeCount || (item.name === 'Mes biens' ? biensCount : undefined)}
+                  specialBadgeLoading={item.specialBadgeLoading || (item.name === 'Mes biens' ? biensLoading : false)}
                 />
               ))}
             </div>

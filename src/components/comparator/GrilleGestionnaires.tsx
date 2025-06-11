@@ -12,7 +12,6 @@ interface GrilleGestionnairesProps {
   totalPages: number;
   totalCount: number;
   onPageChange: (page: number) => void;
-  onContact: (gestionnaire: Gestionnaire) => void;
 }
 
 /**
@@ -25,8 +24,7 @@ export default function GrilleGestionnaires({
   currentPage,
   totalPages,
   totalCount,
-  onPageChange,
-  onContact
+  onPageChange
 }: GrilleGestionnairesProps) {
   
   if (error) {
@@ -88,7 +86,6 @@ export default function GrilleGestionnaires({
           <CarteGestionnaire
             key={gestionnaire.gestionnaire_id}
             gestionnaire={gestionnaire}
-            onContact={onContact}
           />
         ))}
       </div>
