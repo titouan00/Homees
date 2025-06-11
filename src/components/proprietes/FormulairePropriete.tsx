@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Save, MapPin, Home, Euro } from 'lucide-react';
+import { X, FloppyDisk, MapPin, House, CurrencyEur } from 'phosphor-react';
 import { 
   NouvelleProprieteForme, 
   Propriete,
@@ -394,7 +394,7 @@ export default function FormulairePropriete({
                 disabled={loading}
                 className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
               >
-                <Save className="h-4 w-4" />
+                <FloppyDisk className="h-4 w-4" />
                 {loading ? 'Enregistrement...' : (propriete ? 'Modifier' : 'Enregistrer')}
               </button>
             </div>

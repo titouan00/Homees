@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Ruler, Home, BedDouble, Droplets } from 'lucide-react';
+import { Ruler, House, Bed, Drop } from 'phosphor-react';
 import { Propriete } from '@/types/propriete';
 
 export interface Caracteristique {
@@ -22,19 +22,19 @@ export function useCaracteristiques(propriete: Propriete): Caracteristique[] {
         priority: 1
       },
       {
-        icon: Home,
+        icon: House,
         label: 'Pièces',
         value: propriete.nb_pieces ? `${propriete.nb_pieces} pièces` : '',
         priority: 2
       },
       {
-        icon: BedDouble,
+        icon: Bed,
         label: 'Chambres',
         value: propriete.nb_chambres ? `${propriete.nb_chambres} ch.` : '',
         priority: 3
       },
       {
-        icon: Droplets,
+        icon: Drop,
         label: 'SdB',
         value: propriete.nb_salles_bain ? `${propriete.nb_salles_bain} SdB` : '',
         priority: 4

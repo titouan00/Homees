@@ -1,6 +1,6 @@
 'use client';
 
-import { User, Bot } from 'lucide-react';
+import { User, Robot } from 'phosphor-react';
 import { Message } from './types';
 
 interface ChatMessagesProps {
@@ -38,7 +38,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                 ? 'bg-emerald-500 text-white' 
                 : 'bg-gray-100 text-gray-600'
             }`}>
-              {message.isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+              {message.isUser ? <User className="h-4 w-4" /> : <Robot className="h-4 w-4" />}
             </div>
             <div className={`rounded-2xl px-3 py-2 ${
               message.isUser
@@ -65,7 +65,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
             isFullscreen ? 'max-w-[70%]' : 'max-w-[80%]'
           }`}>
             <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center">
-              <Bot className="h-4 w-4 text-gray-600" />
+              <Robot className="h-4 w-4 text-gray-600" />
             </div>
             <div className="bg-gray-100 rounded-2xl px-3 py-2">
               <div className="flex space-x-1">

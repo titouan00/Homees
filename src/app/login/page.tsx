@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Home, Sparkles } from 'lucide-react';
+import { Eye, EyeSlash, Envelope, Lock, ArrowRight, House, Sparkle } from 'phosphor-react';
 import AuthBackground from '@/components/ui/AuthBackground';
 import AuthCard from '@/components/ui/AuthCard';
 import AuthInput from '@/components/ui/AuthInput';
@@ -95,13 +95,13 @@ export default function LoginPage() {
         {/* Welcome Section - Left Side - DESIGN ORIGINAL */}
         <div className="hidden lg:block text-white space-y-6">
           <Link href="/" className="inline-flex items-center text-white/80 hover:text-white transition-colors mb-8">
-            <Home className="h-5 w-5 mr-2" />
+            <House className="h-5 w-5 mr-2" />
             Retour à l'accueil
           </Link>
           
           <div className="space-y-4">
             <div className="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkle className="h-4 w-4 mr-2" />
               Connexion sécurisée
             </div>
             
@@ -142,7 +142,7 @@ export default function LoginPage() {
           {/* Mobile Header - Design original */}
           <div className="lg:hidden text-center mb-6">
             <Link href="/" className="inline-flex items-center text-white hover:text-gray-200 transition-colors mb-4">
-              <Home className="h-5 w-5 mr-2" />
+              <House className="h-5 w-5 mr-2" />
               Retour à l'accueil
             </Link>
             <h1 className="text-2xl font-bold text-white mb-2">Connexion</h1>
@@ -161,7 +161,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                icon={Mail}
+                icon={Envelope}
                 placeholder="votre.email@exemple.com"
                 required
               />
@@ -179,7 +179,7 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="text-gray-400 hover:text-gray-300 transition-colors"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? <EyeSlash className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 }
                 required

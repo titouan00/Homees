@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Sparkles, ArrowRight, PlayCircle, TrendingUp, Users } from 'lucide-react';
+import { Sparkle, ArrowRight, PlayCircle, TrendUp, Users } from 'phosphor-react';
 import HeroSearchBar from '@/components/HeroSearchBar';
 
 /**
@@ -27,7 +27,7 @@ export default function HeroSection() {
           {/* Contenu textuel */}
           <div className="text-center lg:text-left">
             <div className="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-6 py-2 rounded-full text-sm font-medium mb-8 animate-pulse">
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkle className="h-4 w-4 mr-2" />
               300+ Gestionnaires Immobiliers Certifiés
             </div>
             
@@ -79,7 +79,7 @@ export default function HeroSection() {
               <div className="absolute -top-8 -left-8 bg-white p-4 rounded-xl shadow-xl animate-float">
                 <div className="flex items-center space-x-3">
                   <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-emerald-600" />
+                    <TrendUp className="h-6 w-6 text-emerald-600" />
                   </div>
                   <div>
                     <p className="font-semibold text-gray-800">Rentabilité</p>

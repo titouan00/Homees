@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'phosphor-react';
 
 interface SuccessMessageProps {
   show: boolean;

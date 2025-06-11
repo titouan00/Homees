@@ -1,11 +1,11 @@
 'use client';
 
 import { InputHTMLAttributes, forwardRef } from 'react';
-import { LucideIcon } from 'lucide-react';
+import { Icon } from 'phosphor-react';
 
 interface AuthInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  icon?: LucideIcon;
+  icon?: Icon;
   error?: string;
   rightIcon?: React.ReactNode;
 }

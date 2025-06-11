@@ -1,6 +1,6 @@
 'use client';
 
-import { Send } from 'lucide-react';
+import { PaperPlaneTilt } from 'phosphor-react';
 
 interface ChatInputProps {
   inputMessage: string;
@@ -43,7 +43,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           disabled={!inputMessage.trim() || isLoading}
           className="bg-emerald-500 text-white p-2 rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Send className="h-4 w-4" />
+          <PaperPlaneTilt className="h-4 w-4" />
         </button>
       </form>
     </div>

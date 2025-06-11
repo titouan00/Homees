@@ -1,4 +1,4 @@
-import { Calendar } from 'lucide-react';
+import { Calendar } from 'phosphor-react';
 
 interface CarteFooterProps {
   createdAt: string;

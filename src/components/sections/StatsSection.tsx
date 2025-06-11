@@ -1,13 +1,13 @@
 'use client';
 
-import { Building, Users, Star, MapPin } from 'lucide-react';
+import { Buildings, Users, Star, MapPin } from 'phosphor-react';
 
 /**
  * Données des statistiques à afficher
  */
 const statsData = [
   {
-    icon: Building,
+    icon: Buildings,
     value: "300+",
     label: "Gestionnaires",
     bgColor: "from-blue-50 to-blue-100",

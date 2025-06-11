@@ -1,6 +1,6 @@
 'use client';
 
-import { Star, MapPin, Phone, Globe, Mail, MessageCircle, CheckCircle, Building } from 'lucide-react';
+import { Star, MapPin, Phone, Globe, Envelope, ChatCircle, CheckCircle, Buildings } from 'phosphor-react';
 import { Gestionnaire } from '@/types/gestionnaire';
 import { TYPES_GESTIONNAIRE, LANGUES_DISPONIBLES } from '@/lib/constants';
 import Image from 'next/image';
@@ -120,7 +120,7 @@ export default function CarteGestionnaire({ gestionnaire, onContact }: CarteGest
 
       {/* Type de gestionnaire */}
       <div className="flex items-center gap-2 mb-3">
-        <Building className="h-4 w-4 text-gray-400" />
+        <Buildings className="h-4 w-4 text-gray-400" />
         <span className="text-sm text-gray-600">
           {TYPES_GESTIONNAIRE.find(t => t.code === type_gestionnaire)?.label || type_gestionnaire}
         </span>
@@ -203,7 +203,7 @@ export default function CarteGestionnaire({ gestionnaire, onContact }: CarteGest
           onClick={() => onContact(gestionnaire)}
           className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors font-medium flex items-center justify-center gap-2"
         >
-          <MessageCircle className="h-4 w-4" />
+          <ChatCircle className="h-4 w-4" />
           Contacter
         </button>
 

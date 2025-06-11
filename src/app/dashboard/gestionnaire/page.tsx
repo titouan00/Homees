@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { Shield, MapPin, Euro, Award, Users, TrendingUp, Building2 } from 'lucide-react';
+import { Shield, MapPin, CurrencyEur, Medal, Users, TrendUp, Buildings } from 'phosphor-react';
 import DashboardLayout from '@/components/navigation/DashboardLayout';
 
 interface UserProfile {
@@ -171,10 +171,10 @@ export default function GestionnaireDashboard() {
 
   // Statistiques fictives pour la démo
   const stats = [
-    { name: 'Biens gérés', value: '24', icon: Building2, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-    { name: 'Demandes reçues', value: '16', icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { name: 'Revenus ce mois', value: '3,250€', icon: Euro, color: 'text-yellow-600', bg: 'bg-yellow-100' },
-    { name: 'Note moyenne', value: '4.8/5', icon: Award, color: 'text-purple-600', bg: 'bg-purple-100' }
+    { name: 'Biens gérés', value: '24', icon: Buildings, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { name: 'Demandes reçues', value: '16', icon: TrendUp, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { name: 'Revenus ce mois', value: '3,250€', icon: CurrencyEur, color: 'text-yellow-600', bg: 'bg-yellow-100' },
+    { name: 'Note moyenne', value: '4.8/5', icon: Medal, color: 'text-purple-600', bg: 'bg-purple-100' }
   ];
 
   if (!user) return null;
@@ -226,7 +226,7 @@ export default function GestionnaireDashboard() {
               {profile ? (
                 <div className="space-y-3">
                   <div className="flex items-center">
-                    <Building2 className="h-5 w-5 text-gray-400 mr-3" />
+                    <Buildings className="h-5 w-5 text-gray-400 mr-3" />
                     <span className="font-medium">{profile.nom_agence}</span>
                   </div>
                   <div className="flex items-center">
@@ -234,12 +234,12 @@ export default function GestionnaireDashboard() {
                     <span>{profile.zone_intervention}</span>
                   </div>
                   <div className="flex items-center">
-                    <Euro className="h-5 w-5 text-gray-400 mr-3" />
+                    <CurrencyEur className="h-5 w-5 text-gray-400 mr-3" />
                     <span>{profile.tarif_base}€/mois</span>
                   </div>
                   {profile.certifications && (
                     <div className="flex items-start">
-                      <Award className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                      <Medal className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
                       <span className="text-sm">{profile.certifications}</span>
                     </div>
                   )}
@@ -270,7 +270,7 @@ export default function GestionnaireDashboard() {
                 className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center">
-                  <Building2 className="h-5 w-5 text-emerald-600 mr-3" />
+                  <Buildings className="h-5 w-5 text-emerald-600 mr-3" />
                   <span className="font-medium">Gérer mes biens</span>
                 </div>
               </Link>
@@ -290,7 +290,7 @@ export default function GestionnaireDashboard() {
                 className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center">
-                  <TrendingUp className="h-5 w-5 text-purple-600 mr-3" />
+                  <TrendUp className="h-5 w-5 text-purple-600 mr-3" />
                   <span className="font-medium">Messagerie</span>
                 </div>
               </Link>

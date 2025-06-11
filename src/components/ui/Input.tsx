@@ -1,12 +1,12 @@
 'use client';
 
 import { InputHTMLAttributes, forwardRef } from 'react';
-import { LucideIcon } from 'lucide-react';
+import { Icon } from 'phosphor-react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
-  icon?: LucideIcon;
+  icon?: Icon;
   iconPosition?: 'left' | 'right';
   variant?: 'default' | 'glass';
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { ButtonHTMLAttributes, forwardRef } from 'react';
-import { LucideIcon } from 'lucide-react';
+import { Icon } from 'phosphor-react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -9,7 +9,7 @@ type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  icon?: LucideIcon;
+  icon?: Icon;
   iconPosition?: 'left' | 'right';
   loading?: boolean;
   fullWidth?: boolean;

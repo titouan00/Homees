@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Search, Filter, Building, Loader2, Home, AlertCircle } from 'lucide-react';
+import { Plus, MagnifyingGlass, Funnel, Buildings, CircleNotch, House, WarningCircle } from 'phosphor-react';
 import { supabase } from '@/lib/supabase';
 import { useProprietes } from '@/hooks/useProprietes';
 import { Propriete, NouvelleProprieteForme, FiltresProprietes } from '@/types/propriete';
@@ -163,7 +163,7 @@ export default function MesBiensPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 text-emerald-600 animate-spin mx-auto mb-4" />
+          <CircleNotch className="h-8 w-8 text-emerald-600 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Vérification des accès...</p>
         </div>
       </div>
@@ -186,7 +186,7 @@ export default function MesBiensPage() {
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           {/* Recherche */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <input
               type="text"
               placeholder="Rechercher par adresse, ville..."
@@ -199,7 +199,7 @@ export default function MesBiensPage() {
           {/* Boutons d'action */}
           <div className="flex gap-2">
             <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-              <Filter className="h-4 w-4" />
+              <Funnel className="h-4 w-4" />
               Filtres
             </button>
 
@@ -218,7 +218,7 @@ export default function MesBiensPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-emerald-100 rounded-lg">
-                <Building className="h-5 w-5 text-emerald-600" />
+                <Buildings className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total des biens</p>
@@ -230,7 +230,7 @@ export default function MesBiensPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <Home className="h-5 w-5 text-blue-600" />
+                <House className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Biens libres</p>
@@ -244,7 +244,7 @@ export default function MesBiensPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-yellow-100 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-yellow-600" />
+                <WarningCircle className="h-5 w-5 text-yellow-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Biens occupés</p>
@@ -260,7 +260,7 @@ export default function MesBiensPage() {
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-500" />
+              <WarningCircle className="h-5 w-5 text-red-500" />
               <p className="text-red-700">{error}</p>
             </div>
           </div>
@@ -268,11 +268,11 @@ export default function MesBiensPage() {
 
         {proprietesLoading ? (
           <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
+            <CircleNotch className="h-8 w-8 text-emerald-600 animate-spin" />
           </div>
         ) : proprietes.length === 0 ? (
           <div className="text-center py-12">
-            <Building className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <Buildings className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               Aucun bien enregistré
             </h3>

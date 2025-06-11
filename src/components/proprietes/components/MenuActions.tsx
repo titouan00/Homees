@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { DotsThreeVertical, PencilSimple, Trash } from 'phosphor-react';
 import { Propriete } from '@/types/propriete';
 
 interface MenuActionsProps {
@@ -20,12 +20,12 @@ export function MenuActions({ propriete, onModifier, onSupprimer }: MenuActionsP
         onClick={() => setMenuOuvert(!menuOuvert)}
         className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-white/80 rounded-lg transition-colors backdrop-blur-sm"
       >
-        <MoreVertical className="h-4 w-4" />
+        <DotsThreeVertical className="h-4 w-4" />
       </button>
 
       {menuOuvert && (
         <>
-          {/* Menu déroulant */}
+          {/* List déroulant */}
           <div className="absolute right-0 top-full mt-1 w-44 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-30">
             <button
               onClick={() => {
@@ -34,7 +34,7 @@ export function MenuActions({ propriete, onModifier, onSupprimer }: MenuActionsP
               }}
               className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
-              <Edit className="h-4 w-4" />
+              <PencilSimple className="h-4 w-4" />
               Modifier
             </button>
             <button
@@ -44,7 +44,7 @@ export function MenuActions({ propriete, onModifier, onSupprimer }: MenuActionsP
               }}
               className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-700 hover:bg-red-50"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash className="h-4 w-4" />
               Supprimer
             </button>
           </div>

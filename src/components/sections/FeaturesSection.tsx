@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Star, Shield, ChevronRight } from 'lucide-react';
+import { MagnifyingGlass, Star, Shield, CaretRight } from 'phosphor-react';
 import FeatureCard from '@/components/ui/FeatureCard';
 
 /**
@@ -12,7 +12,7 @@ const tabsData = ['Comparaison', 'Avis', 'Certification'];
 
 const featuresData = [
   {
-    icon: <Search className="h-8 w-8 text-white" />,
+    icon: <MagnifyingGlass className="h-8 w-8 text-white" />,
     title: "Comparaison transparente",
     description: "Comparez facilement les services, tarifs et avis des gestionnaires immobiliers certifiés en quelques clics.",
     color: "bg-gradient-to-br from-blue-500 to-blue-700"
@@ -94,7 +94,7 @@ export default function FeaturesSection() {
             className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold"
           >
             Découvrir tous nos gestionnaires
-            <ChevronRight className="ml-2 h-5 w-5" />
+            <CaretRight className="ml-2 h-5 w-5" />
           </Link>
         </div>
       </div>

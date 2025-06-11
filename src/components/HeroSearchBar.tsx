@@ -1,6 +1,6 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { MagnifyingGlass } from 'phosphor-react';
 import GooglePlacesAutocomplete from './GooglePlacesAutocomplete';
 import { useHeroSearch } from './search/useHeroSearch';
 
@@ -50,7 +50,7 @@ export default function HeroSearchBar({ className = "" }: HeroSearchBarProps) {
           disabled={!canSearch}
           className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-8 py-4 rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
         >
-          <Search className="h-5 w-5 mr-2" />
+          <MagnifyingGlass className="h-5 w-5 mr-2" />
           Rechercher
         </button>
       </form>

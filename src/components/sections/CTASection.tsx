@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Phone, Mail, MessageCircle, Sparkles, PlayCircle } from 'lucide-react';
+import { Phone, Envelope, ChatCircle, Sparkle, PlayCircle } from 'phosphor-react';
 
 /**
  * Données des options de contact
@@ -13,12 +13,12 @@ const contactOptions = [
     value: "01 23 45 67 89"
   },
   {
-    icon: Mail,
+    icon: Envelope,
     title: "Par email", 
     value: "contact@homees.fr"
   },
   {
-    icon: MessageCircle,
+    icon: ChatCircle,
     title: "Chat en direct",
     value: "Disponible 24h/7j"
   }
@@ -80,7 +80,7 @@ export default function CTASection() {
               className="bg-white text-blue-600 px-10 py-4 rounded-xl hover:bg-gray-50 transition-all transform hover:scale-105 shadow-xl hover:shadow-2xl font-bold text-lg inline-flex items-center justify-center"
             >
               Commencer gratuitement
-              <Sparkles className="ml-3 h-6 w-6" />
+              <Sparkle className="ml-3 h-6 w-6" />
             </Link>
             <Link 
               href="/contact" 

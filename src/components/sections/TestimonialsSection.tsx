@@ -1,6 +1,6 @@
 'use client';
 
-import { Star, Heart, TrendingUp, Award } from 'lucide-react';
+import { Star, Heart, TrendUp, Medal } from 'phosphor-react';
 
 /**
  * Données des témoignages clients
@@ -25,7 +25,7 @@ const testimonialsData = [
     borderColor: "border-emerald-100",
     testimonial: "La comparaison des offres m'a permis d'économiser près de 30% sur mes frais de gestion. Je recommande vivement Homees à tous les propriétaires!",
     benefit: "Rentabilité augmentée de 15%",
-    benefitIcon: <TrendingUp className="h-4 w-4 mr-2" />,
+    benefitIcon: <TrendUp className="h-4 w-4 mr-2" />,
     benefitColor: "text-emerald-600"
   },
   {
@@ -36,7 +36,7 @@ const testimonialsData = [
     borderColor: "border-amber-100",
     testimonial: "Interface intuitive et service client réactif. J'apprécie particulièrement la transparence des avis clients et la facilité de comparaison.",
     benefit: "Service 5 étoiles garanti",
-    benefitIcon: <Award className="h-4 w-4 mr-2" />,
+    benefitIcon: <Medal className="h-4 w-4 mr-2" />,
     benefitColor: "text-amber-600"
   }
 ];

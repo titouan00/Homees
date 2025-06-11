@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkle } from 'phosphor-react';
 
 /**
  * Composant Hero de la page contact - Design préservé exactement
@@ -31,7 +31,7 @@ const ContactHero: React.FC = () => {
 
       <div className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20 max-w-md mx-auto lg:mx-0">
         <div className="flex items-center space-x-3 mb-4">
-          <Sparkles className="h-6 w-6 text-yellow-400" />
+          <Sparkle className="h-6 w-6 text-yellow-400" />
           <h3 className="text-white font-semibold">Plateforme de mise en relation</h3>
         </div>
         <p className="text-blue-100 text-sm leading-relaxed">

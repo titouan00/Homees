@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { Shield, Phone, MapPin, TrendingUp, Building, Euro, Users } from 'lucide-react';
+import { Shield, Phone, MapPin, TrendUp, Buildings, CurrencyEur, Users } from 'phosphor-react';
 import DashboardLayout from '@/components/navigation/DashboardLayout';
 
 interface UserProfile {
@@ -171,10 +171,10 @@ export default function ProprietaireDashboard() {
 
   // Statistiques fictives pour la démo
   const stats = [
-    { name: 'Mes biens', value: profile?.nombre_biens?.toString() || '0', icon: Building, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { name: 'Mes biens', value: profile?.nombre_biens?.toString() || '0', icon: Buildings, color: 'text-blue-600', bg: 'bg-blue-100' },
     { name: 'Gestionnaires trouvés', value: '8', icon: Users, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-    { name: 'Budget d\'investissement', value: profile?.budget_investissement ? `${profile.budget_investissement.toLocaleString()}€` : 'N/A', icon: Euro, color: 'text-yellow-600', bg: 'bg-yellow-100' },
-    { name: 'Demandes actives', value: '3', icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-100' }
+    { name: 'Budget d\'investissement', value: profile?.budget_investissement ? `${profile.budget_investissement.toLocaleString()}€` : 'N/A', icon: CurrencyEur, color: 'text-yellow-600', bg: 'bg-yellow-100' },
+    { name: 'Demandes actives', value: '3', icon: TrendUp, color: 'text-purple-600', bg: 'bg-purple-100' }
   ];
 
   if (!user) return null;
@@ -226,7 +226,7 @@ export default function ProprietaireDashboard() {
               {profile ? (
                 <div className="space-y-3">
                   <div className="flex items-center">
-                    <TrendingUp className="h-5 w-5 text-gray-400 mr-3" />
+                    <TrendUp className="h-5 w-5 text-gray-400 mr-3" />
                     <span className="font-medium">{profile.type_investisseur}</span>
                   </div>
                   <div className="flex items-center">
@@ -238,7 +238,7 @@ export default function ProprietaireDashboard() {
                     <span>{profile.telephone}</span>
                   </div>
                   <div className="flex items-center">
-                    <Building className="h-5 w-5 text-gray-400 mr-3" />
+                    <Buildings className="h-5 w-5 text-gray-400 mr-3" />
                     <span>{profile.nombre_biens} bien{profile.nombre_biens > 1 ? 's' : ''}</span>
                   </div>
                   {profile.profession && (
@@ -274,7 +274,7 @@ export default function ProprietaireDashboard() {
                 className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center">
-                  <Building className="h-5 w-5 text-blue-600 mr-3" />
+                  <Buildings className="h-5 w-5 text-blue-600 mr-3" />
                   <span className="font-medium">Gérer mes biens</span>
                 </div>
               </Link>
@@ -294,7 +294,7 @@ export default function ProprietaireDashboard() {
                 className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center">
-                  <TrendingUp className="h-5 w-5 text-purple-600 mr-3" />
+                  <TrendUp className="h-5 w-5 text-purple-600 mr-3" />
                   <span className="font-medium">Mes demandes</span>
                 </div>
               </Link>

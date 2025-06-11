@@ -8,7 +8,7 @@ import { FiltresComparateur, Gestionnaire } from '@/types/gestionnaire';
 import FiltresComparateurComponent from '@/components/comparator/FiltresComparateur';
 import GrilleGestionnaires from '@/components/comparator/GrilleGestionnaires';
 import DashboardLayout from '@/components/navigation/DashboardLayout';
-import { GitCompareIcon, Filter, Loader2 } from 'lucide-react';
+import { GitBranch, Funnel, CircleNotch } from 'phosphor-react';
 
 interface UserProfile {
   id: string;
@@ -122,7 +122,7 @@ export default function ComparateurPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 text-emerald-600 animate-spin mx-auto mb-4" />
+          <CircleNotch className="h-8 w-8 text-emerald-600 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Vérification des accès...</p>
         </div>
       </div>

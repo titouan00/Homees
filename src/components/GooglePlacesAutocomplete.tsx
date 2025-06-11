@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle } from 'lucide-react';
+import { WarningCircle } from 'phosphor-react';
 import { usePlacesAutocomplete } from './places/usePlacesAutocomplete';
 import { GooglePlacesAutocompleteProps } from './places/types';
 import PlacesInput from './places/PlacesInput';
@@ -41,7 +41,7 @@ export default function GooglePlacesAutocomplete({
     return (
       <div className="relative">
         <div className="flex items-center bg-red-500/20 border border-red-500/30 rounded-xl p-3">
-          <AlertCircle className="h-4 w-4 text-red-400 mr-2" />
+          <WarningCircle className="h-4 w-4 text-red-400 mr-2" />
           <span className="text-red-200 text-sm">{state.error}</span>
         </div>
       </div>

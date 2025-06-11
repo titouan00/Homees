@@ -1,14 +1,14 @@
 'use client';
 
 import { ButtonHTMLAttributes, forwardRef } from 'react';
-import { LucideIcon } from 'lucide-react';
+import { Icon } from 'phosphor-react';
 
 type AuthButtonVariant = 'primary' | 'secondary';
 
 interface AuthButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: AuthButtonVariant;
   loading?: boolean;
-  icon?: LucideIcon;
+  icon?: Icon;
   iconPosition?: 'left' | 'right';
   fullWidth?: boolean;
 }

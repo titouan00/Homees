@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Bell, ChevronDown, Menu } from 'lucide-react';
+import { MagnifyingGlass, Bell, CaretDown, List } from 'phosphor-react';
 
 interface UserProfile {
   id: string;
@@ -32,14 +32,14 @@ export default function DashboardTopBar({
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
-        {/* Partie gauche - Titre + Menu mobile */}
+        {/* Partie gauche - Titre + List mobile */}
         <div className="flex items-center space-x-4">
           {/* Bouton menu mobile */}
           <button
             onClick={onMobileMenuClick}
             className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
           >
-            <Menu className="h-5 w-5 text-gray-600" />
+            <List className="h-5 w-5 text-gray-600" />
           </button>
 
           {/* Titre et sous-titre */}
@@ -56,7 +56,7 @@ export default function DashboardTopBar({
           {/* Barre de recherche */}
           <div className="relative hidden sm:block">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-400" />
+              <MagnifyingGlass className="h-4 w-4 text-gray-400" />
             </div>
             <input
               type="text"
@@ -69,7 +69,7 @@ export default function DashboardTopBar({
 
           {/* Bouton recherche mobile */}
           <button className="sm:hidden p-2 rounded-lg hover:bg-gray-100">
-            <Search className="h-5 w-5 text-gray-600" />
+            <MagnifyingGlass className="h-5 w-5 text-gray-600" />
           </button>
 
           {/* Notifications */}
@@ -103,7 +103,7 @@ export default function DashboardTopBar({
       <div className="sm:hidden mt-4">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-400" />
+            <MagnifyingGlass className="h-4 w-4 text-gray-400" />
           </div>
           <input
             type="text"

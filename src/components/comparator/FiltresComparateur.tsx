@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Filter, X, Star, MapPin, Euro, Globe, Building } from 'lucide-react';
+import { MagnifyingGlass, Funnel, X, Star, MapPin, CurrencyEur, Globe, Buildings } from 'phosphor-react';
 import { FiltresComparateur, LangueDisponible, TypeGestionnaire } from '@/types/gestionnaire';
 import { LANGUES_DISPONIBLES, TYPES_GESTIONNAIRE } from '@/lib/constants';
 
@@ -45,7 +45,7 @@ export default function FiltresComparateurComponent({
       <div className="flex flex-col lg:flex-row gap-4 mb-4">
         {/* Recherche */}
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           <input
             type="text"
             placeholder="Rechercher par nom d'agence, gestionnaire..."
@@ -65,7 +65,7 @@ export default function FiltresComparateurComponent({
                 : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}
           >
-            <Filter className="h-5 w-5" />
+            <Funnel className="h-5 w-5" />
             Filtres
             {hasActiveFilters && (
               <span className="bg-emerald-500 text-white text-xs rounded-full px-2 py-1 ml-1">
@@ -113,7 +113,7 @@ export default function FiltresComparateurComponent({
             {/* Tarif minimum */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                <Euro className="h-4 w-4" />
+                <CurrencyEur className="h-4 w-4" />
                 Tarif minimum (€)
               </label>
               <input
@@ -128,7 +128,7 @@ export default function FiltresComparateurComponent({
             {/* Tarif maximum */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                <Euro className="h-4 w-4" />
+                <CurrencyEur className="h-4 w-4" />
                 Tarif maximum (€)
               </label>
               <input
@@ -197,7 +197,7 @@ export default function FiltresComparateurComponent({
           {/* Filtres par type de gestionnaire */}
           <div className="mb-6">
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-              <Building className="h-4 w-4" />
+              <Buildings className="h-4 w-4" />
               Type de gestionnaire
             </label>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -238,7 +238,7 @@ export default function FiltresComparateurComponent({
             <div className="flex flex-wrap gap-2">
               {[
                 { value: 'note', label: 'Note', icon: Star },
-                { value: 'prix', label: 'Prix', icon: Euro },
+                { value: 'prix', label: 'Prix', icon: CurrencyEur },
                 { value: 'avis', label: 'Nombre d\'avis', icon: Star },
                 { value: 'nom', label: 'Nom', icon: MapPin }
               ].map(({ value, label, icon: Icon }) => (

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Send, ArrowRight, Sparkles } from 'lucide-react';
+import { PaperPlaneTilt, ArrowRight, Sparkle } from 'phosphor-react';
 import AuthBackground from '@/components/ui/AuthBackground';
 import AuthCard from '@/components/ui/AuthCard';
 import AuthInput from '@/components/ui/AuthInput';
@@ -83,7 +83,7 @@ export default function ContactPage() {
 
               <div className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20 max-w-md mx-auto lg:mx-0">
                 <div className="flex items-center space-x-3 mb-4">
-                  <Sparkles className="h-6 w-6 text-yellow-400" />
+                  <Sparkle className="h-6 w-6 text-yellow-400" />
                   <h3 className="text-white font-semibold">Plateforme de mise en relation</h3>
                 </div>
                 <p className="text-blue-100 text-sm leading-relaxed">
@@ -155,7 +155,7 @@ export default function ContactPage() {
                   <AuthButton
                     type="submit"
                     loading={loading}
-                    icon={Send}
+                    icon={PaperPlaneTilt}
                     iconPosition="right"
                   >
                     Envoyer le message

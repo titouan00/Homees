@@ -7,19 +7,19 @@ import { supabase } from '@/lib/supabase';
 import { useProprietesCount } from '@/hooks';
 import { NavigationItem } from './NavigationItem';
 import {
-  LayoutDashboard,
-  Scale,
-  Building2,
+  SquaresFour,
+  Scales,
+  Buildings,
   FileText,
-  Send,
-  MessageSquare,
+  PaperPlaneTilt,
+  ChatCircle,
   User,
-  Settings,
-  HelpCircle,
-  LogOut,
-  Home,
-  ChevronDown
-} from 'lucide-react';
+  Gear,
+  Question,
+  SignOut,
+  House,
+  CaretDown
+} from 'phosphor-react';
 
 interface UserProfile {
   id: string;
@@ -51,21 +51,21 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
     {
       name: 'Tableau de bord',
       href: `/dashboard/${userProfile.rôle}`,
-      icon: LayoutDashboard,
+      icon: SquaresFour,
       badge: 16,
       current: pathname === `/dashboard/${userProfile.rôle}`
     },
     {
       name: 'Comparateur',
       href: `/dashboard/${userProfile.rôle}/comparateur`,
-      icon: Scale,
+      icon: Scales,
       badge: 0,
       current: pathname.includes('/comparateur')
     },
     {
       name: 'Mes biens',
       href: `/dashboard/${userProfile.rôle}/biens`,
-      icon: Building2,
+      icon: Buildings,
       current: pathname.includes('/biens')
     },
     {
@@ -77,13 +77,13 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
     {
       name: 'Propositions',
       href: `/dashboard/${userProfile.rôle}/propositions`,
-      icon: Send,
+      icon: PaperPlaneTilt,
       current: pathname.includes('/propositions')
     },
     {
       name: 'Messagerie',
       href: `/dashboard/${userProfile.rôle}/messagerie`,
-      icon: MessageSquare,
+      icon: ChatCircle,
       current: pathname.includes('/messagerie')
     }
   ];
@@ -100,13 +100,13 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
     {
       name: 'Paramètres',
       href: `/dashboard/${userProfile.rôle}/parametres`,
-      icon: Settings,
+      icon: Gear,
       current: pathname.includes('/parametres')
     },
     {
       name: 'Support',
       href: `/dashboard/${userProfile.rôle}/support`,
-      icon: HelpCircle,
+      icon: Question,
       current: pathname.includes('/support')
     }
   ];
@@ -125,7 +125,7 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center h-16 px-6 border-b border-gray-200">
         <Link href="/dashboard" className="flex items-center space-x-2">
-          <Home className="h-8 w-8 text-emerald-600" />
+          <House className="h-8 w-8 text-emerald-600" />
           <span className="text-xl font-bold text-gray-900">Homees</span>
         </Link>
       </div>
@@ -197,12 +197,12 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   </p>
                 </div>
               </div>
-              <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${
+              <CaretDown className={`h-4 w-4 text-gray-400 transition-transform ${
                 isProfileOpen ? 'rotate-180' : ''
               }`} />
             </button>
 
-            {/* Menu déroulant profil */}
+            {/* List déroulant profil */}
             {isProfileOpen && (
               <div className="absolute bottom-full left-0 w-full mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
                 <button
@@ -212,7 +212,7 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   }}
                   className="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50"
                 >
-                  <LogOut className="mr-3 h-4 w-4 text-red-400" />
+                  <SignOut className="mr-3 h-4 w-4 text-red-400" />
                   Se déconnecter
                 </button>
               </div>

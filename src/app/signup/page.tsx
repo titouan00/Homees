@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Home, Sparkles, Building, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Eye, EyeSlash, Envelope, Lock, User, ArrowRight, House, Sparkle, Buildings, ArrowLeft, CheckCircle } from 'phosphor-react';
 
 /**
  * Page Signup - Design original complet restauré avec architecture optimisée
@@ -237,13 +237,13 @@ export default function SignupPage() {
         {/* Welcome Section - Left Side */}
         <div className="hidden lg:block text-white space-y-6">
           <Link href="/" className="inline-flex items-center text-white/80 hover:text-white transition-colors mb-8">
-            <Home className="h-5 w-5 mr-2" />
+            <House className="h-5 w-5 mr-2" />
             Retour à l'accueil
           </Link>
           
           <div className="space-y-4">
             <div className="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkle className="h-4 w-4 mr-2" />
               Étape {currentStep} sur 2
             </div>
             
@@ -366,7 +366,7 @@ export default function SignupPage() {
           {/* Mobile Header */}
           <div className="lg:hidden text-center mb-6 px-4">
             <Link href="/" className="inline-flex items-center text-white hover:text-gray-200 transition-colors mb-4">
-              <Home className="h-5 w-5 mr-2" />
+              <House className="h-5 w-5 mr-2" />
               Retour à l'accueil
             </Link>
             <h1 className="text-2xl font-bold text-white mb-2">
@@ -420,7 +420,7 @@ export default function SignupPage() {
                           : 'border-white/20 bg-white/5 text-white/80 hover:border-white/30'
                       }`}
                     >
-                      <Building className="h-4 w-4 mx-auto mb-1" />
+                      <Buildings className="h-4 w-4 mx-auto mb-1" />
                       Gestionnaire
                     </button>
                   </div>
@@ -451,7 +451,7 @@ export default function SignupPage() {
                     Adresse email *
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Envelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <input
                       name="email"
                       type="email"
@@ -485,7 +485,7 @@ export default function SignupPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? <EyeSlash className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
@@ -511,7 +511,7 @@ export default function SignupPage() {
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
                     >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showConfirmPassword ? <EyeSlash className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>

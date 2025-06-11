@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle } from 'lucide-react';
+import { WarningCircle } from 'phosphor-react';
 import { MESSAGES } from '@/lib/constants';
 
 interface ParisWarningProps {
@@ -17,7 +17,7 @@ const ParisWarning: React.FC<ParisWarningProps> = ({ show }) => {
     <div className="absolute top-full left-0 right-0 mt-2 z-50">
       <div className="bg-orange-500/20 border border-orange-500/30 rounded-xl p-4 backdrop-blur-sm">
         <div className="flex items-start space-x-3">
-          <AlertCircle className="h-5 w-5 text-orange-400 flex-shrink-0 mt-0.5" />
+          <WarningCircle className="h-5 w-5 text-orange-400 flex-shrink-0 mt-0.5" />
           <div>
             <h4 className="text-orange-100 font-medium text-sm mb-1">
               {MESSAGES.parisOnly.title}

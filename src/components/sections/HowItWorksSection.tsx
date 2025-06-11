@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, BarChart, Users, Zap } from 'lucide-react';
+import { House, ChartBar, Users, Lightning } from 'phosphor-react';
 import StepCard from '@/components/ui/StepCard';
 
 /**
@@ -10,13 +10,13 @@ import StepCard from '@/components/ui/StepCard';
 const stepsData = [
   {
     number: "1",
-    icon: <Home className="h-6 w-6" />,
+    icon: <House className="h-6 w-6" />,
     title: "Décrivez vos besoins",
     description: "Indiquez le type de bien, sa localisation et vos attentes spécifiques en matière de gestion locative."
   },
   {
     number: "2", 
-    icon: <BarChart className="h-6 w-6" />,
+    icon: <ChartBar className="h-6 w-6" />,
     title: "Comparez les offres",
     description: "Recevez des propositions personnalisées et comparez les services, tarifs et avis en toute transparence."
   },
@@ -71,7 +71,7 @@ export default function HowItWorksSection() {
             className="bg-white text-purple-600 px-10 py-4 rounded-xl hover:bg-gray-50 transition-all transform hover:scale-105 shadow-xl hover:shadow-2xl font-bold inline-flex items-center text-lg"
           >
             Commencer maintenant - C'est gratuit
-            <Zap className="ml-3 h-6 w-6" />
+            <Lightning className="ml-3 h-6 w-6" />
           </Link>
         </div>
       </div>

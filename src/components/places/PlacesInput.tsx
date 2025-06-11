@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin } from 'lucide-react';
+import { MapPin } from 'phosphor-react';
 import { MESSAGES } from '@/lib/constants';
 
 interface PlacesInputProps {

@@ -1,4 +1,4 @@
-import { MapPin } from 'lucide-react';
+import { MapPin } from 'phosphor-react';
 import { Propriete } from '@/types/propriete';
 import { Badge } from '@/components/ui/Badge';
 import { MenuActions } from './MenuActions';
@@ -41,7 +41,7 @@ export function CarteHeader({
         </Badge>
       </div>
 
-      {/* Menu actions */}
+      {/* List actions */}
       <MenuActions 
         propriete={propriete}
         onModifier={onModifier}

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Clock, Shield, Target, MessageCircle, BarChart, Star, Sparkles, ArrowRight, BookOpen } from 'lucide-react';
+import { Clock, Shield, Target, ChatCircle, ChartBar, Star, Sparkle, ArrowRight, BookOpen } from 'phosphor-react';
 import BenefitItem from '@/components/ui/BenefitItem';
 
 /**
@@ -21,11 +21,11 @@ const benefitsData = [
     text: "Bénéficiez de tarifs négociés et d'une transparence totale"
   },
   {
-    icon: <MessageCircle className="h-6 w-6" />,
+    icon: <ChatCircle className="h-6 w-6" />,
     text: "Communiquez facilement via notre messagerie intégrée sécurisée"
   },
   {
-    icon: <BarChart className="h-6 w-6" />,
+    icon: <ChartBar className="h-6 w-6" />,
     text: "Suivez vos demandes et mandats depuis votre tableau de bord personnalisé"
   }
 ];
@@ -56,7 +56,7 @@ const benefitCardsData = [
     iconBg: "bg-amber-600"
   },
   {
-    icon: Sparkles,
+    icon: Sparkle,
     title: "Économies réelles",
     description: "Comparez les tarifs et économisez jusqu'à 30% sur vos frais de gestion",
     bgColor: "from-purple-50 to-purple-100",

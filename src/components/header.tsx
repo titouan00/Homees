@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, X, Home } from 'lucide-react';
+import { List, X, House } from 'phosphor-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,7 +19,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-2 rounded-lg">
-              <Home className="h-6 w-6 text-white" />
+              <House className="h-6 w-6 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">Homees</span>
           </Link>
@@ -53,17 +53,17 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Bouton Menu Mobile */}
+          {/* Bouton List Mobile */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMenuOpen ? <X className="h-6 w-6" /> : <List className="h-6 w-6" />}
           </button>
         </div>
       </div>
 
-      {/* Menu Mobile */}
+      {/* List Mobile */}
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 shadow-lg">
           <div className="px-4 py-6 space-y-4">

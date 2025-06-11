@@ -1,4 +1,4 @@
-import { Star } from 'lucide-react';
+import { Star } from 'phosphor-react';
 
 interface SectionNotesProps {
   notes?: string;

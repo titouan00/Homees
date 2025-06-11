@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeSlash, Envelope, Lock, User } from 'phosphor-react';
 import AuthInput from '@/components/ui/AuthInput';
 
 interface SignupStep1Props {
@@ -49,7 +49,7 @@ const SignupStep1: React.FC<SignupStep1Props> = ({
         type="email"
         value={formData.email}
         onChange={onInputChange}
-        icon={Mail}
+        icon={Envelope}
         placeholder="jean@exemple.com"
         required
       />
@@ -68,7 +68,7 @@ const SignupStep1: React.FC<SignupStep1Props> = ({
             onClick={onTogglePassword}
             className="text-gray-400 hover:text-gray-300 transition-colors"
           >
-            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showPassword ? <EyeSlash className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         }
         required
@@ -88,7 +88,7 @@ const SignupStep1: React.FC<SignupStep1Props> = ({
             onClick={onToggleConfirmPassword}
             className="text-gray-400 hover:text-gray-300 transition-colors"
           >
-            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showConfirmPassword ? <EyeSlash className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         }
         required

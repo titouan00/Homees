@@ -1,6 +1,6 @@
 'use client';
 
-import { Send } from 'lucide-react';
+import { PaperPlaneTilt } from 'phosphor-react';
 import { useContactForm } from '../forms/useContactForm';
 import SuccessMessage from './SuccessMessage';
 
@@ -94,7 +94,7 @@ const ContactForm: React.FC = () => {
             ) : (
               <>
                 Envoyer le message
-                <Send className="ml-2 h-4 w-4" />
+                <PaperPlaneTilt className="ml-2 h-4 w-4" />
               </>
             )}
           </button>

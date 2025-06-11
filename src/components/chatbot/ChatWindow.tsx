@@ -1,6 +1,6 @@
 'use client';
 
-import { Bot, X, Minimize2, Maximize2, Maximize } from 'lucide-react';
+import { Robot, X, Minus, ArrowsOut, ArrowsOut } from 'phosphor-react';
 import { ChatState, ChatActions } from './types';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
@@ -30,7 +30,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chatState, actions, children })
       <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="h-8 w-8 bg-white/20 rounded-full flex items-center justify-center">
-            <Bot className="h-5 w-5" />
+            <Robot className="h-5 w-5" />
           </div>
           <div>
             <h3 className="font-semibold text-sm">Assistant Homees</h3>
@@ -48,7 +48,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chatState, actions, children })
               className="text-white/80 hover:text-white transition-colors"
               title="Plein écran"
             >
-              <Maximize className="h-4 w-4" />
+              <ArrowsOut className="h-4 w-4" />
             </button>
           )}
           {isFullscreen && (
@@ -57,7 +57,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chatState, actions, children })
               className="text-white/80 hover:text-white transition-colors"
               title="Mode widget"
             >
-              <Minimize2 className="h-4 w-4" />
+              <Minus className="h-4 w-4" />
             </button>
           )}
           {!isFullscreen && (
@@ -66,7 +66,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chatState, actions, children })
               className="text-white/80 hover:text-white transition-colors"
               title={isMinimized ? "Agrandir" : "Réduire"}
             >
-              {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
+              {isMinimized ? <ArrowsOut className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
             </button>
           )}
           <button

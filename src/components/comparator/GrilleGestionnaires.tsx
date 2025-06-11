@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { CaretLeft, CaretRight, CircleNotch } from 'phosphor-react';
 import { Gestionnaire } from '@/types/gestionnaire';
 import CarteGestionnaire from './CarteGestionnaire';
 
@@ -107,7 +107,7 @@ export default function GrilleGestionnaires({
               disabled={currentPage <= 1}
               className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <CaretLeft className="h-4 w-4" />
               Précédent
             </button>
 
@@ -138,7 +138,7 @@ export default function GrilleGestionnaires({
               className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Suivant
-              <ChevronRight className="h-4 w-4" />
+              <CaretRight className="h-4 w-4" />
             </button>
           </div>
         </div>

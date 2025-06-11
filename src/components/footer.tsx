@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, Mail, Phone } from 'lucide-react';
+import { House, Envelope, Phone } from 'phosphor-react';
 
 export default function Footer() {
   return (
@@ -13,7 +13,7 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="flex items-center space-x-2 mb-4">
               <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-2 rounded-lg">
-                <Home className="h-6 w-6 text-white" />
+                <House className="h-6 w-6 text-white" />
               </div>
               <span className="text-xl font-bold text-white">Homees</span>
             </Link>
@@ -23,7 +23,7 @@ export default function Footer() {
             </p>
             <div className="space-y-2">
               <div className="flex items-center space-x-2 text-gray-400">
-                <Mail className="h-4 w-4" />
+                <Envelope className="h-4 w-4" />
                 <span>contact@homees.fr</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-400">

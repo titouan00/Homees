@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Loader2 } from 'lucide-react';
+import { CircleNotch } from 'phosphor-react';
 
 /**
  * Page Dashboard - Redirection automatique
@@ -64,7 +64,7 @@ export default function DashboardRedirect() {
   // Chargement minimal
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
+      <CircleNotch className="h-8 w-8 text-emerald-600 animate-spin" />
     </div>
   );
 } 
