@@ -239,23 +239,6 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
             {/* Menu déroulant profil */}
             {isProfileOpen && (
               <div className="absolute bottom-full left-0 w-full mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
-                <Link
-                  href={`/dashboard/${userProfile.rôle}/profil`}
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  onClick={() => setIsProfileOpen(false)}
-                >
-                  <User className="mr-3 h-4 w-4 text-gray-400" />
-                  Voir le profil
-                </Link>
-                <Link
-                  href={`/dashboard/${userProfile.rôle}/parametres`}
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  onClick={() => setIsProfileOpen(false)}
-                >
-                  <Settings className="mr-3 h-4 w-4 text-gray-400" />
-                  Paramètres
-                </Link>
-                <hr className="my-1" />
                 <button
                   onClick={() => {
                     setIsProfileOpen(false);
