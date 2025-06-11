@@ -14,4 +14,11 @@ export { default as AuthButton } from './AuthButton';
 export { default as ErrorMessage } from './ErrorMessage';
 
 // Styles
-export { default as AnimationStyles } from './AnimationStyles'; 
+export { default as AnimationStyles } from './AnimationStyles';
+
+/**
+ * Exports centralisés pour les composants UI
+ */
+
+export { Badge } from './Badge';
+export { NavBadge } from './NavBadge'; 

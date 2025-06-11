@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useProprietesCount } from '@/hooks';
+import { NavigationItem } from './NavigationItem';
 import {
   LayoutDashboard,
   Scale,
@@ -38,6 +40,11 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  
+  // Hook pour récupérer le nombre de biens
+  const { count: biensCount, loading: biensLoading } = useProprietesCount(
+    userProfile.rôle === 'proprietaire' ? userProfile.id : undefined
+  );
 
   // Navigation principale - Section "Général"
   const generalNavigation = [
@@ -132,38 +139,19 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
               Général
             </h3>
             <div className="mt-2 space-y-1">
-              {generalNavigation.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      item.current
-                        ? 'bg-emerald-50 text-emerald-700 border-r-2 border-emerald-500'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <Icon className={`mr-3 h-5 w-5 ${
-                        item.current ? 'text-emerald-500' : 'text-gray-400 group-hover:text-gray-500'
-                      }`} />
-                      {item.name}
-                    </div>
-                    
-                    {/* Badge de notification */}
-                    {item.badge !== undefined && (
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        item.badge > 0
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-gray-100 text-gray-500'
-                      }`}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
+              {generalNavigation.map((item) => (
+                <NavigationItem
+                  key={item.name}
+                  name={item.name}
+                  href={item.href}
+                  icon={item.icon}
+                  current={item.current}
+                  badge={item.badge}
+                  isSpecialBadge={item.name === 'Mes biens' && userProfile.rôle === 'proprietaire'}
+                  specialBadgeCount={biensCount}
+                  specialBadgeLoading={biensLoading}
+                />
+              ))}
             </div>
           </div>
 
@@ -173,38 +161,16 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
               Personnel
             </h3>
             <div className="mt-2 space-y-1">
-              {personalNavigation.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      item.current
-                        ? 'bg-emerald-50 text-emerald-700 border-r-2 border-emerald-500'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <Icon className={`mr-3 h-5 w-5 ${
-                        item.current ? 'text-emerald-500' : 'text-gray-400 group-hover:text-gray-500'
-                      }`} />
-                      {item.name}
-                    </div>
-                    
-                    {/* Badge de notification */}
-                    {item.badge !== undefined && (
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        item.badge > 0
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-gray-100 text-gray-500'
-                      }`}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
+              {personalNavigation.map((item) => (
+                <NavigationItem
+                  key={item.name}
+                  name={item.name}
+                  href={item.href}
+                  icon={item.icon}
+                  current={item.current}
+                  badge={item.badge}
+                />
+              ))}
             </div>
           </div>
         </nav>
