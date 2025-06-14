@@ -1,20 +1,25 @@
 'use client';
 
+
+
 import { useState } from 'react';
 import Image from 'next/image';
-import { Star, Phone, Globe, MapPin, Buildings, CheckCircle } from 'phosphor-react';
+import { Star, MapPin, Phone, Globe, Envelope, ChatCircle, CheckCircle, Buildings, User } from 'phosphor-react';
+
 import { Gestionnaire } from '@/types/gestionnaire';
 import { TYPES_GESTIONNAIRE, LANGUES_DISPONIBLES } from '@/lib/constants';
 import ContactButton from '@/components/messaging/ContactButton';
 
 interface CarteGestionnaireProps {
   gestionnaire: Gestionnaire;
+  onContact: (gestionnaire: Gestionnaire) => void;
+  onViewProfile: (gestionnaire: Gestionnaire) => void;
 }
 
 /**
  * Carte d'affichage d'un gestionnaire immobilier
  */
-export default function CarteGestionnaire({ gestionnaire }: CarteGestionnaireProps) {
+export default function CarteGestionnaire({ gestionnaire, onContact, onViewProfile }: CarteGestionnaireProps) {
   const {
     nom_agence,
     nom,
@@ -199,6 +204,15 @@ export default function CarteGestionnaire({ gestionnaire }: CarteGestionnairePro
 
       {/* Actions */}
       <div className="flex gap-2 pt-4 border-t border-gray-100">
+        {/* Voir le profil */}
+        <button
+          onClick={() => onViewProfile(gestionnaire)}
+          className="flex-1 bg-white text-emerald-600 border border-emerald-600 px-4 py-2 rounded-lg hover:bg-emerald-50 transition-colors font-medium flex items-center justify-center gap-2"
+        >
+          <User className="h-4 w-4" />
+          Voir le profil
+        </button>
+
         {/* Contact principal */}
         <ContactButton
           gestionnaireId={gestionnaire.gestionnaire_id}

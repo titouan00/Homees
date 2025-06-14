@@ -109,7 +109,17 @@ export default function ComparateurPage() {
     // Scroll vers le haut pour une meilleure UX
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+  const handleContact = useCallback((gestionnaire: Gestionnaire) => {
+    // TODO: Implémenter la logique de contact/messagerie
+    console.log('Contacter gestionnaire:', gestionnaire);
+    // Redirection vers la page de contact ou ouverture d'une modal
+    router.push(`/dashboard/proprietaire/messages?gestionnaire=${gestionnaire.gestionnaire_id}`);
+  }, [router]);
 
+  const handleViewProfile = useCallback((gestionnaire: Gestionnaire) => {
+    // Redirection vers la page de profil du gestionnaire
+    router.push(`/dashboard/proprietaire/profil-gestionnaire/${gestionnaire.gestionnaire_id}`);
+  }, [router]);
   // Écran de chargement pendant l'authentification
   if (authLoading) {
     return (
@@ -152,6 +162,8 @@ export default function ComparateurPage() {
           totalPages={totalPages}
           totalCount={totalCount}
           onPageChange={handlePageChange}
+          onContact={handleContact}
+          onViewProfile={handleViewProfile}
         />
       </div>
     </DashboardLayout>
