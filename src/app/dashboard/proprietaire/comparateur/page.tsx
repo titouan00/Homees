@@ -109,7 +109,6 @@ export default function ComparateurPage() {
     // Scroll vers le haut pour une meilleure UX
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
-
   const handleContact = useCallback((gestionnaire: Gestionnaire) => {
     // TODO: Implémenter la logique de contact/messagerie
     console.log('Contacter gestionnaire:', gestionnaire);
@@ -121,7 +120,6 @@ export default function ComparateurPage() {
     // Redirection vers la page de profil du gestionnaire
     router.push(`/dashboard/proprietaire/profil-gestionnaire/${gestionnaire.gestionnaire_id}`);
   }, [router]);
-
   // Écran de chargement pendant l'authentification
   if (authLoading) {
     return (
