@@ -8,3 +8,5 @@ export { useEquipements, type Equipement } from './useEquipements';
 export { useProprietes } from './useProprietes';
 export { useProprietesCount } from './useProprietesCount';
 export { useRealTimeCount } from './useRealTimeCount'; 
+export { useGestionnaire } from './useGestionnaire';
+export { useAvisGestionnaire } from './useAvisGestionnaire'; 
