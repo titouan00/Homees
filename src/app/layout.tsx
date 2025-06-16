@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { inter } from '@/app/ui/fonts';
-import '@/app/ui/global.css';
+import '@/app/globals.css';
 import ConditionalLayout from "@/components/ConditionalLayout";
 
 

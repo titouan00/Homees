@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { PaperPlaneTilt, ArrowRight, Sparkle } from 'phosphor-react';
+import { PaperPlaneTilt, ArrowRight, Sparkle } from '@phosphor-icons/react';
 import AuthBackground from '@/components/ui/AuthBackground';
 import AuthCard from '@/components/ui/AuthCard';
 import AuthInput from '@/components/ui/AuthInput';

@@ -1,4 +1,4 @@
-import { Star } from 'phosphor-react';
+import { Star } from '@phosphor-icons/react/dist/ssr';
 
 interface SectionNotesProps {
   notes?: string;

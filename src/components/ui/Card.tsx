@@ -1,5 +1,3 @@
-'use client';
-
 import { HTMLAttributes, forwardRef } from 'react';
 
 type CardVariant = 'default' | 'elevated' | 'glass' | 'gradient';

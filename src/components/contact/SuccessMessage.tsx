@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle } from 'phosphor-react';
+import { CheckCircle } from '@phosphor-icons/react';
 
 interface SuccessMessageProps {
   show: boolean;

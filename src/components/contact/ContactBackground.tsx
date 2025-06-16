@@ -1,5 +1,3 @@
-'use client';
-
 /**
  * Composant Background animé de la page contact - Design préservé exactement
  */

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeSlash, Envelope, Lock, ArrowRight, House, Sparkle } from 'phosphor-react';
+import { Eye, EyeSlash, Envelope, Lock, ArrowRight, House, Sparkle } from '@phosphor-icons/react';
 import AuthBackground from '@/components/ui/AuthBackground';
 import AuthCard from '@/components/ui/AuthCard';
 import AuthInput from '@/components/ui/AuthInput';

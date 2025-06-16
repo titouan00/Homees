@@ -27,7 +27,7 @@ export default function CartePropriete({ propriete, onModifier, onSupprimer }: C
   const equipements = useEquipements(propriete);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-emerald-200 transition-all duration-200 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-primary-200 transition-all duration-200 overflow-hidden">
       {/* Header avec badges et actions */}
       <CarteHeader
         propriete={propriete}
@@ -48,7 +48,7 @@ export default function CartePropriete({ propriete, onModifier, onSupprimer }: C
             ))}
           </div>
         )}
-
+        
         {/* Équipements disponibles */}
         {equipements.length > 0 && (
           <div className="space-y-2">
@@ -79,6 +79,19 @@ export default function CartePropriete({ propriete, onModifier, onSupprimer }: C
         updatedAt={propriete.mis_a_jour_le}
         formatDate={formatDate}
       />
+
+      {/* Bouton d'action visible */}
+      <div className="border-t border-gray-100 p-4 bg-gray-50/50">
+        <button
+          onClick={() => onModifier(propriete)}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover-primary transition-colors font-medium"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Modifier
+        </button>
+      </div>
     </div>
   );
 } 

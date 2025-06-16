@@ -1,6 +1,6 @@
-import { MapPin } from 'phosphor-react';
+import { MapPin } from '@phosphor-icons/react/dist/ssr';
 import { Propriete } from '@/types/propriete';
-import { Badge } from '@/components/ui/Badge';
+import Badge from '@/components/ui/Badge';
 import { MenuActions } from './MenuActions';
 
 interface CarteHeaderProps {
@@ -28,7 +28,7 @@ export function CarteHeader({
       {/* Badge DPE en overlay */}
       {dpeClasse && (
         <div className="absolute top-3 left-3 z-10">
-          <Badge variant="dpe" color={dpeClasse.color}>
+          <Badge variant="warning" size="sm">
             DPE {dpeClasse.value}
           </Badge>
         </div>
@@ -36,20 +36,22 @@ export function CarteHeader({
 
       {/* Badge statut en overlay */}
       <div className="absolute top-3 right-12 z-10">
-        <Badge variant="status" color={statutInfo?.color}>
+        <Badge 
+          status={propriete.statut_occupation as any} 
+          size="sm"
+        >
           {statutInfo?.label}
         </Badge>
       </div>
 
-      {/* List actions */}
+      {/* Menu actions */}
       <MenuActions 
         propriete={propriete}
-        onModifier={onModifier}
         onSupprimer={onSupprimer}
       />
 
       {/* Header principal */}
-      <div className="bg-gradient-to-br from-emerald-50 to-blue-50 p-5 pb-4">
+      <div className="bg-gradient-to-br from-primary-50 to-secondary-50 p-5 pb-4">
         <div className="flex items-start gap-3">
           <div className="text-3xl">{typeBienInfo?.icon}</div>
           <div className="flex-1 min-w-0">

@@ -1,0 +1,122 @@
+[
+  {
+    "id": "1",
+    "proprietaire_id": "user-1",
+    "gestionnaire_id": "gest-1",
+    "statut": "ouverte",
+    "message_initial": "Bonjour, je souhaiterais confier la gestion de mon appartement à votre agence.",
+    "créé_le": "2024-01-15T10:30:00Z",
+    "mis_a_jour_le": "2024-01-15T10:30:00Z",
+    "gestionnaire": {
+      "id": "gest-1",
+      "nom": "Immobilier Plus",
+      "email": "contact@immobilier-plus.fr"
+    },
+    "propriete": {
+      "id": "prop-1",
+      "adresse": "15 rue de la Paix",
+      "ville": "Paris",
+      "type_bien": "appartement"
+    }
+  },
+  {
+    "id": "2",
+    "proprietaire_id": "user-1",
+    "gestionnaire_id": "gest-2",
+    "statut": "acceptee",
+    "message_initial": "Je recherche un gestionnaire pour ma maison familiale.",
+    "créé_le": "2024-01-10T14:20:00Z",
+    "mis_a_jour_le": "2024-01-12T09:15:00Z",
+    "gestionnaire": {
+      "id": "gest-2",
+      "nom": "Gestion Habitat",
+      "email": "info@gestion-habitat.com"
+    },
+    "propriete": {
+      "id": "prop-2",
+      "adresse": "42 avenue des Champs",
+      "ville": "Lyon",
+      "type_bien": "maison"
+    }
+  },
+  {
+    "id": "3",
+    "proprietaire_id": "user-1",
+    "gestionnaire_id": "gest-3",
+    "statut": "rejetee",
+    "message_initial": "Demande de gestion pour studio étudiant.",
+    "créé_le": "2024-01-08T16:45:00Z",
+    "mis_a_jour_le": "2024-01-09T11:30:00Z",
+    "gestionnaire": {
+      "id": "gest-3",
+      "nom": "Cabinet Durand",
+      "email": "durand@cabinet-immo.fr"
+    },
+    "propriete": {
+      "id": "prop-3",
+      "adresse": "8 rue du Commerce",
+      "ville": "Marseille",
+      "type_bien": "studio"
+    }
+  },
+  {
+    "id": "4",
+    "proprietaire_id": "user-1",
+    "gestionnaire_id": "gest-4",
+    "statut": "terminee",
+    "message_initial": "Gestion complète souhaitée pour immeuble de rapport.",
+    "créé_le": "2023-12-20T08:00:00Z",
+    "mis_a_jour_le": "2024-01-05T17:20:00Z",
+    "gestionnaire": {
+      "id": "gest-4",
+      "nom": "Syndic Pro",
+      "email": "contact@syndic-pro.fr"
+    },
+    "propriete": {
+      "id": "prop-4",
+      "adresse": "123 boulevard Haussmann",
+      "ville": "Paris",
+      "type_bien": "immeuble"
+    }
+  },
+  {
+    "id": "5",
+    "proprietaire_id": "user-1",
+    "gestionnaire_id": "gest-5",
+    "statut": "ouverte",
+    "message_initial": "Recherche gestionnaire pour villa avec piscine.",
+    "créé_le": "2024-01-18T12:15:00Z",
+    "mis_a_jour_le": "2024-01-18T12:15:00Z",
+    "gestionnaire": {
+      "id": "gest-5",
+      "nom": "Prestige Immobilier",
+      "email": "prestige@immo-luxe.com"
+    },
+    "propriete": {
+      "id": "prop-5",
+      "adresse": "Villa des Pins",
+      "ville": "Nice",
+      "type_bien": "villa"
+    }
+  },
+  {
+    "id": "6",
+    "proprietaire_id": "user-1",
+    "gestionnaire_id": "gest-6",
+    "statut": "acceptee",
+    "message_initial": "Gestion locative pour appartement T3.",
+    "créé_le": "2024-01-05T09:30:00Z",
+    "mis_a_jour_le": "2024-01-07T14:45:00Z",
+    "gestionnaire": {
+      "id": "gest-6",
+      "nom": "Agence Centrale",
+      "email": "centrale@agence-immo.fr"
+    },
+    "propriete": {
+      "id": "prop-6",
+      "adresse": "67 rue de la République",
+      "ville": "Toulouse",
+      "type_bien": "appartement"
+    }
+  }
+] 

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Sparkle } from 'phosphor-react';
+import { ArrowRight, Sparkle } from '@phosphor-icons/react';
 
 /**
  * Composant Hero de la page contact - Design préservé exactement

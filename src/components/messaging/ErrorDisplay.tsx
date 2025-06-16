@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { WarningCircle, ArrowCounterClockwise } from 'phosphor-react';
+import { WarningCircle, ArrowCounterClockwise } from '@phosphor-icons/react';
 import Button from '@/components/ui/Button';
 
 interface ErrorDisplayProps {

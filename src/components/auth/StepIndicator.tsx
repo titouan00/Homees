@@ -1,6 +1,6 @@
 'use client';
 
-import { Check } from 'phosphor-react';
+import { Check } from '@phosphor-icons/react';
 
 interface StepIndicatorProps {
   currentStep: number;

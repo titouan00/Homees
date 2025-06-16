@@ -1,7 +1,7 @@
 'use client';
 
 import { DemandeWithDetails } from '@/types/messaging';
-import { House, Clock, CheckCircle, XCircle } from 'phosphor-react';
+import { House, Clock, CheckCircle, XCircle } from '@phosphor-icons/react';
 
 interface ConversationItemProps {
   demande: DemandeWithDetails;

@@ -1,4 +1,4 @@
-import { Calendar } from 'phosphor-react';
+import { Calendar } from '@phosphor-icons/react/dist/ssr';
 
 interface CarteFooterProps {
   createdAt: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { WarningCircle } from 'phosphor-react';
+import { WarningCircle } from '@phosphor-icons/react';
 import { MESSAGES } from '@/lib/constants';
 
 interface ParisWarningProps {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Ruler, House, Bed, Drop } from 'phosphor-react';
+import { Ruler, House, Bed, Drop } from '@phosphor-icons/react';
 import { Propriete } from '@/types/propriete';
 
 export interface Caracteristique {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye, EyeSlash, Envelope, Lock, User } from 'phosphor-react';
+import { Eye, EyeSlash, Envelope, Lock, User } from '@phosphor-icons/react';
 import AuthInput from '@/components/ui/AuthInput';
 
 interface SignupStep1Props {

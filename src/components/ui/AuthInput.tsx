@@ -1,7 +1,7 @@
 'use client';
 
 import { InputHTMLAttributes, forwardRef } from 'react';
-import { Icon } from 'phosphor-react';
+import { Icon } from '@phosphor-icons/react';
 
 interface AuthInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;

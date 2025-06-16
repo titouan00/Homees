@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { List, X, House } from 'phosphor-react';
+import { List, X, House } from '@phosphor-icons/react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

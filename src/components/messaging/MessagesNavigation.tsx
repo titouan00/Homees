@@ -9,7 +9,7 @@ import {
   Funnel,
   MagnifyingGlass,
   Plus
-} from 'phosphor-react';
+} from '@phosphor-icons/react';
 import Button from '@/components/ui/Button';
 
 interface MessagesNavigationProps {
@@ -91,9 +91,9 @@ export default function MessagesNavigation({
             <Button
               variant="primary"
               size="sm"
-              icon={Plus}
               className="hidden sm:flex"
             >
+              <Plus className="h-4 w-4" />
               Nouveau message
             </Button>
           )}
@@ -101,10 +101,10 @@ export default function MessagesNavigation({
           <Button
             variant="ghost"
             size="sm"
-            icon={Funnel}
             onClick={() => setShowFilters(!showFilters)}
             className={showFilters ? 'bg-gray-100' : ''}
           >
+            <Funnel className="h-4 w-4" />
             Filtres
           </Button>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { X } from 'phosphor-react';
+import { X } from '@phosphor-icons/react';
 import Button from './Button';
 
 interface ModalProps {

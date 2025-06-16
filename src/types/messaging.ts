@@ -29,6 +29,12 @@ export interface DemandeWithDetails extends Demande {
   };
   dernierMessage?: Message;
   nombreMessagesNonLus?: number;
+  propriete?: {
+    id: string;
+    adresse: string;
+    ville?: string;
+    type_bien: string;
+  };
 }
 
 export interface MessageWithSender extends Message {
@@ -56,4 +62,15 @@ export interface SendMessageData {
   demande_id: string;
   emetteur_id: string;
   contenu: string;
+}
+
+export interface FiltresDemandes {
+  statut?: ('ouverte' | 'acceptee' | 'rejetee' | 'terminee')[];
+  ville?: string;
+  adresse?: string;
+  gestionnaire?: string;
+  date_debut?: string;
+  date_fin?: string;
+  tri_par?: 'date' | 'statut' | 'gestionnaire' | 'adresse';
+  ordre?: 'asc' | 'desc';
 } 

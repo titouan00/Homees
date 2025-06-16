@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin } from 'phosphor-react';
+import { MapPin } from '@phosphor-icons/react';
 import { MESSAGES } from '@/lib/constants';
 
 interface PlacesInputProps {

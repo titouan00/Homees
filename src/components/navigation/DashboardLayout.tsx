@@ -1,15 +1,9 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
+import { UserProfile } from '@/lib/auth-server';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardTopBar from './DashboardTopBar';
-
-interface UserProfile {
-  id: string;
-  nom: string;
-  email: string;
-  rôle: string;
-}
 
 interface DashboardLayoutProps {
   children: ReactNode;

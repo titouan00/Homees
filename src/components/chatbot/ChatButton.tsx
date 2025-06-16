@@ -1,6 +1,6 @@
 'use client';
 
-import { ChatCircle } from 'phosphor-react';
+import { ChatCircle } from '@phosphor-icons/react';
 
 interface ChatButtonProps {
   onClick: () => void;

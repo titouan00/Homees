@@ -1,6 +1,6 @@
 'use client';
 
-import { CaretLeft, CaretRight, CircleNotch } from 'phosphor-react';
+import { CaretLeft, CaretRight, CircleNotch } from '@phosphor-icons/react';
 import { Gestionnaire } from '@/types/gestionnaire';
 import CarteGestionnaire from './CarteGestionnaire';
 

@@ -7,7 +7,7 @@ import MessageInput from './MessageInput';
 import StatusManager from './StatusManager';
 import { DemandeWithDetails } from '@/types/messaging';
 import { getOtherParticipantName, getStatutInfo } from '@/lib/messaging';
-import { House, ArrowLeft } from 'phosphor-react';
+import { House, ArrowLeft } from '@phosphor-icons/react';
 import Button from '@/components/ui/Button';
 
 interface ConversationViewProps {
@@ -97,11 +97,12 @@ const ConversationView = React.memo<ConversationViewProps>(({
             <Button
               variant="ghost"
               size="sm"
-              icon={ArrowLeft}
               onClick={handleBack}
               className="md:hidden"
               aria-label="Retour à la liste des conversations"
-            />
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
           )}
 
           {/* Avatar */}

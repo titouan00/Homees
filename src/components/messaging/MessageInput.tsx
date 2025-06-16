@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PaperPlaneRight } from 'phosphor-react';
+import { PaperPlaneRight } from '@phosphor-icons/react';
 import Button from '@/components/ui/Button';
 
 interface MessageInputProps {
@@ -65,11 +65,12 @@ export default function MessageInput({
           type="submit"
           variant="primary"
           size="md"
-          icon={PaperPlaneRight}
           disabled={disabled || !message.trim()}
           loading={disabled}
           title="Envoyer le message"
-        />
+        >
+          <PaperPlaneRight className="h-4 w-4" />
+        </Button>
       </form>
     </div>
   );

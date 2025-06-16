@@ -1,14 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { MagnifyingGlass, Bell, CaretDown, List } from 'phosphor-react';
-
-interface UserProfile {
-  id: string;
-  nom: string;
-  email: string;
-  rôle: string;
-}
+import { MagnifyingGlass, Bell, CaretDown, List } from '@phosphor-icons/react';
+import { UserProfile } from '@/lib/auth-server';
 
 interface DashboardTopBarProps {
   title: string;

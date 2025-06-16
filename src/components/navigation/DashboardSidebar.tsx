@@ -6,27 +6,21 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useProprietesCount, useUnreadMessages } from '@/hooks';
 import { NavigationItem } from './NavigationItem';
+import { UserProfile } from '@/lib/auth-server';
 import {
   SquaresFour,
   Scales,
   Buildings,
   FileText,
-  PaperPlaneTilt,
   ChatCircle,
   User,
   Gear,
   Question,
   SignOut,
   House,
-  CaretDown
-} from 'phosphor-react';
-
-interface UserProfile {
-  id: string;
-  nom: string;
-  email: string;
-  rôle: string;
-}
+  CaretDown,
+  CaretDown as CaretDownIcon
+} from '@phosphor-icons/react';
 
 interface SidebarProps {
   userProfile: UserProfile;
@@ -43,48 +37,42 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
   
   // Hook pour récupérer le nombre de biens
   const { count: biensCount, loading: biensLoading } = useProprietesCount(
-    userProfile.rôle === 'proprietaire' ? userProfile.id : undefined
+    userProfile.role === 'proprietaire' ? userProfile.id : undefined
   );
 
   // Hook pour récupérer le nombre de messages non lus
   const { unreadCount: messagesCount, isLoading: messagesLoading } = useUnreadMessages(
     userProfile.id,
-    userProfile.rôle as 'proprietaire' | 'gestionnaire'
+    userProfile.role as 'proprietaire' | 'gestionnaire'
   );
 
   // Navigation principale - Section "Général"
   const generalNavigation = [
     {
       name: 'Tableau de bord',
-      href: `/dashboard/${userProfile.rôle}`,
+      href: `/dashboard/${userProfile.role}`,
       icon: SquaresFour,
       badge: 16,
-      current: pathname === `/dashboard/${userProfile.rôle}`
+      current: pathname === `/dashboard/${userProfile.role}`
     },
     {
       name: 'Comparateur',
-      href: `/dashboard/${userProfile.rôle}/comparateur`,
+      href: `/dashboard/${userProfile.role}/comparateur`,
       icon: Scales,
       badge: 0,
       current: pathname.includes('/comparateur')
     },
     {
       name: 'Mes biens',
-      href: `/dashboard/${userProfile.rôle}/biens`,
+      href: `/dashboard/${userProfile.role}/biens`,
       icon: Buildings,
       current: pathname.includes('/biens')
     },
     {
       name: 'Demandes',
-      href: `/dashboard/${userProfile.rôle}/demandes`,
+      href: `/dashboard/${userProfile.role}/demandes`,
       icon: FileText,
       current: pathname.includes('/demandes')
-    },
-    {
-      name: 'Propositions',
-      href: `/dashboard/${userProfile.rôle}/propositions`,
-      icon: PaperPlaneTilt,
-      current: pathname.includes('/propositions')
     },
     {
       name: 'Messages',
@@ -101,20 +89,20 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
   const personalNavigation = [
     {
       name: 'Mon profil',
-      href: `/dashboard/${userProfile.rôle}/profil`,
+      href: `/dashboard/${userProfile.role}/profil`,
       icon: User,
       badge: 16,
       current: pathname.includes('/profil')
     },
     {
       name: 'Paramètres',
-      href: `/dashboard/${userProfile.rôle}/parametres`,
+      href: `/dashboard/${userProfile.role}/parametres`,
       icon: Gear,
       current: pathname.includes('/parametres')
     },
     {
       name: 'Support',
-      href: `/dashboard/${userProfile.rôle}/support`,
+      href: `/dashboard/${userProfile.role}/support`,
       icon: Question,
       current: pathname.includes('/support')
     }
@@ -156,7 +144,7 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   icon={item.icon}
                   current={item.current}
                   badge={item.badge}
-                  isSpecialBadge={item.isSpecialBadge || (item.name === 'Mes biens' && userProfile.rôle === 'proprietaire')}
+                  isSpecialBadge={item.isSpecialBadge || (item.name === 'Mes biens' && userProfile.role === 'proprietaire')}
                   specialBadgeCount={item.specialBadgeCount || (item.name === 'Mes biens' ? biensCount : undefined)}
                   specialBadgeLoading={item.specialBadgeLoading || (item.name === 'Mes biens' ? biensLoading : false)}
                 />
@@ -206,7 +194,7 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   </p>
                 </div>
               </div>
-              <CaretDown className={`h-4 w-4 text-gray-400 transition-transform ${
+              <CaretDownIcon className={`h-4 w-4 text-gray-400 transition-transform ${
                 isProfileOpen ? 'rotate-180' : ''
               }`} />
             </button>

@@ -14,8 +14,8 @@ export { default as AuthInput } from './AuthInput';
 export { default as AuthButton } from './AuthButton';
 export { default as ErrorMessage } from './ErrorMessage';
 
-// Styles
-export { default as AnimationStyles } from './AnimationStyles';
+// Styles sont maintenant dans globals.css
+export * from './Icons';
 
 /**
  * Exports centralisés pour les composants UI

@@ -1,5 +1,3 @@
-'use client';
-
 import { HTMLAttributes, forwardRef } from 'react';
 
 interface AuthCardProps extends HTMLAttributes<HTMLDivElement> {

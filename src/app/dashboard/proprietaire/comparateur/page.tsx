@@ -1,32 +1,17 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import { useComparateur } from '@/hooks/useComparateur';
 import { FiltresComparateur, Gestionnaire } from '@/types/gestionnaire';
 import FiltresComparateurComponent from '@/components/comparator/FiltresComparateur';
 import GrilleGestionnaires from '@/components/comparator/GrilleGestionnaires';
-import DashboardLayout from '@/components/navigation/DashboardLayout';
-import { GitBranch, Funnel, CircleNotch } from 'phosphor-react';
-
-interface UserProfile {
-  id: string;
-  nom: string;
-  email: string;
-  rôle: string;
-}
 
 /**
- * Page comparateur pour les propriétaires
- * Permet de rechercher, filtrer et comparer les gestionnaires immobiliers
+ * Page comparateur pour les propriétaires - Version complète
  */
 export default function ComparateurPage() {
   const router = useRouter();
-  
-  // État pour l'authentification
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
   
   // États locaux pour les filtres et la recherche
   const [filtres, setFiltres] = useState<FiltresComparateur>({
@@ -35,47 +20,6 @@ export default function ComparateurPage() {
   });
   const [searchValue, setSearchValue] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  
-  // Vérification de l'authentification
-  useEffect(() => {
-    checkAuthAndRole();
-  }, []);
-
-  const checkAuthAndRole = async () => {
-    try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        router.push('/login?redirect=/dashboard/proprietaire/comparateur');
-        return;
-      }
-
-      // Récupérer les données utilisateur
-      const { data: userData, error: userError } = await supabase
-        .from('utilisateurs')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-
-      if (userError || userData.rôle !== 'proprietaire') {
-        router.push('/login?redirect=/dashboard/proprietaire/comparateur');
-        return;
-      }
-
-      setUser({
-        id: userData.id,
-        nom: userData.nom,
-        email: userData.email,
-        rôle: userData.rôle
-      });
-
-    } catch (err) {
-      console.error('Erreur authentification:', err);
-      router.push('/login?redirect=/dashboard/proprietaire/comparateur');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
 
   // Construction des paramètres de recherche
   const searchParams = useMemo(() => ({
@@ -85,10 +29,8 @@ export default function ComparateurPage() {
     limit: 12
   }), [filtres, searchValue, currentPage]);
 
-  // Hook pour récupérer les données (seulement si authentifié)
-  const { gestionnaires, loading, error, totalCount, refetch } = useComparateur(
-    user ? searchParams : { limit: 0 }
-  );
+  // Hook pour récupérer les données
+  const { gestionnaires, loading, error, totalCount } = useComparateur(searchParams);
 
   // Calcul de la pagination
   const totalPages = Math.ceil(totalCount / 12);
@@ -109,10 +51,10 @@ export default function ComparateurPage() {
     // Scroll vers le haut pour une meilleure UX
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+
   const handleContact = useCallback((gestionnaire: Gestionnaire) => {
     // TODO: Implémenter la logique de contact/messagerie
     console.log('Contacter gestionnaire:', gestionnaire);
-    // Redirection vers la page de contact ou ouverture d'une modal
     router.push(`/dashboard/proprietaire/messages?gestionnaire=${gestionnaire.gestionnaire_id}`);
   }, [router]);
 
@@ -120,52 +62,46 @@ export default function ComparateurPage() {
     // Redirection vers la page de profil du gestionnaire
     router.push(`/dashboard/proprietaire/profil-gestionnaire/${gestionnaire.gestionnaire_id}`);
   }, [router]);
-  // Écran de chargement pendant l'authentification
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <CircleNotch className="h-8 w-8 text-emerald-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Vérification des accès...</p>
-        </div>
-      </div>
-    );
-  }
 
-  // Redirection si pas d'utilisateur (ne devrait pas arriver grâce au useEffect)
-  if (!user) {
-    return null;
+  // Debug des données
+  console.log('DEBUG - gestionnaires:', gestionnaires);
+  console.log('DEBUG - premier gestionnaire:', gestionnaires[0]);
+  if (gestionnaires[0]) {
+    console.log('DEBUG - services_offerts:', gestionnaires[0].services_offerts);
+    console.log('DEBUG - langues_parlees:', gestionnaires[0].langues_parlees);
+    console.log('DEBUG - type services_offerts:', typeof gestionnaires[0].services_offerts);
+    console.log('DEBUG - type langues_parlees:', typeof gestionnaires[0].langues_parlees);
   }
 
   return (
-    <DashboardLayout 
-      userProfile={user}
-      title="Comparateur de Gestionnaires"
-      subtitle="Trouvez le gestionnaire immobilier parfait pour vos biens"
-    >
-      <div className="p-6">
-        {/* Filtres */}
-        <FiltresComparateurComponent
-          filtres={filtres}
-          onFiltresChange={handleFiltresChange}
-          onSearch={handleSearchChange}
-          searchValue={searchValue}
-          totalResults={totalCount}
-        />
-
-        {/* Grille des gestionnaires */}
-        <GrilleGestionnaires
-          gestionnaires={gestionnaires}
-          loading={loading}
-          error={error}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalCount={totalCount}
-          onPageChange={handlePageChange}
-          onContact={handleContact}
-          onViewProfile={handleViewProfile}
-        />
+    <div className="p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Comparateur de Gestionnaires</h1>
+        <p className="text-gray-600">Trouvez le gestionnaire immobilier parfait pour vos biens</p>
       </div>
-    </DashboardLayout>
+      
+      <FiltresComparateurComponent
+        filtres={filtres}
+        onFiltresChange={handleFiltresChange}
+        onSearch={handleSearchChange}
+        searchValue={searchValue}
+        totalResults={totalCount}
+      />
+     
+
+      {/* Grille des gestionnaires */}
+      <GrilleGestionnaires
+        gestionnaires={gestionnaires}
+        loading={loading}
+        error={error}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        onPageChange={handlePageChange}
+        onContact={handleContact}
+        onViewProfile={handleViewProfile}
+      />
+    </div>
   );
 } 

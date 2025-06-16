@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { House, Envelope, Phone } from 'phosphor-react';
+import { House, Envelope, Phone } from '@phosphor-icons/react';
 
 export default function Footer() {
   return (

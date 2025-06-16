@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Phone, Envelope, ChatCircle, Sparkle, PlayCircle } from 'phosphor-react';
+import { Phone, Envelope, ChatCircle, Sparkle, PlayCircle } from '@phosphor-icons/react';
 
 /**
  * Données des options de contact

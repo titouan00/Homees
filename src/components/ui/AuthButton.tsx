@@ -1,7 +1,7 @@
 'use client';
 
 import { ButtonHTMLAttributes, forwardRef } from 'react';
-import { Icon } from 'phosphor-react';
+import { Icon } from '@phosphor-icons/react';
 
 type AuthButtonVariant = 'primary' | 'secondary';
 

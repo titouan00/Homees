@@ -1,6 +1,6 @@
 'use client';
 
-import { WarningCircle } from 'phosphor-react';
+import { WarningCircle } from '@phosphor-icons/react';
 import { usePlacesAutocomplete } from './places/usePlacesAutocomplete';
 import { GooglePlacesAutocompleteProps } from './places/types';
 import PlacesInput from './places/PlacesInput';

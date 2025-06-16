@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { MagnifyingGlass, Funnel, X, Star, MapPin, CurrencyEur, Globe, Buildings } from 'phosphor-react';
+import { useState, useEffect, useRef } from 'react';
+import { MagnifyingGlass, Funnel, X, Star, MapPin, CurrencyEur, Globe, Buildings, Plus } from '@phosphor-icons/react';
 import { FiltresComparateur, LangueDisponible, TypeGestionnaire } from '@/types/gestionnaire';
 import { LANGUES_DISPONIBLES, TYPES_GESTIONNAIRE } from '@/lib/constants';
 
@@ -24,6 +24,8 @@ export default function FiltresComparateurComponent({
   totalResults
 }: FiltresComparateurProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showLangueDropdown, setShowLangueDropdown] = useState(false);
+  const langueDropdownRef = useRef<HTMLDivElement>(null);
 
   const handleFilterChange = (key: keyof FiltresComparateur, value: any) => {
     onFiltresChange({
@@ -37,7 +39,21 @@ export default function FiltresComparateurComponent({
     onSearch('');
   };
 
-  const hasActiveFilters = Object.keys(filtres).length > 0 || searchValue.length > 0;
+  const hasActiveFilters = (filtres && Object.keys(filtres).length > 0) || (searchValue && searchValue.length > 0);
+
+  // Fermer le dropdown des langues quand on clique en dehors
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langueDropdownRef.current && !langueDropdownRef.current.contains(event.target as Node)) {
+        setShowLangueDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
@@ -94,7 +110,7 @@ export default function FiltresComparateurComponent({
               {/* Filtres avancés */}
       {isExpanded && (
         <div className="border-t border-gray-200 pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
             {/* Zone d'intervention */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
@@ -159,38 +175,95 @@ export default function FiltresComparateurComponent({
                 <option value="5">5 étoiles</option>
               </select>
             </div>
-          </div>
 
-          {/* Filtres par langues */}
-          <div className="mb-6">
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-              <Globe className="h-4 w-4" />
-              Langues parlées
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {LANGUES_DISPONIBLES.map((langue) => {
-                const isSelected = filtres.langues_parlees?.includes(langue.code as LangueDisponible) || false;
-                return (
-                  <button
-                    key={langue.code}
-                    onClick={() => {
-                      const currentLangues = filtres.langues_parlees || [];
-                      const newLangues = isSelected
-                        ? currentLangues.filter(l => l !== langue.code)
-                        : [...currentLangues, langue.code as LangueDisponible];
-                      handleFilterChange('langues_parlees', newLangues.length > 0 ? newLangues : undefined);
-                    }}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
-                      isSelected
-                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <span>{langue.flag}</span>
-                    <span className="text-sm">{langue.label}</span>
-                  </button>
-                );
-              })}
+            {/* Langues parlées - Interface compacte */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <Globe className="h-4 w-4" />
+                Langues parlées
+              </label>
+              <div className="relative" ref={langueDropdownRef}>
+                <div className="flex items-start gap-2 min-h-[42px] max-h-[84px] overflow-y-auto p-2 border border-gray-300 rounded-lg bg-white">
+                  {/* Langues sélectionnées */}
+                  {filtres.langues_parlees && filtres.langues_parlees.length > 0 ? (
+                    <>
+                      <div className="flex items-center gap-1 flex-wrap flex-1">
+                        {filtres.langues_parlees.map((langueCode) => {
+                          const langue = LANGUES_DISPONIBLES.find(l => l.code === langueCode);
+                          return (
+                            <div
+                              key={langueCode}
+                              className="flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md text-xs border border-emerald-200"
+                            >
+                              <span>{langue?.flag}</span>
+                              <span>{langue?.label}</span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newLangues = filtres.langues_parlees!.filter(l => l !== langueCode);
+                                  handleFilterChange('langues_parlees', newLangues.length > 0 ? newLangues : undefined);
+                                }}
+                                className="ml-1 text-emerald-600 hover:text-emerald-800"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <button
+                        onClick={() => setShowLangueDropdown(!showLangueDropdown)}
+                        className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors mt-0.5"
+                      >
+                        <Plus className="h-3 w-3 text-gray-600" />
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => setShowLangueDropdown(!showLangueDropdown)}
+                      className="flex items-center gap-2 text-gray-500 text-sm w-full"
+                    >
+                      <span>Sélectionner</span>
+                      <Plus className="h-4 w-4 ml-auto" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Dropdown des langues */}
+                {showLangueDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                    <div className="p-2">
+                      <div className="text-xs text-gray-500 mb-2 px-2">Cliquez pour ajouter/retirer</div>
+                      {LANGUES_DISPONIBLES.map((langue) => {
+                        const isSelected = filtres.langues_parlees?.includes(langue.code as LangueDisponible) || false;
+                        return (
+                          <button
+                            key={langue.code}
+                            onClick={() => {
+                              const currentLangues = filtres.langues_parlees || [];
+                              const newLangues = isSelected
+                                ? currentLangues.filter(l => l !== langue.code)
+                                : [...currentLangues, langue.code as LangueDisponible];
+                              handleFilterChange('langues_parlees', newLangues.length > 0 ? newLangues : undefined);
+                            }}
+                            className={`flex items-center gap-2 w-full px-2 py-2 rounded-md transition-colors text-left ${
+                              isSelected
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : 'hover:bg-gray-50 text-gray-700'
+                            }`}
+                          >
+                            <span className="text-lg">{langue.flag}</span>
+                            <span className="text-sm">{langue.label}</span>
+                            {isSelected && (
+                              <div className="ml-auto w-2 h-2 bg-emerald-500 rounded-full"></div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -241,7 +314,7 @@ export default function FiltresComparateurComponent({
                 { value: 'prix', label: 'Prix', icon: CurrencyEur },
                 { value: 'avis', label: 'Nombre d\'avis', icon: Star },
                 { value: 'nom', label: 'Nom', icon: MapPin }
-              ].map(({ value, label, icon: Icon }) => (
+              ].map(({ value, label, icon: IconComponent }) => (
                 <button
                   key={value}
                   onClick={() => {
@@ -258,7 +331,7 @@ export default function FiltresComparateurComponent({
                       : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
+                  <IconComponent className="h-4 w-4" />
                   {label}
                   {filtres.tri_par === value && (
                     <span className="text-xs">

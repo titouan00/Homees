@@ -1,6 +1,6 @@
 'use client';
 
-import { PaperPlaneTilt } from 'phosphor-react';
+import { PaperPlaneTilt } from '@phosphor-icons/react';
 import { useContactForm } from '../forms/useContactForm';
 import SuccessMessage from './SuccessMessage';
 

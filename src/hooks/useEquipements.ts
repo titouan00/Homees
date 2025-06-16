@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Buildings, Car, Tree, Armchair, Thermometer, Lightning } from 'phosphor-react';
+import { Buildings, Car, Tree, Armchair, Thermometer, Lightning } from '@phosphor-icons/react';
 import { Propriete } from '@/types/propriete';
 
 export interface Equipement {

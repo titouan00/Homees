@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    optimizePackageImports: ['@phosphor-icons/react']
+  },
   images: {
     domains: [
       // Images Unsplash (déjà existant)

@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import Button from '@/components/ui/Button';
 import { DemandeWithDetails } from '@/types/messaging';
 import { MESSAGES_AUTO, canChangeStatus, handleMessagingError } from '@/lib/messaging';
-import { CheckCircle, XCircle, Clock, ArrowCounterClockwise } from 'phosphor-react';
+import { CheckCircle, XCircle, Clock, ArrowCounterClockwise } from '@phosphor-icons/react';
 
 interface StatusManagerProps {
   demande: DemandeWithDetails;
@@ -115,19 +115,19 @@ const StatusManager = React.memo<StatusManagerProps>(({
                 variant="primary"
                 onClick={() => handleStatusChange('acceptee', 'acceptation')}
                 loading={isUpdating}
-                icon={CheckCircle}
                 disabled={isUpdating}
               >
+                <CheckCircle className="h-4 w-4" />
                 Accepter
               </Button>
               
               <Button
-                variant="danger"
+                variant="error"
                 onClick={() => handleStatusChange('rejetee', 'rejet')}
                 loading={isUpdating}
-                icon={XCircle}
                 disabled={isUpdating}
               >
+                <XCircle className="h-4 w-4" />
                 Refuser
               </Button>
             </div>
@@ -161,9 +161,9 @@ const StatusManager = React.memo<StatusManagerProps>(({
               variant="secondary"
               onClick={() => handleStatusChange('ouverte', 'relance')}
               loading={isUpdating}
-              icon={ArrowCounterClockwise}
               disabled={isUpdating}
             >
+              <ArrowCounterClockwise className="h-4 w-4" />
               Relancer
             </Button>
           </div>

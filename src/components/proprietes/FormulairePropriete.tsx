@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, FloppyDisk, MapPin, House, CurrencyEur } from 'phosphor-react';
+import { X, FloppyDisk, MapPin, House, CurrencyEur } from '@phosphor-icons/react';
 import { 
   NouvelleProprieteForme, 
   Propriete,

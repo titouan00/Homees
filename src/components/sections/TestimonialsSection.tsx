@@ -1,6 +1,6 @@
 'use client';
 
-import { Star, Heart, TrendUp, Medal } from 'phosphor-react';
+import { Star, Heart, TrendUp, Medal } from '@phosphor-icons/react';
 
 /**
  * Données des témoignages clients

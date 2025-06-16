@@ -6,7 +6,7 @@ import ConversationItem from './ConversationItem';
 import ConversationView from './ConversationView';
 import MessagesNavigation from './MessagesNavigation';
 import { DemandeWithDetails } from '@/types/messaging';
-import { ChatCentered } from 'phosphor-react';
+import { ChatCentered } from '@phosphor-icons/react';
 
 interface MessageCenterProps {
   userId: string;

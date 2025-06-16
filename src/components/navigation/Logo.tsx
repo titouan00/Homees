@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { House } from 'phosphor-react';
+import { House } from '@phosphor-icons/react';
 
 /**
  * Composant Logo de l'application

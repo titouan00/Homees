@@ -50,9 +50,17 @@ export function useComparateur(params: ComparateurParams): UseComparateurReturn 
 
       // Filtre par langues parlées
       if (params.langues_parlees && params.langues_parlees.length > 0) {
-        // Utilise l'opérateur @> pour vérifier si le JSON contient au moins une des langues
-        const languesQuery = params.langues_parlees.map(langue => `"${langue}"`).join(',');
-        query = query.overlaps('langues_parlees', params.langues_parlees);
+        console.log('Filtrage par langues demandé:', params.langues_parlees);
+        
+        // Utilisons l'approche recommandée par Supabase pour les arrays JSON
+        // Créons une condition OR pour chaque langue
+        const langueConditions = params.langues_parlees.map(langue => 
+          `langues_parlees.cs.[\"${langue}\"]`
+        );
+        
+        if (langueConditions.length > 0) {
+          query = query.or(langueConditions.join(','));
+        }
       }
 
       // Filtre par type de gestionnaire
@@ -94,6 +102,12 @@ export function useComparateur(params: ComparateurParams): UseComparateurReturn 
 
     } catch (err) {
       console.error('Erreur lors de la récupération des gestionnaires:', err);
+      console.error('Paramètres de recherche:', params);
+      console.error('Détails de l\'erreur:', {
+        message: err instanceof Error ? err.message : 'Erreur inconnue',
+        stack: err instanceof Error ? err.stack : undefined,
+        params: params
+      });
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
       setGestionnaires([]);
       setTotalCount(0);

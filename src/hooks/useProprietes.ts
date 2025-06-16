@@ -18,6 +18,7 @@ interface UseProprietesReturn {
 interface UseProprietesParams {
   proprietaireId?: string;
   filtres?: FiltresProprietes;
+  recherche?: string;
   page?: number;
   limit?: number;
 }
@@ -32,7 +33,7 @@ export function useProprietes(params: UseProprietesParams): UseProprietesReturn 
   const [totalCount, setTotalCount] = useState(0);
 
   // Mémoriser les paramètres pour éviter les re-rendus inutiles
-  const { proprietaireId, filtres, page = 1, limit = 10 } = params;
+  const { proprietaireId, filtres, recherche, page = 1, limit = 10 } = params;
 
   const fetchProprietes = useCallback(async () => {
     if (!proprietaireId) {
@@ -50,6 +51,12 @@ export function useProprietes(params: UseProprietesParams): UseProprietesReturn 
         .from('propriete')
         .select('*', { count: 'exact' })
         .eq('proprietaire_id', proprietaireId);
+
+      // Appliquer la recherche (sur adresse ET ville)
+      if (recherche && recherche.trim()) {
+        const searchTerm = recherche.trim();
+        query = query.or(`adresse.ilike.%${searchTerm}%,ville.ilike.%${searchTerm}%`);
+      }
 
       // Appliquer les filtres
       if (filtres) {
@@ -117,7 +124,7 @@ export function useProprietes(params: UseProprietesParams): UseProprietesReturn 
     } finally {
       setLoading(false);
     }
-  }, [proprietaireId, filtres, page, limit]);
+  }, [proprietaireId, filtres, recherche, page, limit]);
 
   const ajouterPropriete = useCallback(async (propriete: NouvelleProprieteForme): Promise<boolean> => {
     if (!proprietaireId) {

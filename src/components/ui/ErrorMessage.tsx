@@ -1,6 +1,6 @@
 'use client';
 
-import { WarningCircle } from 'phosphor-react';
+import { WarningCircle } from '@phosphor-icons/react';
 
 interface ErrorMessageProps {
   message: string;

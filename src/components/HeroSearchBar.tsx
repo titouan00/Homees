@@ -1,6 +1,6 @@
 'use client';
 
-import { MagnifyingGlass } from 'phosphor-react';
+import { MagnifyingGlass } from '@phosphor-icons/react';
 import GooglePlacesAutocomplete from './GooglePlacesAutocomplete';
 import { useHeroSearch } from './search/useHeroSearch';
 

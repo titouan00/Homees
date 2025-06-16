@@ -1,6 +1,6 @@
 'use client';
 
-import { User, Robot } from 'phosphor-react';
+import { User, Robot } from '@phosphor-icons/react';
 import { Message } from './types';
 
 interface ChatMessagesProps {

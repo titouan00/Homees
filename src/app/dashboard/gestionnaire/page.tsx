@@ -4,14 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { Shield, MapPin, CurrencyEur, Medal, Users, TrendUp, Buildings } from 'phosphor-react';
+import { Shield, MapPin, CurrencyEur, Medal, Users, TrendUp, Buildings } from '@phosphor-icons/react';
 import DashboardLayout from '@/components/navigation/DashboardLayout';
 
 interface UserProfile {
   id: string;
   nom: string;
   email: string;
-  rôle: string;
+  role: 'proprietaire' | 'gestionnaire' | 'admin';
   créé_le: string;
 }
 
@@ -42,29 +42,29 @@ export default function GestionnaireDashboard() {
   const checkAuthAndRole = async () => {
     try {
       // Vérifier si l'utilisateur est connecté
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
-      if (sessionError) {
-        console.error('Erreur session:', sessionError);
+      if (userError) {
+        console.error('Erreur utilisateur:', userError);
         router.push('/login?redirect=/dashboard/gestionnaire');
         return;
       }
 
-      if (!session) {
+      if (!user) {
         router.push('/login?redirect=/dashboard/gestionnaire');
         return;
       }
 
       // Récupérer les données utilisateur
-      const { data: userData, error: userError } = await supabase
+      const { data: userData, error: userDataError } = await supabase
         .from('utilisateurs')
         .select('*')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single();
 
-      if (userError) {
-        console.error('Erreur profil utilisateur:', userError);
-        if (userError.code === 'PGRST116') {
+      if (userDataError) {
+        console.error('Erreur profil utilisateur:', userDataError);
+        if (userDataError.code === 'PGRST116') {
           setError('Profil utilisateur introuvable. Veuillez vous réinscrire.');
         } else {
           setError('Erreur lors du chargement du profil');
@@ -92,7 +92,7 @@ export default function GestionnaireDashboard() {
         id: userData.id,
         nom: userData.nom,
         email: userData.email,
-        rôle: userData.rôle,
+        role: userData.rôle,
         créé_le: userData.créé_le
       });
 
@@ -100,7 +100,7 @@ export default function GestionnaireDashboard() {
       const { data: profileData, error: profileError } = await supabase
         .from('profil_gestionnaire')
         .select('*')
-        .eq('utilisateur_id', session.user.id)
+        .eq('utilisateur_id', user.id)
         .single();
 
       if (profileError) {
