@@ -102,9 +102,9 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
     },
     {
       name: 'Support',
-      href: `/dashboard/${userProfile.role}/support`,
+      href: '/contact',
       icon: Question,
-      current: pathname.includes('/support')
+      current: pathname.includes('/contact')
     }
   ];
 
