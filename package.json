@@ -15,7 +15,7 @@
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/ssr": "^0.6.1",
-    "@supabase/supabase-js": "^2.49.9",
+    "@supabase/supabase-js": "^2.50.0",
     "dotenv": "^16.5.0",
     "framer-motion": "^12.16.0",
     "groq-sdk": "^0.23.0",
