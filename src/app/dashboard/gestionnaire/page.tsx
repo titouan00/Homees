@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-client';
 import Link from 'next/link';
 import { Shield, MapPin, CurrencyEur, Medal, Users, TrendUp, Buildings } from '@phosphor-icons/react';
 import DashboardLayout from '@/components/navigation/DashboardLayout';

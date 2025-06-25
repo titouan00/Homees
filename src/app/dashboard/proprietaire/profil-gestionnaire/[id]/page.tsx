@@ -1,11 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Star, ChatCircle, Envelope, User, MapPin, Phone, Globe, CircleNotch, WarningCircle, ArrowLeft } from '@phosphor-icons/react';
+import { Star, ChatCircle, Envelope, User, MapPin, Phone, Globe, CircleNotch, WarningCircle, ArrowLeft, X, Check } from '@phosphor-icons/react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { useGestionnaire } from '@/hooks/useGestionnaire';
 import { useAvisGestionnaire } from '@/hooks/useAvisGestionnaire';
+import { useCreateDemande } from '@/hooks/useCreateDemande';
+import { useAuth } from '@/hooks/useAuth';
+import { useBiensProprietaire } from '@/hooks/useBiensProprietaire';
 
 const containerStyle = {
   width: '100%',
@@ -19,6 +22,115 @@ const tarifsDefaut = [
   { service: 'État des lieux', prix: 'À définir' },
   { service: 'Autres services', prix: 'Sur demande' },
 ];
+
+// Composant Modal pour créer une demande
+function ModalCreerDemande({ isOpen, onClose, gestionnaire, biens, onSubmit, isSubmitting }: any) {
+  const [selectedBien, setSelectedBien] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!message.trim()) return;
+    
+    const messageFormate = `Bonjour ${gestionnaire?.nom_agence || 'Gestionnaire'},
+
+${message.trim()}
+
+Cordialement`;
+
+    onSubmit({
+      gestionnaire_id: gestionnaire?.gestionnaire_id || gestionnaire?.id,
+      propriete_id: selectedBien || undefined,
+      message_initial: messageFormate
+    });
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Faire une demande</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+            disabled={isSubmitting}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          {/* Sélection du bien */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Bien concerné (optionnel)
+            </label>
+            <select
+              value={selectedBien}
+              onChange={(e) => setSelectedBien(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              disabled={isSubmitting}
+            >
+              <option value="">Aucun bien spécifique</option>
+              {biens.map((bien: any) => (
+                <option key={bien.id} value={bien.id}>
+                  {bien.adresse} - {bien.ville} ({bien.type_bien})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Message */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Message *
+            </label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Décrivez votre demande de gestion immobilière..."
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              rows={4}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+
+          {/* Boutons */}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50"
+              disabled={isSubmitting}
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+              disabled={isSubmitting || !message.trim()}
+            >
+              {isSubmitting ? (
+                <>
+                  <CircleNotch className="h-4 w-4 animate-spin" />
+                  Envoi...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4" />
+                  Envoyer la demande
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis }: any) {
   if (!gestionnaire) return null;
@@ -68,7 +180,7 @@ function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis }: 
             onClick={onDemanderDevis}
             className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 font-medium flex items-center gap-2 hover:bg-gray-200"
           >
-            <Envelope className="h-4 w-4" /> Demander un devis
+            <Envelope className="h-4 w-4" /> Faire une demande
           </button>
           <button 
             onClick={onContact}
@@ -290,22 +402,44 @@ export default function PageProfilGestionnaire() {
   const params = useParams();
   const router = useRouter();
   const gestionnaireId = params.id as string;
+  
+  // États du modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Hooks pour les données du gestionnaire
+  // Auth sans redirection (gérée par le layout parent)
+  const { user } = useAuth(false);
+  
+  // Hooks pour les données
   const { gestionnaire, loading: gestionnaireLoading, error: gestionnaireError } = useGestionnaire(gestionnaireId);
   const { avis, loading: avisLoading, error: avisError, totalCount, moyenneNotes } = useAvisGestionnaire(gestionnaireId, 12);
+  const { createDemande, isCreating } = useCreateDemande(user?.id || '');
+  const { biens } = useBiensProprietaire(user?.id || '');
 
-  const handleContact = () => {
-    // TODO: Implémenter la fonction de contact (messagerie)
-    console.log('Contact gestionnaire:', gestionnaire?.gestionnaire_id);
+  const handleContact = async () => {
+    if (!gestionnaire) return;
+    
+    // Rediriger vers la page des messages avec le gestionnaire comme paramètre  
+    router.push(`/dashboard/messages?gestionnaire=${gestionnaire.gestionnaire_id}`);
   };
 
   const handleDemanderDevis = () => {
-    // TODO: Implémenter la fonction de demande de devis
-    console.log('Demander devis à:', gestionnaire?.gestionnaire_id);
+    setIsModalOpen(true);
   };
 
-  // Écran de chargement pour les données du gestionnaire
+  const handleSubmitDemande = async (demandeData: any) => {
+    const result = await createDemande(demandeData);
+    
+    if (result.success) {
+      setIsModalOpen(false);
+      // Rediriger vers la page mes demandes
+      router.push('/dashboard/proprietaire/demandes');
+    } else {
+      // Afficher l'erreur (vous pouvez améliorer cela avec un toast)
+      alert(result.error || 'Erreur lors de la création de la demande');
+    }
+  };
+
+  // Écran de chargement
   if (gestionnaireLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -337,12 +471,6 @@ export default function PageProfilGestionnaire() {
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
-      {/* Header avec titre */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{gestionnaire.nom_agence}</h1>
-        <p className="text-gray-600">Détails du gestionnaire immobilier</p>
-      </div>
-
       <HeaderProfilGestionnaire 
         gestionnaire={gestionnaire} 
         onContact={handleContact}
@@ -358,6 +486,16 @@ export default function PageProfilGestionnaire() {
         error={avisError}
         totalCount={totalCount}
         moyenneNotes={moyenneNotes}
+      />
+
+      {/* Modal pour créer une demande */}
+      <ModalCreerDemande
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        gestionnaire={gestionnaire}
+        biens={biens}
+        onSubmit={handleSubmitDemande}
+        isSubmitting={isCreating}
       />
     </div>
   );

@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { MagnifyingGlass, Bell, CaretDown, List } from '@phosphor-icons/react';
 import { UserProfile } from '@/lib/auth-server';
+import { useNotificationsDemo } from '@/hooks/useNotificationsDemo';
+import NotificationCenterDemo from '@/components/notifications/NotificationCenterDemo';
 
 interface DashboardTopBarProps {
   title: string;
@@ -22,6 +24,23 @@ export default function DashboardTopBar({
   onMobileMenuClick 
 }: DashboardTopBarProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const notificationRef = useRef<HTMLDivElement>(null);
+  
+  // Hook pour les notifications de démonstration
+  const { stats } = useNotificationsDemo();
+
+  // Fermer le dropdown des notifications quand on clique ailleurs
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4">
@@ -67,18 +86,29 @@ export default function DashboardTopBar({
           </button>
 
           {/* Notifications */}
-          <div className="relative">
-            <button className="p-2 rounded-lg hover:bg-gray-100 relative">
+          <div className="relative" ref={notificationRef}>
+            <button 
+              className="p-2 rounded-lg hover:bg-gray-100 relative transition-colors"
+              onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+            >
               <Bell className="h-5 w-5 text-gray-600" />
-              {/* Badge de notification */}
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                3
-              </span>
+              {/* Badge de notification dynamique */}
+              {userProfile && stats.unread > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  {stats.unread > 99 ? '99+' : stats.unread}
+                </span>
+              )}
             </button>
+            
+            {/* Dropdown des notifications */}
+            <NotificationCenterDemo
+              isOpen={isNotificationOpen}
+              onClose={() => setIsNotificationOpen(false)}
+            />
           </div>
 
           {/* Profil utilisateur - simplifié car déjà dans sidebar */}
-          {userProfile && (
+          {/* {userProfile && (
             <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-600">
               <div className="h-8 w-8 bg-emerald-500 rounded-full flex items-center justify-center">
                 <span className="text-sm font-medium text-white">
@@ -89,7 +119,7 @@ export default function DashboardTopBar({
                 {userProfile.nom}
               </span>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 

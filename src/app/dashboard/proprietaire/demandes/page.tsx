@@ -10,9 +10,11 @@ import {
   User,
   CaretLeft,
   CaretRight,
-  Calendar
+  Calendar,
+  Plus
 } from '@phosphor-icons/react';
-import { useDemandesMock } from '@/hooks/useDemandesMock';
+import { useDemandes } from '@/hooks/useDemandes';
+import { useAuth } from '@/hooks/useAuth';
 import { DemandeWithDetails, FiltresDemandes } from '@/types/messaging';
 import FiltresDemandesSimple from '@/components/demandes/FiltresDemandesSimple';
 import Badge from '@/components/ui/Badge';
@@ -23,6 +25,7 @@ import CustomButton from '@/components/ui/CustomButton';
  */
 export default function MesDemandesPage() {
   const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
   
   // États locaux pour les filtres et la recherche
   const [filtres, setFiltres] = useState<FiltresDemandes>({
@@ -34,14 +37,15 @@ export default function MesDemandesPage() {
 
   // Construction des paramètres de recherche
   const searchParams = useMemo(() => ({
+    proprietaireId: user?.id,
     filtres,
     recherche: searchValue || undefined,
     page: currentPage,
     limit: 10
-  }), [filtres, searchValue, currentPage]);
+  }), [user?.id, filtres, searchValue, currentPage]);
 
   // Hook pour récupérer les données
-  const { demandes, loading, error, totalCount } = useDemandesMock(searchParams);
+  const { demandes, loading, error, totalCount } = useDemandes(searchParams);
 
   // Calcul de la pagination
   const totalPages = Math.ceil(totalCount / 10);
@@ -95,12 +99,27 @@ export default function MesDemandesPage() {
     );
   };
 
+  // Ne pas afficher la page si pas d'utilisateur authentifié
+  if (!user && !authLoading) {
+    return null;
+  }
+
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Mes demandes</h1>
-        <p className="text-gray-600">Gérez vos demandes de gestion immobilière</p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Mes demandes</h1>
+          <p className="text-gray-600">Gérez vos demandes de gestion immobilière</p>
+        </div>
+        <CustomButton
+          variant="primary"
+          onClick={() => router.push('/dashboard/proprietaire/gestionnaires')}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Nouvelle demande
+        </CustomButton>
       </div>
 
       {/* Filtres */}
@@ -114,7 +133,7 @@ export default function MesDemandesPage() {
 
       {/* Liste des demandes */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        {loading ? (
+        {authLoading || loading ? (
           <div className="flex items-center justify-center py-12">
             <CircleNotch className="h-8 w-8 animate-spin text-primary-600" />
           </div>
@@ -148,7 +167,7 @@ export default function MesDemandesPage() {
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {demandes.map((demande) => (
+            {demandes.map((demande: DemandeWithDetails) => (
               <div key={demande.id} className="p-6 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">

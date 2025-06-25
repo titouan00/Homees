@@ -14,4 +14,9 @@ export { useComparateur } from './useComparateur';
 export { useMessaging } from './useMessaging';
 export { useConversation } from './useConversation';
 export { useUnreadMessages } from './useUnreadMessages'; 
+export { useAuth } from './useAuth';
+export { useDemandes } from './useDemandes';
+export { useCreateDemande } from './useCreateDemande';
+export { useUpdateDemande } from './useUpdateDemande';
+export { useBiensProprietaire } from './useBiensProprietaire';
 

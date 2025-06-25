@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-client';
 import Button from '@/components/ui/Button';
 import { DemandeWithDetails } from '@/types/messaging';
 import { MESSAGES_AUTO, canChangeStatus, handleMessagingError } from '@/lib/messaging';

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-client';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   User, 
   Envelope, 
@@ -47,6 +48,7 @@ interface UserProfile {
  * Page de profil du propriétaire connecté
  */
 export default function ProfilProprietairePage() {
+  const { user: authUser, isLoading: authLoading } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -58,22 +60,17 @@ export default function ProfilProprietairePage() {
   // Charger le profil utilisateur
   useEffect(() => {
     const loadProfile = async () => {
+      if (!authUser) return;
+
       try {
         setIsLoading(true);
-        
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        
-        if (!authUser) {
-          router.push('/login');
-          return;
-        }
 
         // Récupérer le profil complet
         const { data: userData, error } = await supabase
           .from('utilisateurs')
           .select('*')
           .eq('id', authUser.id)
-          .eq('rôle', 'proprietaire')
+          .eq('"rôle"', 'proprietaire')
           .single();
 
         if (error) {
@@ -92,8 +89,10 @@ export default function ProfilProprietairePage() {
       }
     };
 
-    loadProfile();
-  }, [router]);
+    if (!authLoading) {
+      loadProfile();
+    }
+  }, [authUser, authLoading]);
 
   // Sauvegarder les modifications
   const handleSave = async () => {
@@ -136,12 +135,16 @@ export default function ProfilProprietairePage() {
     });
   };
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
       </div>
     );
+  }
+
+  if (!authUser) {
+    return null;
   }
 
   if (!profile) {

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChatCentered, PaperPlaneRight } from '@phosphor-icons/react';
 import Button from '@/components/ui/Button';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-client';
 
 interface ContactButtonProps {
   gestionnaireId: string;

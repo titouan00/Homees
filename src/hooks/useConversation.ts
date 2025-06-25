@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-client';
 import { MessageWithSender, SendMessageData } from '@/types/messaging';
 import { handleMessagingError, getChannelId, validateMessageContent } from '@/lib/messaging';
 

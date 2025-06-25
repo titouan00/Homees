@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-client';
 import { useProprietesCount, useUnreadMessages } from '@/hooks';
 import { NavigationItem } from './NavigationItem';
 import { UserProfile } from '@/lib/auth-server';

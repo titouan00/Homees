@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-client';
 import { DemandeWithDetails, FiltresDemandes } from '@/types/messaging';
 
 interface UseDemandesParams {
