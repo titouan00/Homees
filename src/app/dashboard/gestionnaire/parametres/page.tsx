@@ -16,8 +16,14 @@ import {
   CheckCircle,
   XCircle,
   Warning,
-  Info
+  Info,
+  CreditCard,
+  ShieldCheck
 } from '@phosphor-icons/react';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/lib/supabase-client';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale/fr';
 
 // Types
 interface ParametresGestionnaire {
@@ -136,7 +142,13 @@ function SelectableBadge({ text, selected, onClick }: {
 
 export default function ParametresGestionnairePage() {
   const router = useRouter();
-  
+  const { user, isLoading, logout } = useAuth();
+  const [abonnementLoading, setAbonnementLoading] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [localUser, setLocalUser] = useState(user);
+
   const [parametres, setParametres] = useState<ParametresGestionnaire>({
     // Notifications
     notifications_email: true,
@@ -189,6 +201,10 @@ export default function ParametresGestionnairePage() {
   const [activeTab, setActiveTab] = useState('notifications');
   const [hasChanges, setHasChanges] = useState(false);
 
+  useEffect(() => {
+    setLocalUser(user);
+  }, [user]);
+
   // Simuler le chargement des paramètres
   useEffect(() => {
     // Ici on chargerait les paramètres depuis la base de données
@@ -240,6 +256,57 @@ export default function ParametresGestionnairePage() {
     setHasChanges(true);
   };
 
+  // Souscription à Pro
+  const handleSubscribePro = async () => {
+    setShowPaymentModal(false);
+    setAbonnementLoading(true);
+    const expiration = new Date();
+    expiration.setMonth(expiration.getMonth() + 1);
+    const expirationISO = expiration.toISOString();
+    const { error } = await supabase
+      .from('utilisateurs')
+      .update({ abonnement: 'pro', abonnement_expiration: expirationISO })
+      .eq('id', user?.id);
+    if (!error) {
+      setLocalUser(prev => prev ? { ...prev, abonnement: 'pro', abonnement_expiration: expirationISO } : prev);
+      setSuccessMessage(`Votre paiement a bien été validé. Vous êtes abonné à Homees Pro jusqu'au ${format(expiration, 'dd MMMM yyyy', { locale: fr })}.`);
+      router.refresh();
+    }
+    setAbonnementLoading(false);
+  };
+
+  // Annulation de l'abonnement
+  const handleCancelPro = async () => {
+    setShowCancelModal(false);
+    setAbonnementLoading(true);
+    const { error } = await supabase
+      .from('utilisateurs')
+      .update({ abonnement: 'free', abonnement_expiration: null })
+      .eq('id', user?.id);
+    if (!error) {
+      setLocalUser(prev => prev ? { ...prev, abonnement: 'free', abonnement_expiration: null } : prev);
+      setSuccessMessage('Votre abonnement Pro a bien été annulé. Vous êtes repassé à la formule Free.');
+      router.refresh();
+    }
+    setAbonnementLoading(false);
+  };
+
+  // Affichage de la date d'expiration
+  const expirationDate = localUser?.abonnement_expiration ? format(new Date(localUser.abonnement_expiration), "dd MMMM yyyy", { locale: fr }) : null;
+  const isPro = localUser?.abonnement === 'pro' && localUser.abonnement_expiration && new Date(localUser.abonnement_expiration) > new Date();
+
+  // Ajout de l'onglet Abonnement uniquement pour les gestionnaires
+  const tabs = [
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'zones', label: 'Zones & Déplacements', icon: MapPin },
+    { id: 'biens', label: 'Types de biens', icon: Buildings },
+    { id: 'tarifs', label: 'Tarification', icon: CurrencyEur },
+    { id: 'horaires', label: 'Horaires', icon: Clock },
+  ];
+  if (user && user.role === 'gestionnaire') {
+    tabs.push({ id: 'abonnement', label: 'Abonnement', icon: CreditCard });
+  }
+
   return (
     <div className="space-y-6">
       {/* Header avec bouton de sauvegarde */}
@@ -263,13 +330,7 @@ export default function ParametresGestionnairePage() {
       <div className="bg-white rounded-lg shadow">
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-6">
-            {[
-              { id: 'notifications', label: 'Notifications', icon: Bell },
-              { id: 'zones', label: 'Zones & Déplacements', icon: MapPin },
-              { id: 'biens', label: 'Types de biens', icon: Buildings },
-              { id: 'tarifs', label: 'Tarification', icon: CurrencyEur },
-              { id: 'horaires', label: 'Horaires', icon: Clock }
-            ].map((tab) => {
+            {tabs.map((tab) => {
               const TabIcon = tab.icon;
               return (
                 <button
@@ -740,6 +801,123 @@ export default function ParametresGestionnairePage() {
                   </div>
                 ))}
               </div>
+            </Section>
+          </div>
+        )}
+
+        {/* Onglet Abonnement */}
+        {activeTab === 'abonnement' && user && user.role === 'gestionnaire' && (
+          <div className="space-y-6">
+            <Section title="Votre abonnement" icon={CreditCard}>
+              {successMessage && (
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg px-4 py-3 mb-4 text-sm flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-500" />
+                  {successMessage}
+                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Carte Free */}
+                <div className={`bg-gray-50 rounded-xl border border-gray-200 p-6 flex flex-col justify-between shadow-sm ${!isPro ? 'ring-2 ring-emerald-400' : ''}`}>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">Formule Free <Shield className="h-5 w-5 text-gray-400" /></h3>
+                    <p className="text-gray-600 mt-2 mb-4">Idéal pour démarrer gratuitement sur Homees.</p>
+                    <ul className="space-y-2 text-gray-700 text-sm mb-6">
+                      <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> Visibilité dans le comparateur</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> 3 conversations actives</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> Support par email</li>
+                    </ul>
+                  </div>
+                  <div className="mt-auto flex flex-col gap-2">
+                    <span className="inline-block bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold">Gratuit</span>
+                    {!isPro && (
+                      <span className="mt-2 text-xs text-emerald-600 font-semibold">Votre formule actuelle</span>
+                    )}
+                  </div>
+                </div>
+                {/* Carte Pro */}
+                <div className={`bg-white rounded-xl border-2 border-emerald-500 p-6 flex flex-col justify-between shadow-lg relative ${isPro ? 'ring-2 ring-emerald-500' : ''}`}>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">Formule Pro <ShieldCheck className="h-5 w-5 text-emerald-500" /></h3>
+                    <p className="text-gray-600 mt-2 mb-4">Débloquez tout le potentiel de Homees pour booster votre activité.</p>
+                    <ul className="space-y-2 text-gray-700 text-sm mb-6">
+                      <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> Visibilité prioritaire dans le comparateur</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> Messagerie illimitée</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> Accès aux statistiques avancées</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> Support prioritaire</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> Badge "Gestionnaire Pro" sur votre profil</li>
+                    </ul>
+                  </div>
+                  <div className="mt-auto flex flex-col gap-2">
+                    <span className="inline-block bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg font-semibold mb-2">59€ / mois</span>
+                    {isPro ? (
+                      <>
+                        <span className="text-xs text-emerald-700 font-semibold">Votre formule actuelle</span>
+                        <span className="text-xs text-gray-600">Expiration : {expirationDate}</span>
+                        <button
+                          className="mt-2 bg-red-100 text-red-700 px-4 py-2 rounded-lg font-semibold hover:bg-red-200 transition-colors"
+                          onClick={() => setShowCancelModal(true)}
+                          disabled={abonnementLoading}
+                        >
+                          Annuler l'abonnement
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
+                        onClick={() => setShowPaymentModal(true)}
+                        disabled={abonnementLoading}
+                      >
+                        Passer à Pro
+                      </button>
+                    )}
+                  </div>
+                  {isPro && (
+                    <span className="absolute top-4 right-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-bold">Pro</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Modal paiement factice */}
+              {showPaymentModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+                  <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full relative">
+                    <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => setShowPaymentModal(false)}><XCircle className="h-5 w-5" /></button>
+                    <h3 className="text-lg font-bold mb-4">Paiement de l'abonnement Pro</h3>
+                    <p className="text-gray-600 mb-6">Ce formulaire est factice. Cliquez sur "Valider le paiement" pour simuler la souscription.</p>
+                    <button
+                      className="w-full bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
+                      onClick={handleSubscribePro}
+                      disabled={abonnementLoading}
+                    >
+                      Valider le paiement
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Modal annulation */}
+              {showCancelModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+                  <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full relative">
+                    <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => setShowCancelModal(false)}><XCircle className="h-5 w-5" /></button>
+                    <h3 className="text-lg font-bold mb-4 text-red-700">Annuler l'abonnement Pro</h3>
+                    <p className="text-gray-600 mb-6">Êtes-vous sûr de vouloir annuler votre abonnement Pro ? Vous conserverez les avantages Pro jusqu'à la prochaine échéance.</p>
+                    <button
+                      className="w-full bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors mb-2"
+                      onClick={handleCancelPro}
+                      disabled={abonnementLoading}
+                    >
+                      Confirmer l'annulation
+                    </button>
+                    <button
+                      className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                      onClick={() => setShowCancelModal(false)}
+                    >
+                      Retour
+                    </button>
+                  </div>
+                </div>
+              )}
             </Section>
           </div>
         )}

@@ -40,7 +40,7 @@ export function useAuth(redirectOnError: boolean = true) {
         // Récupérer le profil utilisateur depuis la table utilisateurs
         const { data: userData, error: userError } = await supabase
           .from('utilisateurs')
-          .select('id, nom, email, "rôle"')
+          .select('id, nom, email, "rôle", abonnement, abonnement_expiration')
           .eq('id', authUser.id)
           .single();
           
@@ -57,7 +57,9 @@ export function useAuth(redirectOnError: boolean = true) {
           id: userData.id,
           nom: userData.nom,
           email: userData.email,
-          role: userData.rôle as UserProfile['role']
+          role: userData.rôle as UserProfile['role'],
+          abonnement: userData.abonnement as 'free' | 'pro',
+          abonnement_expiration: userData.abonnement_expiration || null
         });
 
       } catch (error) {

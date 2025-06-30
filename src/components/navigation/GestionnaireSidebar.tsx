@@ -205,8 +205,14 @@ export default function GestionnaireSidebar({ userProfile }: GestionnaireSidebar
                   <p className="text-sm font-medium text-gray-900 truncate">
                     {userProfile.nom}
                   </p>
-                  <p className="text-xs text-emerald-600 truncate">
-                    Gestionnaire Pro
+                  <p className={`text-xs font-bold truncate mt-0.5 ${
+                    userProfile.abonnement === 'pro' && userProfile.abonnement_expiration && new Date(userProfile.abonnement_expiration) > new Date()
+                      ? 'text-emerald-600'
+                      : 'text-gray-400'
+                  }`}>
+                    {userProfile.abonnement === 'pro' && userProfile.abonnement_expiration && new Date(userProfile.abonnement_expiration) > new Date()
+                      ? 'Gestionnaire Pro'
+                      : 'Gestionnaire Free'}
                   </p>
                 </div>
               </div>

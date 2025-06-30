@@ -7,6 +7,8 @@ export interface UserProfile {
   nom: string;
   email: string;
   role: 'proprietaire' | 'gestionnaire' | 'admin';
+  abonnement: 'free' | 'pro';
+  abonnement_expiration?: string | null;
 }
 
 /**
@@ -62,7 +64,7 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
     // Récupérer les données utilisateur
     const { data: userData, error: profileError } = await supabase
       .from('utilisateurs')
-      .select('id, nom, email, "rôle"')
+      .select('id, nom, email, "rôle", abonnement, abonnement_expiration')
       .eq('id', user.id)
       .single();
 
@@ -74,7 +76,9 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
       id: userData.id,
       nom: userData.nom,
       email: userData.email,
-      role: userData.rôle as UserProfile['role']
+      role: userData.rôle as UserProfile['role'],
+      abonnement: userData.abonnement as 'free' | 'pro',
+      abonnement_expiration: userData.abonnement_expiration || null
     };
 
   } catch (error) {

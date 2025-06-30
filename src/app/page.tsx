@@ -48,7 +48,7 @@ export default function HomePage() {
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link 
-                href="/demo" 
+                href="/signup" 
                 className="bg-white border-2 border-emerald-600 text-emerald-600 px-8 py-4 rounded-xl hover:bg-emerald-50 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold inline-flex items-center justify-center group text-lg"
               >
                 Tester gratuitement
