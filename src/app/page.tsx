@@ -16,13 +16,13 @@ import {
   Eye,
   Timer,
 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
     <div className="min-h-screen bg-white">
-
       {/* Header clair et impactant */}
       <section className="relative min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 overflow-hidden pt-16">
         <div className="container mx-auto px-6 py-20 md:py-32 relative z-10">
@@ -210,12 +210,19 @@ export default function HomePage() {
 
           {/* Screenshot placeholder */}
           <div className="bg-white p-8 rounded-2xl shadow-xl">
-            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl h-96 flex items-center justify-center">
-              <div className="text-center">
-                <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 font-medium">Aperçu du dashboard HOMEES</p>
-                <p className="text-gray-400 text-sm">Interface de comparaison des gestionnaires</p>
-              </div>
+            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl h-96 flex items-center justify-center relative overflow-hidden">
+              <Image
+                src="/non.jpg"
+                alt="Aperçu du dashboard HOMEES"
+                fill
+                className="object-cover rounded-xl"
+                style={{ objectPosition: 'center' }}
+                priority
+              />
+            </div>
+            <div className="text-center mt-4">
+              <p className="text-gray-500 font-medium">Aperçu du dashboard HOMEES</p>
+              <p className="text-gray-400 text-sm">Interface de comparaison des gestionnaires</p>
             </div>
           </div>
         </div>
