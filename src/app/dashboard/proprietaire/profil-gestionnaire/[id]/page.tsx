@@ -2,13 +2,12 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Star, ChatCircle, Envelope, User, MapPin, Phone, Globe, CircleNotch, WarningCircle, ArrowLeft, X, Check } from '@phosphor-icons/react';
+import { Star, ChatCircle, Envelope, User, MapPin, Phone, Globe, CircleNotch, WarningCircle, ArrowLeft, X, Check, PencilSimple } from '@phosphor-icons/react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { useGestionnaire } from '@/hooks/useGestionnaire';
-import { useAvisGestionnaire } from '@/hooks/useAvisGestionnaire';
 import { useCreateDemande } from '@/hooks/useCreateDemande';
 import { useAuth } from '@/hooks/useAuth';
-import { useBiensProprietaire } from '@/hooks/useBiensProprietaire';
+import { useBiensProprietaire, useBiensEnGestion, useAvisGestionnaireSimple } from '@/hooks';
 
 const containerStyle = {
   width: '100%',
@@ -132,7 +131,128 @@ Cordialement`;
   );
 }
 
-function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis }: any) {
+// Modal pour laisser un avis
+function ModalLaisserAvis({ isOpen, onClose, gestionnaire, hasBiensEnGestion, onSubmit, isSubmitting }: any) {
+  const [note, setNote] = useState(5);
+  const [commentaire, setCommentaire] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!hasBiensEnGestion) return;
+    
+    onSubmit({
+      gestionnaire_id: gestionnaire?.gestionnaire_id || gestionnaire?.id,
+      note,
+      commentaire: commentaire.trim() || undefined
+    });
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Laisser un avis</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+            disabled={isSubmitting}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {!hasBiensEnGestion ? (
+          <div className="text-center py-6">
+            <WarningCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">
+              Aucun bien en gestion
+            </h4>
+            <p className="text-gray-600 mb-4">
+              Vous devez avoir au moins un bien en gestion avec ce gestionnaire pour pouvoir laisser un avis.
+            </p>
+            <button
+              onClick={onClose}
+              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200"
+            >
+              Fermer
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            {/* Note */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Note *
+              </label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setNote(star)}
+                    className={`p-1 ${star <= note ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-500`}
+                    disabled={isSubmitting}
+                  >
+                    <Star className="h-6 w-6" />
+                  </button>
+                ))}
+                <span className="ml-2 text-sm text-gray-600">{note}/5</span>
+              </div>
+            </div>
+
+            {/* Commentaire */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Commentaire (optionnel)
+              </label>
+              <textarea
+                value={commentaire}
+                onChange={(e) => setCommentaire(e.target.value)}
+                placeholder="Partagez votre expérience avec ce gestionnaire..."
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                rows={4}
+                disabled={isSubmitting}
+              />
+            </div>
+
+            {/* Boutons */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                disabled={isSubmitting}
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                className="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <CircleNotch className="h-4 w-4 animate-spin" />
+                    Envoi...
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Publier l'avis
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis, onLaisserAvis, hasBiensEnGestion }: any) {
   if (!gestionnaire) return null;
 
   return (
@@ -176,6 +296,12 @@ function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis }: 
           </div>
         )}
         <div className="flex gap-2 mt-2">
+          <button 
+            onClick={onLaisserAvis}
+            className="bg-yellow-500 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 hover:bg-yellow-600"
+          >
+            <PencilSimple className="h-4 w-4" /> Laisser un avis
+          </button>
           <button 
             onClick={onDemanderDevis}
             className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 font-medium flex items-center gap-2 hover:bg-gray-200"
@@ -378,7 +504,7 @@ function AvisGestionnaire({ avis, loading, error, totalCount, moyenneNotes }: an
           {avis.map((avisItem: any) => (
             <div key={avisItem.id} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-semibold text-sm">{avisItem.auteur_nom}</span>
+                <span className="font-semibold text-sm">{avisItem.auteur?.[0]?.nom || 'Utilisateur anonyme'}</span>
                 <span className="flex items-center gap-1 text-yellow-500 text-xs font-medium">
                   {avisItem.note} <Star className="h-3 w-3" />
                 </span>
@@ -403,15 +529,18 @@ export default function PageProfilGestionnaire() {
   const router = useRouter();
   const gestionnaireId = params.id as string;
   
-  // États du modal
+  // États des modals
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAvisModalOpen, setIsAvisModalOpen] = useState(false);
+  const [isCreatingAvis, setIsCreatingAvis] = useState(false);
 
   // Auth sans redirection (gérée par le layout parent)
   const { user } = useAuth(false);
   
   // Hooks pour les données
   const { gestionnaire, loading: gestionnaireLoading, error: gestionnaireError } = useGestionnaire(gestionnaireId);
-  const { avis, loading: avisLoading, error: avisError, totalCount, moyenneNotes } = useAvisGestionnaire(gestionnaireId, 12);
+  const { avis, loading: avisLoading, error: avisError, createAvis, canCreateAvis } = useAvisGestionnaireSimple(gestionnaireId);
+  const { hasBiensEnGestion, loading: biensLoading } = useBiensEnGestion(user?.id, gestionnaireId);
   const { createDemande, isCreating } = useCreateDemande(user?.id || '');
   const { biens } = useBiensProprietaire(user?.id || '');
 
@@ -436,6 +565,30 @@ export default function PageProfilGestionnaire() {
     } else {
       // Afficher l'erreur (vous pouvez améliorer cela avec un toast)
       alert(result.error || 'Erreur lors de la création de la demande');
+    }
+  };
+
+  const handleLaisserAvis = () => {
+    setIsAvisModalOpen(true);
+  };
+
+  const handleSubmitAvis = async (avisData: any) => {
+    setIsCreatingAvis(true);
+    try {
+      const success = await createAvis(avisData);
+      
+      if (success) {
+        setIsAvisModalOpen(false);
+        // Optionnel : afficher un message de succès
+        alert('Votre avis a été publié avec succès !');
+      } else {
+        alert('Erreur lors de la publication de l\'avis');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'avis:', error);
+      alert('Erreur lors de la publication de l\'avis');
+    } finally {
+      setIsCreatingAvis(false);
     }
   };
 
@@ -475,6 +628,8 @@ export default function PageProfilGestionnaire() {
         gestionnaire={gestionnaire} 
         onContact={handleContact}
         onDemanderDevis={handleDemanderDevis}
+        onLaisserAvis={handleLaisserAvis}
+        hasBiensEnGestion={hasBiensEnGestion}
       />
       <StatsGestionnaire gestionnaire={gestionnaire} />
       <ServicesTarifs gestionnaire={gestionnaire} />
@@ -484,8 +639,8 @@ export default function PageProfilGestionnaire() {
         avis={avis}
         loading={avisLoading}
         error={avisError}
-        totalCount={totalCount}
-        moyenneNotes={moyenneNotes}
+        totalCount={avis.length}
+        moyenneNotes={avis.length > 0 ? Math.round((avis.reduce((acc, a) => acc + a.note, 0) / avis.length) * 10) / 10 : 0}
       />
 
       {/* Modal pour créer une demande */}
@@ -496,6 +651,16 @@ export default function PageProfilGestionnaire() {
         biens={biens}
         onSubmit={handleSubmitDemande}
         isSubmitting={isCreating}
+      />
+
+      {/* Modal pour laisser un avis */}
+      <ModalLaisserAvis
+        isOpen={isAvisModalOpen}
+        onClose={() => setIsAvisModalOpen(false)}
+        gestionnaire={gestionnaire}
+        hasBiensEnGestion={hasBiensEnGestion}
+        onSubmit={handleSubmitAvis}
+        isSubmitting={isCreatingAvis}
       />
     </div>
   );

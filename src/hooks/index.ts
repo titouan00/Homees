@@ -19,4 +19,7 @@ export { useDemandes } from './useDemandes';
 export { useCreateDemande } from './useCreateDemande';
 export { useUpdateDemande } from './useUpdateDemande';
 export { useBiensProprietaire } from './useBiensProprietaire';
+export { useBiensEnGestion } from './useBiensEnGestion';
+export { useAvisGestionnaireSimple } from './useAvisGestionnaireSimple';
+export { useDemandesProprietaire } from './useDemandesProprietaire';
 

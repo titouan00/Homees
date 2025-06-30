@@ -13,9 +13,9 @@ import {
   Calendar,
   Plus
 } from '@phosphor-icons/react';
-import { useDemandes } from '@/hooks/useDemandes';
+import { useDemandesProprietaire, DemandeWithDetails } from '@/hooks/useDemandesProprietaire';
 import { useAuth } from '@/hooks/useAuth';
-import { DemandeWithDetails, FiltresDemandes } from '@/types/messaging';
+import { FiltresDemandes } from '@/types/messaging';
 import FiltresDemandesSimple from '@/components/demandes/FiltresDemandesSimple';
 import Badge from '@/components/ui/Badge';
 import CustomButton from '@/components/ui/CustomButton';
@@ -45,7 +45,7 @@ export default function MesDemandesPage() {
   }), [user?.id, filtres, searchValue, currentPage]);
 
   // Hook pour récupérer les données
-  const { demandes, loading, error, totalCount } = useDemandes(searchParams);
+  const { demandes, loading, error, totalCount } = useDemandesProprietaire(searchParams);
 
   // Calcul de la pagination
   const totalPages = Math.ceil(totalCount / 10);

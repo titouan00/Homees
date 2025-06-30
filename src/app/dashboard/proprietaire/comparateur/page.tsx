@@ -55,7 +55,7 @@ export default function ComparateurPage() {
   const handleContact = useCallback((gestionnaire: Gestionnaire) => {
     // TODO: Implémenter la logique de contact/messagerie
     console.log('Contacter gestionnaire:', gestionnaire);
-    router.push(`/dashboard/proprietaire/messages?gestionnaire=${gestionnaire.gestionnaire_id}`);
+    router.push(`/dashboard/messages?gestionnaire=${gestionnaire.gestionnaire_id}`);
   }, [router]);
 
   const handleViewProfile = useCallback((gestionnaire: Gestionnaire) => {
