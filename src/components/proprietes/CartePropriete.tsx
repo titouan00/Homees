@@ -1,6 +1,6 @@
 'use client';
 
-import { Propriete } from '@/types/propriete';
+import { ProprieteAvecGestion } from '@/types/propriete';
 import { useProprieteMeta, useCaracteristiques, useEquipements } from '@/hooks';
 import { 
   CarteHeader, 
@@ -10,15 +10,16 @@ import {
   SectionNotes, 
   CarteFooter 
 } from './components';
+import { Building, XCircle } from '@phosphor-icons/react';
 
 interface CarteProprieteProps {
-  propriete: Propriete;
-  onModifier: (propriete: Propriete) => void;
+  propriete: ProprieteAvecGestion;
+  onModifier: (propriete: ProprieteAvecGestion) => void;
   onSupprimer: (id: string) => void;
 }
 
 /**
- * Composant carte pour afficher une propriété - Version refactorisée modulaire
+ * Composant carte pour afficher une propriété avec informations de gestion
  */
 export default function CartePropriete({ propriete, onModifier, onSupprimer }: CarteProprieteProps) {
   // Hooks personnalisés pour extraire la logique
@@ -68,6 +69,33 @@ export default function CartePropriete({ propriete, onModifier, onSupprimer }: C
           rendementMensuel={rendementMensuel}
           formatPrix={formatPrix}
         />
+
+        {/* Section Gestion */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">Gestion</h4>
+          {propriete.gestion?.en_gestion ? (
+            <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <Building className="h-4 w-4 text-emerald-600" />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-emerald-800">
+                  Géré par {propriete.gestion.nom_agence}
+                </div>
+                <div className="text-xs text-emerald-600">
+                  {propriete.gestion.date_debut_gestion && 
+                    `Depuis le ${formatDate(propriete.gestion.date_debut_gestion)}`
+                  }
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <XCircle className="h-4 w-4 text-gray-500" />
+              <div className="text-sm text-gray-600">
+                Bien non géré par une agence
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Notes si présentes */}
         <SectionNotes notes={propriete.notes} />
