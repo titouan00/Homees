@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase-client';
-import { useProprietesCount, useUnreadMessages } from '@/hooks';
+import { useProprietesCount, useUnreadMessages, useDemandesCount } from '@/hooks';
 import { NavigationItem } from './NavigationItem';
 import { UserProfile } from '@/lib/auth-server';
 import {
@@ -46,33 +46,42 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
     userProfile.role as 'proprietaire' | 'gestionnaire'
   );
 
+  // Hook pour récupérer le nombre de demandes
+  const { count: demandesCount, loading: demandesLoading } = useDemandesCount(
+    userProfile.role === 'proprietaire' ? userProfile.id : undefined
+  );
+
   // Navigation principale - Section "Général"
   const generalNavigation = [
     {
       name: 'Tableau de bord',
       href: `/dashboard/${userProfile.role}`,
       icon: SquaresFour,
-      badge: 16,
       current: pathname === `/dashboard/${userProfile.role}`
     },
     {
       name: 'Comparateur',
       href: `/dashboard/${userProfile.role}/comparateur`,
       icon: Scales,
-      badge: 0,
       current: pathname.includes('/comparateur')
     },
     {
       name: 'Mes biens',
       href: `/dashboard/${userProfile.role}/biens`,
       icon: Buildings,
-      current: pathname.includes('/biens')
+      current: pathname.includes('/biens'),
+      isSpecialBadge: userProfile.role === 'proprietaire',
+      specialBadgeCount: userProfile.role === 'proprietaire' ? biensCount : undefined,
+      specialBadgeLoading: userProfile.role === 'proprietaire' ? biensLoading : false
     },
     {
       name: 'Demandes',
       href: `/dashboard/${userProfile.role}/demandes`,
       icon: FileText,
-      current: pathname.includes('/demandes')
+      current: pathname.includes('/demandes'),
+      isSpecialBadge: userProfile.role === 'proprietaire',
+      specialBadgeCount: demandesCount,
+      specialBadgeLoading: demandesLoading
     },
     {
       name: 'Messages',
@@ -91,7 +100,6 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
       name: 'Mon profil',
       href: `/dashboard/${userProfile.role}/profil`,
       icon: User,
-      badge: 16,
       current: pathname.includes('/profil')
     },
     {
@@ -143,10 +151,9 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   href={item.href}
                   icon={item.icon}
                   current={item.current}
-                  badge={item.badge}
-                  isSpecialBadge={item.isSpecialBadge || (item.name === 'Mes biens' && userProfile.role === 'proprietaire')}
-                  specialBadgeCount={item.specialBadgeCount || (item.name === 'Mes biens' ? biensCount : undefined)}
-                  specialBadgeLoading={item.specialBadgeLoading || (item.name === 'Mes biens' ? biensLoading : false)}
+                  isSpecialBadge={item.isSpecialBadge}
+                  specialBadgeCount={item.specialBadgeCount}
+                  specialBadgeLoading={item.specialBadgeLoading}
                 />
               ))}
             </div>
@@ -165,7 +172,6 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   href={item.href}
                   icon={item.icon}
                   current={item.current}
-                  badge={item.badge}
                 />
               ))}
             </div>

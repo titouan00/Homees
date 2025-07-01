@@ -39,6 +39,15 @@ export interface Propriete {
   mis_a_jour_le?: string;
 }
 
+export interface ProprieteAvecGestion extends Propriete {
+  gestion?: {
+    en_gestion: boolean;
+    nom_agence?: string;
+    gestionnaire_id?: string;
+    date_debut_gestion?: string;
+  };
+}
+
 export type TypeBien = 
   | 'appartement' 
   | 'maison' 

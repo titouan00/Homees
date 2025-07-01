@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, MagnifyingGlass, Funnel, Buildings, CircleNotch, House, WarningCircle, X } from '@phosphor-icons/react';
 import { supabase } from '@/lib/supabase-client';
 import { useProprietes } from '@/hooks/useProprietes';
-import { Propriete, FiltresProprietes } from '@/types/propriete';
+import { ProprieteAvecGestion, FiltresProprietes } from '@/types/propriete';
 import CartePropriete from '@/components/proprietes/CartePropriete';
 import FiltresProprietesComponent from '@/components/proprietes/FiltresProprietes';
 
@@ -77,7 +77,7 @@ export default function MesBiensPage() {
     router.push('/dashboard/proprietaire/biens/nouveau');
   }, [router]);
 
-  const handleModifierPropriete = useCallback((propriete: Propriete) => {
+  const handleModifierPropriete = useCallback((propriete: ProprieteAvecGestion) => {
     router.push(`/dashboard/proprietaire/biens/${propriete.id}/modifier`);
   }, [router]);
 

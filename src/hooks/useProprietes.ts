@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Propriete, NouvelleProprieteForme, FiltresProprietes } from '@/types/propriete';
+import { Propriete, ProprieteAvecGestion, NouvelleProprieteForme, FiltresProprietes } from '@/types/propriete';
 
 interface UseProprietesReturn {
-  proprietes: Propriete[];
+  proprietes: ProprieteAvecGestion[];
   loading: boolean;
   error: string | null;
   totalCount: number;
@@ -24,10 +24,10 @@ interface UseProprietesParams {
 }
 
 /**
- * Hook pour gérer les propriétés d'un propriétaire
+ * Hook pour gérer les propriétés d'un propriétaire avec informations de gestion
  */
 export function useProprietes(params: UseProprietesParams): UseProprietesReturn {
-  const [proprietes, setProprietes] = useState<Propriete[]>([]);
+  const [proprietes, setProprietes] = useState<ProprieteAvecGestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -47,6 +47,7 @@ export function useProprietes(params: UseProprietesParams): UseProprietesReturn 
       setLoading(true);
       setError(null);
 
+      // D'abord récupérer les propriétés avec le count total
       let query = supabase
         .from('propriete')
         .select('*', { count: 'exact' })
@@ -107,13 +108,53 @@ export function useProprietes(params: UseProprietesParams): UseProprietesReturn 
       const to = from + limit - 1;
       query = query.range(from, to);
 
-      const { data, error: fetchError, count } = await query;
+      const { data: proprietesData, error: fetchError, count } = await query;
 
       if (fetchError) {
         throw fetchError;
       }
 
-      setProprietes(data || []);
+      if (!proprietesData || proprietesData.length === 0) {
+        setProprietes([]);
+        setTotalCount(count || 0);
+        return;
+      }
+
+      // Récupérer les informations de gestion pour chaque propriété
+      const proprietesAvecGestion: ProprieteAvecGestion[] = [];
+
+      for (const propriete of proprietesData) {
+        // Vérifier s'il y a un contrat actif pour cette propriété
+        const { data: contratData } = await supabase
+          .from('contrat')
+          .select(`
+            statut,
+            "créé_le",
+            gestionnaire_id,
+            profil_gestionnaire(nom_agence)
+          `)
+          .eq('propriete_id', propriete.id)
+          .eq('statut', 'actif')
+          .order('créé_le', { ascending: false })
+          .limit(1)
+          .single();
+
+        const proprieteAvecGestion: ProprieteAvecGestion = {
+          ...propriete,
+          gestion: contratData ? {
+            en_gestion: true,
+            nom_agence: (contratData.profil_gestionnaire as any)?.nom_agence || 'Agence inconnue',
+            gestionnaire_id: contratData.gestionnaire_id,
+            date_debut_gestion: contratData.créé_le
+          } : {
+            en_gestion: false
+          }
+        };
+
+        proprietesAvecGestion.push(proprieteAvecGestion);
+      }
+
+      setProprietes(proprietesAvecGestion);
       setTotalCount(count || 0);
 
     } catch (err) {
