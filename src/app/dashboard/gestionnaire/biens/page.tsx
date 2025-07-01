@@ -21,10 +21,10 @@ import {
   CircleNotch,
   Trash,
   ArrowClockwise,
-  NotePencil,
-  Warning,
+  Check,
   X,
-  User
+  NotePencil,
+  Warning
 } from '@phosphor-icons/react';
 
 // Composant carte de bien
@@ -35,6 +35,7 @@ function CarteBien({
   onEdit, 
   onDelete, 
   onRestore, 
+  onModify, 
   viewMode,
   showDeleted = false 
 }: {
@@ -44,9 +45,13 @@ function CarteBien({
   onEdit: (bien: BienEnGestion) => void;
   onDelete: (bien: BienEnGestion) => void;
   onRestore: (bien: BienEnGestion) => void;
+  onModify: (bienId: string, field: string, value: any) => void;
   viewMode: 'grid' | 'list';
   showDeleted?: boolean;
 }) {
+  const [isEditing, setIsEditing] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<{ [key: string]: any }>({});
+
   const getStatutColor = (statut: string | null) => {
     switch (statut) {
       case 'occupe':
@@ -71,6 +76,62 @@ function CarteBien({
       default:
         return 'Non défini';
     }
+  };
+
+  const handleStartEdit = (field: string, currentValue: any) => {
+    setIsEditing(field);
+    setEditValues({ ...editValues, [field]: currentValue });
+  };
+
+  const handleSaveEdit = (field: string) => {
+    const newValue = editValues[field];
+    onModify(bien.id, field, newValue);
+    setIsEditing(null);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(null);
+    setEditValues({});
+  };
+
+  const renderEditableField = (field: string, currentValue: any, label: string, type: 'text' | 'number' = 'text') => {
+    if (isEditing === field) {
+      return (
+        <div className="flex items-center gap-2">
+          <input
+            type={type}
+            value={editValues[field] || ''}
+            onChange={(e) => setEditValues({ ...editValues, [field]: e.target.value })}
+            className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+            autoFocus
+          />
+          <button
+            onClick={() => handleSaveEdit(field)}
+            className="p-1 text-green-600 hover:bg-green-50 rounded"
+          >
+            <Check className="h-4 w-4" />
+          </button>
+          <button
+            onClick={handleCancelEdit}
+            className="p-1 text-red-600 hover:bg-red-50 rounded"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-between group">
+        <span>{label}: <span className="font-medium">{currentValue || 'Non défini'}</span></span>
+        <button
+          onClick={() => handleStartEdit(field, currentValue)}
+          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-all"
+        >
+          <PencilSimple className="h-3 w-3" />
+        </button>
+      </div>
+    );
   };
 
   const revenuAffiché = bien.revenue_mensuel_custom && bien.revenue_mensuel_custom > 0 
@@ -101,9 +162,8 @@ function CarteBien({
               <p className="text-sm text-gray-600">Surface</p>
               <p className="font-medium">{bien.surface_m2} m²</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Revenu mensuel</p>
-              <p className="text-xl font-bold text-emerald-600">{revenuAffiché.toLocaleString()}€</p>
+            <div className="space-y-1">
+              {renderEditableField('revenue_mensuel_custom', revenuAffiché, 'Revenu', 'number')}
             </div>
             <div>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatutColor(bien.statut_occupation)}`}>
@@ -158,117 +218,105 @@ function CarteBien({
     );
   }
 
-  // Vue grille - design premium et moderne
+  // Vue grille
   return (
-    <div className={`relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all border border-gray-100 overflow-hidden ${bien.supprime ? 'opacity-60 bg-gray-50' : ''}`}>  
-      {/* Badge statut en haut à droite */}
-      <div className="absolute top-4 right-4 z-10">
-        <span className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${getStatutColor(bien.statut_occupation)} border border-white`}>{getStatutLabel(bien.statut_occupation)}</span>
-      </div>
-
-      <div className="p-6 pb-4 flex flex-col gap-4">
-        {/* Header: Adresse + Loyer */}
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-gray-900 truncate">{bien.adresse}</h3>
-            <p className="text-xs text-gray-500 truncate">{bien.ville}</p>
+    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden ${bien.supprime ? 'opacity-60 bg-gray-50' : ''}`}>
+      {bien.supprime && (
+        <div className="bg-red-50 border-b border-red-200 px-4 py-2">
+          <div className="flex items-center gap-2 text-red-600 text-sm">
+            <Warning className="h-4 w-4" />
+            <span>Supprimé le {new Date(bien.date_suppression!).toLocaleDateString()}</span>
           </div>
-          <div className="flex flex-col items-end">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold text-lg shadow-sm">
-              <CurrencyEur className="h-5 w-5 mr-1 text-emerald-500" />
-              {revenuAffiché.toLocaleString()}€
+        </div>
+      )}
+      
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 mb-1">{bien.adresse}</h3>
+            <p className="text-sm text-gray-600 mb-2">{bien.ville}</p>
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatutColor(bien.statut_occupation)}`}>
+              {getStatutLabel(bien.statut_occupation)}
             </span>
-            {bien.revenue_mensuel_custom && bien.revenue_mensuel_custom > 0 && (
-              <span className="text-xs text-emerald-500 mt-1">Revenu réel</span>
-            )}
           </div>
         </div>
 
-        {/* Infos clés en grille */}
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-blue-400" />
+        <div className="space-y-3 mb-4">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Type:</span>
             <span className="font-medium capitalize">{bien.type_bien}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <TrendUp className="h-4 w-4 text-amber-400" />
-            <span>{bien.rentabilite ? `${bien.rentabilite}%` : '--'} rentabilité</span>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Surface:</span>
+            <span className="font-medium">{bien.surface_m2} m²</span>
           </div>
-          <div className="flex items-center gap-2">
-            <SquaresFour className="h-4 w-4 text-gray-400" />
-            <span>{bien.surface_m2} m²</span>
+          <div className="text-sm">
+            {renderEditableField('revenue_mensuel_custom', revenuAffiché, 'Revenu mensuel', 'number')}
           </div>
-          <div className="flex items-center gap-2">
-            <CurrencyEur className="h-4 w-4 text-gray-400" />
-            <span>{bien.charges_mensuelles ? `${bien.charges_mensuelles}€/mois` : 'Charges --'}</span>
-          </div>
+          {bien.rentabilite && (
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Rentabilité:</span>
+              <span className="font-medium text-blue-600">{bien.rentabilite}%</span>
+            </div>
+          )}
         </div>
 
-        {/* Équipements */}
-        {(bien.balcon || bien.parking) && (
-          <div className="flex gap-2 mt-2">
-            {bien.balcon && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
-                <NotePencil className="h-3 w-3" /> Balcon
-              </span>
-            )}
-            {bien.parking && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 text-purple-700 text-xs rounded-full font-medium">
-                <NotePencil className="h-3 w-3" /> Parking
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Propriétaire */}
-        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-          <User className="h-4 w-4 text-gray-400" />
-          <span className="font-medium text-gray-700">{bien.proprietaire.nom}</span>
-          {bien.proprietaire.telephone && <span className="ml-2">• {bien.proprietaire.telephone}</span>}
+        <div className="border-t pt-4">
+          <p className="text-sm text-gray-600 mb-2">Propriétaire:</p>
+          <p className="font-medium text-gray-900">{bien.proprietaire.nom}</p>
+          {bien.proprietaire.telephone && (
+            <p className="text-sm text-gray-600">{bien.proprietaire.telephone}</p>
+          )}
         </div>
 
-        {/* Notes */}
-        {bien.notes_gestion && (
-          <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-700 mt-2 border border-gray-100">
-            <span className="font-semibold text-gray-500">Note :</span> {bien.notes_gestion}
+        {/* Zone de notes */}
+        <div className="border-t pt-4 mt-4">
+          <div className="text-sm">
+            {renderEditableField('notes_gestion', bien.notes_gestion, 'Notes de gestion', 'text')}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Actions en bas */}
-      <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-t flex flex-col gap-2">
+      <div className="px-6 py-3 bg-gray-50 border-t flex justify-between">
         <button
-          onClick={() => onEdit(bien)}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition-all text-base"
+          onClick={() => onViewDetails(bien)}
+          className="flex items-center text-sm text-emerald-600 hover:text-emerald-700 font-medium"
         >
-          <PencilSimple className="h-5 w-5" /> Modifier
+          <Eye className="h-4 w-4 mr-1" />
+          Détails
         </button>
-        <div className="flex gap-2 justify-between">
-          <button
-            onClick={() => onViewDetails(bien)}
-            className="flex-1 flex items-center justify-center gap-1 text-sm text-gray-500 hover:text-emerald-600 font-medium transition-colors"
-          >
-            <Eye className="h-4 w-4" /> Détails
-          </button>
-          <button
-            onClick={() => onContact(bien)}
-            className="flex-1 flex items-center justify-center gap-1 text-sm text-gray-500 hover:text-purple-600 font-medium transition-colors"
-          >
-            <ChatCircle className="h-4 w-4" /> Contacter
-          </button>
+        <div className="flex gap-2">
           {!bien.supprime ? (
-            <button
-              onClick={() => onDelete(bien)}
-              className="flex-1 flex items-center justify-center gap-1 text-sm text-gray-500 hover:text-red-600 font-medium transition-colors"
-            >
-              <Trash className="h-4 w-4" /> Supprimer
-            </button>
+            <>
+              <button
+                onClick={() => onEdit(bien)}
+                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                title="Modifier"
+              >
+                <PencilSimple className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => onContact(bien)}
+                className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg"
+                title="Contacter"
+              >
+                <ChatCircle className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => onDelete(bien)}
+                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                title="Supprimer"
+              >
+                <Trash className="h-4 w-4" />
+              </button>
+            </>
           ) : (
             <button
               onClick={() => onRestore(bien)}
-              className="flex-1 flex items-center justify-center gap-1 text-sm text-green-600 hover:text-green-700 font-medium transition-colors"
+              className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg"
+              title="Restaurer"
             >
-              <ArrowClockwise className="h-4 w-4" /> Restaurer
+              <ArrowClockwise className="h-4 w-4" />
             </button>
           )}
         </div>
@@ -286,8 +334,6 @@ export default function GestionBiensPage() {
   const [gestionnaireId, setGestionnaireId] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showDeleted, setShowDeleted] = useState(false);
-  const [editingBien, setEditingBien] = useState<BienEnGestion | null>(null);
-  const [editForm, setEditForm] = useState<Partial<BienEnGestion>>({});
   const [filtres, setFiltres] = useState({
     recherche: '',
     type: '',
@@ -346,32 +392,8 @@ export default function GestionBiensPage() {
   };
 
   const handleEdit = (bien: BienEnGestion) => {
-    setEditingBien(bien);
-    setEditForm({
-      statut_occupation: bien.statut_occupation,
-      loyer_indicatif: bien.loyer_indicatif,
-      revenue_mensuel_custom: bien.revenue_mensuel_custom,
-      charges_mensuelles: bien.charges_mensuelles,
-      notes_gestion: bien.notes_gestion,
-      balcon: bien.balcon,
-      parking: bien.parking
-    });
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingBien) return;
-
-    const success = await modifierBien(editingBien.id, editForm);
-    if (success) {
-      setEditingBien(null);
-      setEditForm({});
-      console.log('✅ Modifications sauvegardées');
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingBien(null);
-    setEditForm({});
+    console.log('Modifier le bien:', bien.id);
+    // TODO: Implémenter la page de modification du bien
   };
 
   const handleDelete = async (bien: BienEnGestion) => {
@@ -389,6 +411,22 @@ export default function GestionBiensPage() {
       if (success) {
         console.log('✅ Bien restauré avec succès');
       }
+    }
+  };
+
+  const handleModify = async (bienId: string, field: string, value: any) => {
+    const modifications: any = {};
+    
+    // Traiter différemment selon le type de champ
+    if (field === 'revenue_mensuel_custom') {
+      modifications[field] = value ? Number(value) : 0;
+    } else {
+      modifications[field] = value;
+    }
+
+    const success = await modifierBien(bienId, modifications);
+    if (success) {
+      console.log('✅ Bien modifié avec succès');
     }
   };
 
@@ -649,202 +687,11 @@ export default function GestionBiensPage() {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onRestore={handleRestore}
+              onModify={handleModify}
               viewMode={viewMode}
               showDeleted={showDeleted}
             />
           ))}
-        </div>
-      )}
-
-      {/* Modal de modification */}
-      {editingBien && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Header du modal */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 rounded-t-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-white">
-                    Modifier le bien
-                  </h2>
-                  <p className="text-blue-100 text-sm">{editingBien.adresse} - {editingBien.ville}</p>
-                </div>
-                <button
-                  onClick={handleCancelEdit}
-                  className="p-2 text-blue-100 hover:text-white hover:bg-blue-600 rounded-lg transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="space-y-8">
-                {/* Informations de base (non modifiables) */}
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6 border">
-                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-                    <Buildings className="h-5 w-5 mr-2 text-gray-600" />
-                    Informations de base
-                  </h3>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Type de bien</p>
-                        <p className="text-sm font-semibold text-gray-900 capitalize">{editingBien.type_bien}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Surface</p>
-                        <p className="text-sm font-semibold text-gray-900">{editingBien.surface_m2} m²</p>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Ville</p>
-                        <p className="text-sm font-semibold text-gray-900">{editingBien.ville}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Propriétaire</p>
-                        <p className="text-sm font-semibold text-gray-900">{editingBien.proprietaire.nom}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Statut d'occupation */}
-                <div className="bg-white border rounded-xl p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-                    <Warning className="h-5 w-5 mr-2 text-amber-500" />
-                    Statut d'occupation
-                  </h3>
-                  <select
-                    value={editForm.statut_occupation || ''}
-                    onChange={(e) => setEditForm({...editForm, statut_occupation: e.target.value as any})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                  >
-                    <option value="">Non défini</option>
-                    <option value="libre">🏠 Libre</option>
-                    <option value="occupe">👥 Occupé</option>
-                    <option value="en_travaux">🔧 En travaux</option>
-                  </select>
-                </div>
-
-                {/* Informations financières */}
-                <div className="bg-white border rounded-xl p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-                    <CurrencyEur className="h-5 w-5 mr-2 text-emerald-500" />
-                    Informations financières
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Loyer indicatif
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          value={editForm.loyer_indicatif || ''}
-                          onChange={(e) => setEditForm({...editForm, loyer_indicatif: Number(e.target.value)})}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-8"
-                          placeholder="1500"
-                        />
-                        <span className="absolute right-3 top-3 text-gray-500">€</span>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Revenu mensuel réel
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          value={editForm.revenue_mensuel_custom || ''}
-                          onChange={(e) => setEditForm({...editForm, revenue_mensuel_custom: Number(e.target.value)})}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-8"
-                          placeholder="1450"
-                        />
-                        <span className="absolute right-3 top-3 text-gray-500">€</span>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">Si différent du loyer indicatif</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Charges mensuelles
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          value={editForm.charges_mensuelles || ''}
-                          onChange={(e) => setEditForm({...editForm, charges_mensuelles: Number(e.target.value)})}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-8"
-                          placeholder="150"
-                        />
-                        <span className="absolute right-3 top-3 text-gray-500">€</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Équipements */}
-                <div className="bg-white border rounded-xl p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-                    <NotePencil className="h-5 w-5 mr-2 text-purple-500" />
-                    Équipements
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <label className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={editForm.balcon || false}
-                        onChange={(e) => setEditForm({...editForm, balcon: e.target.checked})}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-3"
-                      />
-                      <span className="text-sm font-medium text-gray-700">🌿 Balcon</span>
-                    </label>
-                    <label className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={editForm.parking || false}
-                        onChange={(e) => setEditForm({...editForm, parking: e.target.checked})}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-3"
-                      />
-                      <span className="text-sm font-medium text-gray-700">🚗 Parking</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Notes de gestion */}
-                <div className="bg-white border rounded-xl p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-                    <PencilSimple className="h-5 w-5 mr-2 text-gray-600" />
-                    Notes de gestion
-                  </h3>
-                  <textarea
-                    value={editForm.notes_gestion || ''}
-                    onChange={(e) => setEditForm({...editForm, notes_gestion: e.target.value})}
-                    rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                    placeholder="Notes privées sur la gestion de ce bien (réparations, contact locataire, etc.)"
-                  />
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-end gap-4 mt-8 pt-6 border-t">
-                <button
-                  onClick={handleCancelEdit}
-                  className="px-6 py-3 text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={handleSaveEdit}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg font-medium"
-                >
-                  💾 Sauvegarder les modifications
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       )}
     </div>
