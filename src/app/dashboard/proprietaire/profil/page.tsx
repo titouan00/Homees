@@ -199,16 +199,16 @@ export default function ProfilProprietairePage() {
       // Vérifier si un profil propriétaire existe déjà
       if (proprietaireProfile) {
         // Mise à jour du profil existant
-        const { error: proprietaireError } = await supabase
-          .from('profil_proprietaire')
+      const { error: proprietaireError } = await supabase
+        .from('profil_proprietaire')
           .update(proprietaireBaseData)
           .eq('utilisateur_id', userProfile.id);
 
-        if (proprietaireError) {
+      if (proprietaireError) {
           console.error('Erreur lors de la mise à jour du profil propriétaire:', proprietaireError);
-          toast.error('Erreur lors de la sauvegarde du profil propriétaire');
-          return;
-        }
+        toast.error('Erreur lors de la sauvegarde du profil propriétaire');
+        return;
+      }
       } else {
         // Création d'un nouveau profil propriétaire
         const newProprietaireData = {
@@ -291,7 +291,7 @@ export default function ProfilProprietairePage() {
                 {/* Avatar */}
                 <div className="relative">
                   <div className="h-20 w-20 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center">
-                    <User className="h-10 w-10 text-white" />
+                      <User className="h-10 w-10 text-white" />
                   </div>
                   <button className="absolute bottom-0 right-0 bg-white rounded-full p-1.5 shadow-md border border-gray-200 hover:bg-gray-50">
                     <Camera className="h-4 w-4 text-gray-600" />

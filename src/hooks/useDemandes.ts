@@ -85,7 +85,7 @@ export const useDemandes = (gestionnaireId: string) => {
           .select('id, adresse, ville, type_bien, surface_m2, loyer_indicatif')
           .in('id', proprieteIds);
         proprietes = proprietesData || [];
-      }
+        }
 
       // Compter les messages pour chaque demande
       const { data: messagesCount } = await supabase

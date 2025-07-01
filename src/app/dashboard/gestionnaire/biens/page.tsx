@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { useBiensEnGestion, type BienEnGestion } from '@/hooks/useBiensEnGestion';
+import { useGestionnaire } from '@/hooks/useGestionnaire';
 import { 
   Buildings, 
   MagnifyingGlass, 
@@ -27,6 +28,11 @@ import {
   Warning
 } from '@phosphor-icons/react';
 
+// Ajout du type local pour enrichir BienEnGestion
+interface BienEnGestionAvecFraisGestion extends BienEnGestion {
+  frais_gestion_mensuel?: number;
+}
+
 // Composant carte de bien
 function CarteBien({ 
   bien, 
@@ -39,7 +45,7 @@ function CarteBien({
   viewMode,
   showDeleted = false 
 }: {
-  bien: BienEnGestion;
+  bien: BienEnGestionAvecFraisGestion;
   onContact: (bien: BienEnGestion) => void;
   onViewDetails: (bien: BienEnGestion) => void;
   onEdit: (bien: BienEnGestion) => void;
@@ -49,6 +55,7 @@ function CarteBien({
   viewMode: 'grid' | 'list';
   showDeleted?: boolean;
 }) {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{ [key: string]: any }>({});
 
@@ -175,7 +182,7 @@ function CarteBien({
             {!bien.supprime ? (
               <>
                 <button
-                  onClick={() => onViewDetails(bien)}
+                  onClick={() => router.push(`/dashboard/gestionnaire/biens/${bien.id}`)}
                   className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
                   title="Voir détails"
                 >
@@ -253,10 +260,10 @@ function CarteBien({
           <div className="text-sm">
             {renderEditableField('revenue_mensuel_custom', revenuAffiché, 'Revenu mensuel', 'number')}
           </div>
-          {bien.rentabilite && (
+          {typeof bien.frais_gestion_mensuel === 'number' && (
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Rentabilité:</span>
-              <span className="font-medium text-blue-600">{bien.rentabilite}%</span>
+              <span className="text-gray-600">Frais de gestion:</span>
+              <span className="font-medium text-emerald-600">{bien.frais_gestion_mensuel.toLocaleString()}€ / mois</span>
             </div>
           )}
         </div>
@@ -279,7 +286,7 @@ function CarteBien({
 
       <div className="px-6 py-3 bg-gray-50 border-t flex justify-between">
         <button
-          onClick={() => onViewDetails(bien)}
+          onClick={() => router.push(`/dashboard/gestionnaire/biens/${bien.id}`)}
           className="flex items-center text-sm text-emerald-600 hover:text-emerald-700 font-medium"
         >
           <Eye className="h-4 w-4 mr-1" />
@@ -359,6 +366,19 @@ export default function GestionBiensPage() {
 
   // Hook pour récupérer les biens en gestion
   const { biens, statistiques, loading, error, refreshBiens, modifierBien, supprimerBien, restaurerBien } = useBiensEnGestion(gestionnaireId);
+
+  // Hook pour récupérer le profil gestionnaire (tarif gestion locative)
+  const { gestionnaire } = useGestionnaire(gestionnaireId);
+  const tarifGestionLocative = typeof gestionnaire?.tarif_base === 'number' ? gestionnaire.tarif_base : 0;
+
+  // Calcul rentabilité nette pour chaque bien
+  const biensAvecFraisGestion: BienEnGestionAvecFraisGestion[] = useMemo(() => {
+    return biens.map(bien => {
+      const revenuMensuel = bien.revenue_mensuel_custom && bien.revenue_mensuel_custom > 0 ? bien.revenue_mensuel_custom : bien.loyer_indicatif;
+      const fraisGestion = tarifGestionLocative > 0 ? Math.round(revenuMensuel * (tarifGestionLocative / 100)) : 0;
+      return { ...bien, frais_gestion_mensuel: fraisGestion };
+    });
+  }, [biens, tarifGestionLocative]);
 
   // Statistiques de la corbeille
   const biensSupprimes = biens.filter(bien => bien.supprime);
@@ -678,20 +698,23 @@ export default function GestionBiensPage() {
           'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 
           'space-y-4'
         }>
-          {biensFiltres.map((bien) => (
-            <CarteBien
-              key={bien.id}
-              bien={bien}
-              onContact={handleContact}
-              onViewDetails={handleViewDetails}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onRestore={handleRestore}
-              onModify={handleModify}
-              viewMode={viewMode}
-              showDeleted={showDeleted}
-            />
-          ))}
+          {biensFiltres.map((bien) => {
+            const bienAvecFraisGestion = biensAvecFraisGestion.find(b => b.id === bien.id) || bien;
+            return (
+              <CarteBien
+                key={bien.id}
+                bien={bienAvecFraisGestion}
+                onContact={handleContact}
+                onViewDetails={handleViewDetails}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onRestore={handleRestore}
+                onModify={handleModify}
+                viewMode={viewMode}
+                showDeleted={showDeleted}
+              />
+            );
+          })}
         </div>
       )}
     </div>
