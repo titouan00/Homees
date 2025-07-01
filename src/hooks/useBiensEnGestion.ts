@@ -34,6 +34,10 @@ export interface BienEnGestion {
   taux_occupation?: number;
   prochaine_echeance?: string;
   created_at: string;
+  revenue_mensuel_custom?: number;
+  supprime?: boolean;
+  date_suppression?: string;
+  notes_gestion?: string;
 }
 
 interface StatistiquesGestion {
