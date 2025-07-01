@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase-client';
-import { useProprietesCount, useUnreadMessages } from '@/hooks';
+import { useProprietesCount, useUnreadMessages, useDemandesCount } from '@/hooks';
 import { NavigationItem } from './NavigationItem';
 import { UserProfile } from '@/lib/auth-server';
 import {
@@ -46,20 +46,23 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
     userProfile.role as 'proprietaire' | 'gestionnaire'
   );
 
+  // Hook pour récupérer le nombre de demandes
+  const { count: demandesCount, loading: demandesLoading } = useDemandesCount(
+    userProfile.role === 'proprietaire' ? userProfile.id : undefined
+  );
+
   // Navigation principale - Section "Général"
   const generalNavigation = [
     {
       name: 'Tableau de bord',
       href: `/dashboard/${userProfile.role}`,
       icon: SquaresFour,
-      badge: 16,
       current: pathname === `/dashboard/${userProfile.role}`
     },
     {
       name: 'Comparateur',
       href: `/dashboard/${userProfile.role}/comparateur`,
       icon: Scales,
-      badge: 0,
       current: pathname.includes('/comparateur')
     },
     {
@@ -78,10 +81,7 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
       name: 'Messages',
       href: `/dashboard/messages`,
       icon: ChatCircle,
-      current: pathname.includes('/messages'),
-      isSpecialBadge: true,
-      specialBadgeCount: messagesCount,
-      specialBadgeLoading: messagesLoading
+      current: pathname.includes('/messages')
     }
   ];
 
@@ -91,7 +91,6 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
       name: 'Mon profil',
       href: `/dashboard/${userProfile.role}/profil`,
       icon: User,
-      badge: 16,
       current: pathname.includes('/profil')
     },
     {
@@ -143,10 +142,6 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   href={item.href}
                   icon={item.icon}
                   current={item.current}
-                  badge={item.badge}
-                  isSpecialBadge={item.isSpecialBadge || (item.name === 'Mes biens' && userProfile.role === 'proprietaire')}
-                  specialBadgeCount={item.specialBadgeCount || (item.name === 'Mes biens' ? biensCount : undefined)}
-                  specialBadgeLoading={item.specialBadgeLoading || (item.name === 'Mes biens' ? biensLoading : false)}
                 />
               ))}
             </div>
@@ -165,7 +160,6 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   href={item.href}
                   icon={item.icon}
                   current={item.current}
-                  badge={item.badge}
                 />
               ))}
             </div>
@@ -192,6 +186,18 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   <p className="text-xs text-gray-500 truncate">
                     {userProfile.email}
                   </p>
+                  {/* Affichage dynamique du statut d'abonnement */}
+                  {userProfile.role === 'gestionnaire' && (
+                    <span className={`mt-1 inline-block font-bold text-xs rounded px-2 py-0.5 ${
+                      userProfile.abonnement === 'pro' && userProfile.abonnement_expiration && new Date(userProfile.abonnement_expiration) > new Date()
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {userProfile.abonnement === 'pro' && userProfile.abonnement_expiration && new Date(userProfile.abonnement_expiration) > new Date()
+                        ? 'Gestionnaire Pro'
+                        : 'Gestionnaire Free'}
+                    </span>
+                  )}
                 </div>
               </div>
               <CaretDownIcon className={`h-4 w-4 text-gray-400 transition-transform ${

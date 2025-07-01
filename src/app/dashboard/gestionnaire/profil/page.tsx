@@ -22,6 +22,8 @@ import {
   Calendar,
   Target
 } from '@phosphor-icons/react';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/lib/supabase-client';
 
 // Types
 interface ProfilGestionnaire {
@@ -95,7 +97,7 @@ function Section({ title, description, children, className = '' }: SectionProps)
 
 export default function ProfilGestionnaireePage() {
   const router = useRouter();
-  
+  const { user } = useAuth();
   const [profil, setProfil] = useState<ProfilGestionnaire>({
     nom_agence: '',
     description: '',
@@ -112,38 +114,56 @@ export default function ProfilGestionnaireePage() {
     assurance_responsabilite: false,
     photos_agence: []
   });
-
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
+  const [isSaving, setIsSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Simuler le chargement du profil
+  // Chargement dynamique du profil depuis la base
   useEffect(() => {
-    // Ici on chargerait le profil depuis la base de données
-    setProfil({
-      nom_agence: 'Immobilier Paris Centre',
-      description: 'Agence spécialisée dans la gestion locative haut de gamme sur Paris. Plus de 10 ans d\'expérience dans l\'accompagnement des propriétaires investisseurs.',
-      zone_intervention: ['Paris 1er', 'Paris 4ème', 'Paris 6ème', 'Paris 7ème'],
-      tarif_base: 8.5,
-      type_gestionnaire: 'agence_immobiliere',
-      nombre_lots_geres: 150,
-      services_offerts: ['Gestion locative complète', 'Recherche de locataires', 'État des lieux', 'Suivi des travaux'],
-      certifications: ['Carte professionnelle T', 'Assurance RC Professionnelle', 'Garantie financière'],
-      horaires_disponibilite: 'Lundi-Vendredi 9h-18h',
-      telephone_professionnel: '01 42 86 75 43',
-      site_web: 'www.immobilier-paris-centre.fr',
-      specialites: ['Logement haut de gamme', 'Investissement locatif'],
-      langues_parlees: ['Français', 'Anglais'],
-      experience_annees: 12,
-      assurance_responsabilite: true,
-      numero_carte_pro: 'T75120240001',
-      photos_agence: []
-    });
-  }, []);
+    const fetchProfil = async () => {
+      if (!user?.id) return;
+      const { data, error } = await supabase
+        .from('profil_gestionnaire')
+        .select('*')
+        .eq('utilisateur_id', user.id)
+        .single();
+      if (data) {
+        setProfil({
+          ...profil,
+          ...data,
+          zone_intervention: data.zone_intervention || [],
+          services_offerts: data.services_offerts || [],
+          certifications: data.certifications || [],
+          specialites: data.specialites || [],
+          langues_parlees: data.langues_parlees || ['Français'],
+          photos_agence: data.photos_agence || []
+        });
+      }
+    };
+    fetchProfil();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
-  const handleSave = () => {
-    console.log('Sauvegarde du profil:', profil);
-    setIsEditing(false);
-    // Ici on sauvegarderait en base
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSuccessMessage(null);
+    try {
+      const { error } = await supabase
+        .from('profil_gestionnaire')
+        .update(profil)
+        .eq('utilisateur_id', user?.id);
+      if (error) {
+        setSuccessMessage("Erreur lors de la sauvegarde du profil.");
+        setIsSaving(false);
+        return;
+      }
+      setSuccessMessage("Profil public sauvegardé avec succès !");
+      setIsEditing(false);
+    } catch (e) {
+      setSuccessMessage("Erreur inattendue lors de la sauvegarde.");
+    }
+    setIsSaving(false);
   };
 
   const handleServiceToggle = (service: string) => {
@@ -212,9 +232,11 @@ export default function ProfilGestionnaireePage() {
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                className={`px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isSaving}
               >
-                Sauvegarder
+                <CheckCircle className="h-4 w-4" />
+                {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
               </button>
             </>
           ) : (
@@ -227,6 +249,9 @@ export default function ProfilGestionnaireePage() {
             </button>
           )}
         </div>
+        {successMessage && (
+          <div className="ml-4 text-sm text-emerald-700">{successMessage}</div>
+        )}
       </div>
 
       {/* Onglets */}

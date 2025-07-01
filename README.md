@@ -1,36 +1,157 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Homees
 
-## Getting Started
+**Homees** est une plateforme SaaS de gestion immobilière nouvelle génération, pensée pour les propriétaires et les gestionnaires. Elle permet de centraliser la gestion des biens, la communication, la recherche de gestionnaires, le suivi des demandes, la comparaison de profils, et bien plus encore.
 
-First, run the development server:
+---
+
+## 🚀 Fonctionnalités principales
+
+- **Dashboard propriétaire** :  
+  - Vue d'ensemble de vos biens, demandes, gestionnaires contactés, etc.
+  - Comparateur de gestionnaires avancé (filtres, notes, certifications…)
+  - Messagerie intégrée, gestion des demandes, notifications.
+  - Gestion du profil, paramètres, support.
+
+- **Dashboard gestionnaire** :  
+  - Suivi des demandes reçues, gestion des biens, messagerie.
+  - Profil public personnalisable (zones, certifications, services…)
+  - Statistiques d'activité, notifications, paramètres avancés.
+
+- **Landing page & parcours public** :  
+  - Présentation de la solution, KPIs, témoignages, onboarding moderne.
+
+- **Sécurité & Authentification** :  
+  - Authentification sécurisée via Supabase.
+  - Gestion des rôles (propriétaire, gestionnaire).
+
+- **Expérience utilisateur moderne** :  
+  - UI/UX soignée (Next.js, React 19, TailwindCSS, Phosphor Icons…)
+  - Composants réutilisables, design responsive, animations.
+
+---
+
+## 🏗️ Architecture technique
+
+- **Frontend** : Next.js 15 (App Router), React 19, TypeScript, TailwindCSS
+- **Backend & Auth** : Supabase (PostgreSQL, Auth, Storage)
+- **Gestion d'état** : Hooks React, contextes, useMemo/useEffect
+- **Composants** : Architecture modulaire (`src/components/`), design system, hooks personnalisés
+- **API** : Appels directs à Supabase via `src/lib/supabase-client.ts`
+- **Tests** : Structure prête pour tests unitaires et d'intégration
+
+---
+
+## 📁 Structure du projet
+
+```
+src/
+  app/                # Pages Next.js (public, dashboard, api, etc.)
+    dashboard/
+      proprietaire/   # Espace propriétaire (biens, demandes, comparateur, etc.)
+      gestionnaire/   # Espace gestionnaire (biens, demandes, profil, etc.)
+    ...
+  components/         # Composants UI réutilisables (navigation, cards, forms, etc.)
+  hooks/              # Hooks personnalisés (auth, data, notifications, etc.)
+  lib/                # Clients API, helpers (ex: supabase-client.ts)
+  services/           # Services métier (notifications, etc.)
+  types/              # Types TypeScript partagés
+  utils/              # Fonctions utilitaires
+  constants/          # Constantes globales
+  config/             # Fichiers de configuration
+  public/             # Assets statiques (images, icônes, etc.)
+```
+
+---
+
+## ⚙️ Installation & démarrage
+
+### 1. Cloner le projet
+
+```bash
+git clone https://github.com/ton-org/homees.git
+cd homees
+```
+
+### 2. Installer les dépendances
+
+```bash
+npm install
+# ou
+yarn install
+# ou
+pnpm install
+```
+
+### 3. Configurer les variables d'environnement
+
+Crée un fichier `.env.local` à la racine avec :
+
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
+> Récupère ces infos dans ton projet Supabase.
+
+### 4. Lancer le serveur de développement
 
 ```bash
 npm run dev
-# or
+# ou
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'application sera accessible sur [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Scripts utiles
 
-## Learn More
+- `npm run dev` : Lancer le serveur de développement
+- `npm run build` : Build de l'application pour la production
+- `npm run start` : Lancer le serveur en mode production
+- `npm run lint` : Linter le code
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🧩 Technologies principales
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Next.js 15** (App Router, SSR/SSG, API routes)
+- **React 19**
+- **TypeScript**
+- **TailwindCSS**
+- **Supabase** (auth, base de données, stockage)
+- **Phosphor Icons**, **Framer Motion**, **React Hook Form**, **Zod**…
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🔒 Sécurité & bonnes pratiques
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Authentification sécurisée (Supabase)
+- Séparation stricte des rôles (propriétaire/gestionnaire)
+- Données sensibles jamais exposées côté client
+- Respect des conventions de nommage, code commenté et maintenable
+
+---
+
+## 💡 Principe du projet
+
+Homees vise à simplifier la gestion immobilière pour les propriétaires et à offrir aux gestionnaires un outil moderne pour piloter leur activité.  
+L'accent est mis sur :
+- La centralisation des échanges et des documents
+- La transparence (notes, avis, certifications)
+- L'automatisation des tâches récurrentes
+- L'expérience utilisateur (UI/UX SaaS, responsive, animations)
+
+---
+
+## 📣 Contribution
+
+Les contributions sont les bienvenues !
+- Forkez le repo, créez une branche, proposez vos PR.
+- Merci de respecter la structure, les conventions et d'ajouter des commentaires clairs.
+
+---
+
+## 📄 Licence
+
+Projet sous licence MIT.

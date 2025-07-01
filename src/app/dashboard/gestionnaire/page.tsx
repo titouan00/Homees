@@ -8,9 +8,9 @@ import { MapPin, CurrencyEur, Medal, Users, TrendUp, Buildings } from '@phosphor
 interface GestionnaireProfile {
   nom_agence: string;
   description: string;
-  zone_intervention: string;
+  zone_intervention: string[];
   tarif_base: number;
-  certifications: string;
+  certifications: string[];
   services_offerts: string[];
 }
 
@@ -46,10 +46,22 @@ export default function GestionnaireDashboard() {
         setProfile({
           nom_agence: profileData.nom_agence || '',
           description: profileData.description || '',
-          zone_intervention: profileData.zone_intervention || '',
+          zone_intervention: Array.isArray(profileData.zone_intervention)
+            ? profileData.zone_intervention
+            : (typeof profileData.zone_intervention === 'string' && profileData.zone_intervention.startsWith('['))
+              ? JSON.parse(profileData.zone_intervention)
+              : profileData.zone_intervention ? [profileData.zone_intervention] : [],
           tarif_base: profileData.tarif_base || 0,
-          certifications: profileData.certifications || '',
-          services_offerts: profileData.services_offerts || []
+          certifications: Array.isArray(profileData.certifications)
+            ? profileData.certifications
+            : (typeof profileData.certifications === 'string' && profileData.certifications.startsWith('['))
+              ? JSON.parse(profileData.certifications)
+              : profileData.certifications ? [profileData.certifications] : [],
+          services_offerts: Array.isArray(profileData.services_offerts)
+            ? profileData.services_offerts
+            : (typeof profileData.services_offerts === 'string' && profileData.services_offerts.startsWith('['))
+              ? JSON.parse(profileData.services_offerts)
+              : profileData.services_offerts ? [profileData.services_offerts] : [],
         });
       }
     } catch (err) {
@@ -94,7 +106,6 @@ export default function GestionnaireDashboard() {
         {/* Profil gestionnaire */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Mon Profil</h2>
-          
           {loading ? (
             <div className="animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
@@ -104,31 +115,47 @@ export default function GestionnaireDashboard() {
           ) : profile ? (
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-emerald-700 mb-2">
-                  {profile.nom_agence}
-                </h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  {profile.description}
-                </p>
+                <h3 className="text-lg font-semibold text-emerald-700 mb-2">{profile.nom_agence}</h3>
+                <p className="text-gray-600 text-sm mb-4">{profile.description}</p>
               </div>
-
               <div className="space-y-3">
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 text-gray-400 mr-3" />
-                  <span>{profile.zone_intervention}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.zone_intervention.length === 0 ? (
+                      <span className="text-gray-400 text-xs">Non renseigné</span>
+                    ) : (
+                      profile.zone_intervention.map((zone) => (
+                        <span key={zone} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">{zone}</span>
+                      ))
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center">
                   <CurrencyEur className="h-5 w-5 text-gray-400 mr-3" />
                   <span>{profile.tarif_base}€/mois</span>
                 </div>
-                {profile.certifications && (
+                {profile.certifications.length > 0 && (
                   <div className="flex items-start">
                     <Medal className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                    <span className="text-sm">{profile.certifications}</span>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.certifications.map((cert) => (
+                        <span key={cert} className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">{cert}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {profile.services_offerts.length > 0 && (
+                  <div className="flex items-start">
+                    <span className="font-medium text-gray-700 mr-2">Services :</span>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.services_offerts.map((service) => (
+                        <span key={service} className="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs">{service}</span>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
-
               <div className="mt-4">
                 <Link
                   href="/dashboard/gestionnaire/profil"
@@ -156,44 +183,32 @@ export default function GestionnaireDashboard() {
         {/* Actions rapides */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Actions rapides</h2>
-          
           <div className="space-y-3">
             <Link
               href="/dashboard/gestionnaire/biens"
               className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Buildings className="h-5 w-5 text-emerald-600 mr-3" />
-                  <span className="font-medium">Gérer mes biens</span>
-                </div>
-                <span className="text-sm text-gray-400 group-hover:text-gray-600">24 biens</span>
+              <div className="flex items-center">
+                <Buildings className="h-5 w-5 text-emerald-600 mr-3" />
+                <span className="font-medium">Gérer mes biens</span>
               </div>
             </Link>
-            
             <Link
               href="/dashboard/gestionnaire/demandes"
               className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Users className="h-5 w-5 text-blue-600 mr-3" />
-                  <span className="font-medium">Nouvelles demandes</span>
-                </div>
-                <span className="text-sm text-gray-400 group-hover:text-gray-600">8 en attente</span>
+              <div className="flex items-center">
+                <Users className="h-5 w-5 text-blue-600 mr-3" />
+                <span className="font-medium">Nouvelles demandes</span>
               </div>
             </Link>
-            
             <Link
               href="/dashboard/gestionnaire/messages"
               className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <TrendUp className="h-5 w-5 text-purple-600 mr-3" />
-                  <span className="font-medium">Messages</span>
-                </div>
-                <span className="text-sm text-gray-400 group-hover:text-gray-600">3 non lus</span>
+              <div className="flex items-center">
+                <TrendUp className="h-5 w-5 text-purple-600 mr-3" />
+                <span className="font-medium">Messages</span>
               </div>
             </Link>
           </div>
@@ -203,7 +218,6 @@ export default function GestionnaireDashboard() {
       {/* Activité récente */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Activité récente</h2>
-        
         <div className="space-y-4">
           <div className="flex items-center justify-between py-3 border-b border-gray-100">
             <div className="flex items-center">
@@ -212,7 +226,6 @@ export default function GestionnaireDashboard() {
             </div>
             <span className="text-xs text-gray-400">Il y a 2h</span>
           </div>
-          
           <div className="flex items-center justify-between py-3 border-b border-gray-100">
             <div className="flex items-center">
               <div className="h-2 w-2 bg-blue-500 rounded-full mr-3"></div>
@@ -220,7 +233,6 @@ export default function GestionnaireDashboard() {
             </div>
             <span className="text-xs text-gray-400">Hier</span>
           </div>
-          
           <div className="flex items-center justify-between py-3">
             <div className="flex items-center">
               <div className="h-2 w-2 bg-yellow-500 rounded-full mr-3"></div>

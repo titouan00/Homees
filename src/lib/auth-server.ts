@@ -7,6 +7,8 @@ export interface UserProfile {
   nom: string;
   email: string;
   role: 'proprietaire' | 'gestionnaire' | 'admin';
+  abonnement: 'free' | 'pro';
+  abonnement_expiration?: string | null;
 }
 
 /**
@@ -14,7 +16,7 @@ export interface UserProfile {
  */
 async function createSupabaseServerClient() {
   const cookieStore = await cookies();
-  
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -51,10 +53,10 @@ async function createSupabaseServerClient() {
 export async function getCurrentUser(): Promise<UserProfile | null> {
   try {
     const supabase = await createSupabaseServerClient();
-    
+
     // Vérifier l'utilisateur authentifié (plus sécurisé que getSession)
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
+
     if (userError || !user) {
       return null;
     }
@@ -62,7 +64,7 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
     // Récupérer les données utilisateur
     const { data: userData, error: profileError } = await supabase
       .from('utilisateurs')
-      .select('id, nom, email, "rôle"')
+      .select('id, nom, email, "rôle", abonnement, abonnement_expiration')
       .eq('id', user.id)
       .single();
 
@@ -74,7 +76,9 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
       id: userData.id,
       nom: userData.nom,
       email: userData.email,
-      role: userData.rôle as UserProfile['role']
+      role: userData.rôle as UserProfile['role'],
+      abonnement: userData.abonnement as 'free' | 'pro',
+      abonnement_expiration: userData.abonnement_expiration || null
     };
 
   } catch (error) {
@@ -89,11 +93,11 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
  */
 export async function requireAuth(requiredRole?: UserProfile['role']): Promise<UserProfile> {
   const user = await getCurrentUser();
-  
+
   if (!user) {
     redirect('/login');
   }
-  
+
   if (requiredRole && user.role !== requiredRole) {
     // Redirection selon le rôle
     switch (user.role) {
@@ -106,7 +110,7 @@ export async function requireAuth(requiredRole?: UserProfile['role']): Promise<U
         redirect('/login');
     }
   }
-  
+
   return user;
 }
 

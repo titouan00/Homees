@@ -36,29 +36,24 @@ const toast = {
 interface UserProfile {
   id: string;
   nom: string;
-  prenom?: string;
   email: string;
-  bio?: string;
-  avatar_url?: string;
   créé_le: string;
   mis_a_jour_le: string;
 }
 
 interface ProprietaireProfile {
   utilisateur_id: string;
-  type_investisseur?: string;
+  type_investisseur: string | null;
   nombre_biens: number;
-  budget_investissement: number;
-  zone_recherche?: string;
-  profession?: string;
-  objectifs?: string;
-  revenus_annuels: number;
-  situation_familiale?: string;
-  date_naissance?: string;
-  telephone?: string;
-  adresse?: string;
-  ville?: string;
-  code_postal?: string;
+  budget_investissement: number | null;
+  zone_recherche: string | null;
+  profession: string | null;
+  objectifs: string | null;
+  revenus_annuels: number | null;
+  situation_familiale: string | null;
+  date_naissance: string | null;
+  telephone: string | null;
+  adresse: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -100,10 +95,7 @@ export default function ProfilProprietairePage() {
           const userProfile: UserProfile = {
             id: userData.id,
             nom: userData.nom,
-            prenom: userData.prenom,
             email: userData.email,
-            bio: userData.bio,
-            avatar_url: userData.avatar_url,
             créé_le: userData.créé_le,
             mis_a_jour_le: userData.mis_a_jour_le
           };
@@ -139,8 +131,6 @@ export default function ProfilProprietairePage() {
             date_naissance: proprietaireData.date_naissance,
             telephone: proprietaireData.telephone,
             adresse: proprietaireData.adresse,
-            ville: proprietaireData.ville,
-            code_postal: proprietaireData.code_postal,
             created_at: proprietaireData.created_at,
             updated_at: proprietaireData.updated_at
           };
@@ -172,27 +162,10 @@ export default function ProfilProprietairePage() {
         return;
       }
 
-      // Préparer les données utilisateur
+      // Préparer les données utilisateur (uniquement les colonnes qui existent)
       const userData = {
         nom: userForm.nom?.trim(),
-        prenom: userForm.prenom?.trim(),
-        bio: userForm.bio?.trim(),
-        mis_a_jour_le: new Date().toISOString()
-      };
-
-      // Préparer les données propriétaire (uniquement les champs de base)
-      const proprietaireData = {
-        utilisateur_id: userProfile.id,
-        type_investisseur: proprietaireForm.type_investisseur?.trim() || '',
-        nombre_biens: proprietaireForm.nombre_biens || 0,
-        budget_investissement: proprietaireForm.budget_investissement || 0,
-        zone_recherche: proprietaireForm.zone_recherche?.trim() || '',
-        profession: proprietaireForm.profession?.trim() || '',
-        objectifs: proprietaireForm.objectifs?.trim() || '',
-        revenus_annuels: proprietaireForm.revenus_annuels || 0,
-        situation_familiale: proprietaireForm.situation_familiale?.trim() || '',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        "mis_a_jour_le": new Date().toISOString()
       };
 
       // Sauvegarder le profil utilisateur
@@ -207,20 +180,57 @@ export default function ProfilProprietairePage() {
         return;
       }
 
-      // Sauvegarder le profil propriétaire
+      // Préparer les données propriétaire (uniquement les colonnes qui existent)
+      const proprietaireBaseData = {
+        type_investisseur: proprietaireForm.type_investisseur?.trim() || null,
+        nombre_biens: proprietaireForm.nombre_biens || 0,
+        budget_investissement: proprietaireForm.budget_investissement || null,
+        zone_recherche: proprietaireForm.zone_recherche?.trim() || null,
+        profession: proprietaireForm.profession?.trim() || null,
+        objectifs: proprietaireForm.objectifs?.trim() || null,
+        revenus_annuels: proprietaireForm.revenus_annuels || null,
+        situation_familiale: proprietaireForm.situation_familiale?.trim() || null,
+        date_naissance: proprietaireForm.date_naissance || null,
+        telephone: proprietaireForm.telephone?.trim() || null,
+        adresse: proprietaireForm.adresse?.trim() || null,
+        updated_at: new Date().toISOString()
+      };
+
+      // Vérifier si un profil propriétaire existe déjà
+      if (proprietaireProfile) {
+        // Mise à jour du profil existant
       const { error: proprietaireError } = await supabase
         .from('profil_proprietaire')
-        .upsert(proprietaireData);
+          .update(proprietaireBaseData)
+          .eq('utilisateur_id', userProfile.id);
 
       if (proprietaireError) {
-        console.error('Erreur lors de la sauvegarde du profil propriétaire:', proprietaireError);
+          console.error('Erreur lors de la mise à jour du profil propriétaire:', proprietaireError);
         toast.error('Erreur lors de la sauvegarde du profil propriétaire');
         return;
       }
+      } else {
+        // Création d'un nouveau profil propriétaire
+        const newProprietaireData = {
+          ...proprietaireBaseData,
+          utilisateur_id: userProfile.id,
+          created_at: new Date().toISOString()
+        };
 
-      // Mettre à jour les états
-      setUserProfile(prev => prev ? { ...prev, ...userData } : null);
-      setProprietaireProfile(prev => prev ? { ...prev, ...proprietaireData } : null);
+        const { error: proprietaireError } = await supabase
+          .from('profil_proprietaire')
+          .insert([newProprietaireData]);
+
+        if (proprietaireError) {
+          console.error('Erreur lors de la création du profil propriétaire:', proprietaireError);
+          toast.error('Erreur lors de la création du profil propriétaire');
+          return;
+        }
+      }
+
+      // Mettre à jour les états locaux
+      setUserProfile(prev => prev ? { ...prev, nom: userData.nom, "mis_a_jour_le": userData["mis_a_jour_le"] } : null);
+      setProprietaireProfile(prev => prev ? { ...prev, ...proprietaireBaseData } : { ...proprietaireBaseData, utilisateur_id: userProfile.id, created_at: new Date().toISOString() } as ProprietaireProfile);
       setIsEditing(false);
       toast.success('Profil mis à jour avec succès');
     } catch (err) {
@@ -281,15 +291,7 @@ export default function ProfilProprietairePage() {
                 {/* Avatar */}
                 <div className="relative">
                   <div className="h-20 w-20 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center">
-                    {userProfile.avatar_url ? (
-                      <img 
-                        src={userProfile.avatar_url} 
-                        alt="Avatar" 
-                        className="h-20 w-20 rounded-full object-cover"
-                      />
-                    ) : (
                       <User className="h-10 w-10 text-white" />
-                    )}
                   </div>
                   <button className="absolute bottom-0 right-0 bg-white rounded-full p-1.5 shadow-md border border-gray-200 hover:bg-gray-50">
                     <Camera className="h-4 w-4 text-gray-600" />
@@ -299,7 +301,7 @@ export default function ProfilProprietairePage() {
                 {/* Informations principales */}
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    {userProfile.prenom ? `${userProfile.prenom} ${userProfile.nom}` : userProfile.nom}
+                    {userProfile.nom}
                   </h1>
                   <p className="text-gray-600">{userProfile.email}</p>
                   <div className="flex items-center mt-2 space-x-4">
@@ -398,23 +400,6 @@ export default function ProfilProprietairePage() {
                     )}
                   </div>
 
-                  {/* Prénom */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Prénom
-                    </label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={userForm.prenom || ''}
-                        onChange={(e) => setUserForm({ ...userForm, prenom: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{userProfile.prenom || 'Non renseigné'}</p>
-                    )}
-                  </div>
-
                   {/* Email */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -433,7 +418,40 @@ export default function ProfilProprietairePage() {
                       <Phone className="inline h-4 w-4 mr-1" />
                       Téléphone
                     </label>
-                    <p className="text-gray-900">Non disponible</p>
+                    {isEditing ? (
+                      <input
+                        type="tel"
+                        value={proprietaireForm.telephone || ''}
+                        onChange={(e) => setProprietaireForm({ ...proprietaireForm, telephone: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="Ex: +33 1 23 45 67 89"
+                      />
+                    ) : (
+                      <p className="text-gray-900">{proprietaireProfile?.telephone || 'Non renseigné'}</p>
+                    )}
+                  </div>
+
+                  {/* Date de naissance */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Calendar className="inline h-4 w-4 mr-1" />
+                      Date de naissance
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="date"
+                        value={proprietaireForm.date_naissance || ''}
+                        onChange={(e) => setProprietaireForm({ ...proprietaireForm, date_naissance: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      />
+                    ) : (
+                      <p className="text-gray-900">
+                        {proprietaireProfile?.date_naissance 
+                          ? formatDate(proprietaireProfile.date_naissance) 
+                          : 'Non renseigné'
+                        }
+                      </p>
+                    )}
                   </div>
 
                   {/* Adresse */}
@@ -442,24 +460,16 @@ export default function ProfilProprietairePage() {
                       <MapPin className="inline h-4 w-4 mr-1" />
                       Adresse
                     </label>
-                    <p className="text-gray-900">Non disponible</p>
-                  </div>
-
-                  {/* Bio */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      À propos
-                    </label>
                     {isEditing ? (
                       <textarea
-                        value={userForm.bio || ''}
-                        onChange={(e) => setUserForm({ ...userForm, bio: e.target.value })}
-                        rows={4}
+                        value={proprietaireForm.adresse || ''}
+                        onChange={(e) => setProprietaireForm({ ...proprietaireForm, adresse: e.target.value })}
+                        rows={2}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        placeholder="Parlez-nous de vous..."
+                        placeholder="Votre adresse complète..."
                       />
                     ) : (
-                      <p className="text-gray-900">{userProfile.bio || 'Aucune description'}</p>
+                      <p className="text-gray-900">{proprietaireProfile?.adresse || 'Non renseigné'}</p>
                     )}
                   </div>
                 </div>
