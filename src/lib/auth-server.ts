@@ -16,7 +16,7 @@ export interface UserProfile {
  */
 async function createSupabaseServerClient() {
   const cookieStore = await cookies();
-  
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -53,10 +53,10 @@ async function createSupabaseServerClient() {
 export async function getCurrentUser(): Promise<UserProfile | null> {
   try {
     const supabase = await createSupabaseServerClient();
-    
+
     // Vérifier l'utilisateur authentifié (plus sécurisé que getSession)
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
+
     if (userError || !user) {
       return null;
     }
@@ -93,11 +93,11 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
  */
 export async function requireAuth(requiredRole?: UserProfile['role']): Promise<UserProfile> {
   const user = await getCurrentUser();
-  
+
   if (!user) {
     redirect('/login');
   }
-  
+
   if (requiredRole && user.role !== requiredRole) {
     // Redirection selon le rôle
     switch (user.role) {
@@ -110,7 +110,7 @@ export async function requireAuth(requiredRole?: UserProfile['role']): Promise<U
         redirect('/login');
     }
   }
-  
+
   return user;
 }
 

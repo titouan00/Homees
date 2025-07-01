@@ -56,11 +56,13 @@ export default function DashboardTopBar({
           </button>
 
           {/* Titre et sous-titre */}
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-            {subtitle && (
-              <p className="text-sm text-gray-600 mt-1">{subtitle}</p>
-            )}
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+              {subtitle && (
+                <p className="text-sm text-gray-600 mt-1">{subtitle}</p>
+              )}
+            </div>
           </div>
         </div>
 

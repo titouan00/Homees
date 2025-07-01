@@ -192,6 +192,18 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   <p className="text-xs text-gray-500 truncate">
                     {userProfile.email}
                   </p>
+                  {/* Affichage dynamique du statut d'abonnement */}
+                  {userProfile.role === 'gestionnaire' && (
+                    <span className={`mt-1 inline-block font-bold text-xs rounded px-2 py-0.5 ${
+                      userProfile.abonnement === 'pro' && userProfile.abonnement_expiration && new Date(userProfile.abonnement_expiration) > new Date()
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {userProfile.abonnement === 'pro' && userProfile.abonnement_expiration && new Date(userProfile.abonnement_expiration) > new Date()
+                        ? 'Gestionnaire Pro'
+                        : 'Gestionnaire Free'}
+                    </span>
+                  )}
                 </div>
               </div>
               <CaretDownIcon className={`h-4 w-4 text-gray-400 transition-transform ${
