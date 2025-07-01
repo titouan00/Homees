@@ -8,9 +8,9 @@ import { MapPin, CurrencyEur, Medal, Users, TrendUp, Buildings } from '@phosphor
 interface GestionnaireProfile {
   nom_agence: string;
   description: string;
-  zone_intervention: string;
+  zone_intervention: string[];
   tarif_base: number;
-  certifications: string;
+  certifications: string[];
   services_offerts: string[];
 }
 
@@ -46,10 +46,22 @@ export default function GestionnaireDashboard() {
         setProfile({
           nom_agence: profileData.nom_agence || '',
           description: profileData.description || '',
-          zone_intervention: profileData.zone_intervention || '',
+          zone_intervention: Array.isArray(profileData.zone_intervention)
+            ? profileData.zone_intervention
+            : (typeof profileData.zone_intervention === 'string' && profileData.zone_intervention.startsWith('['))
+              ? JSON.parse(profileData.zone_intervention)
+              : profileData.zone_intervention ? [profileData.zone_intervention] : [],
           tarif_base: profileData.tarif_base || 0,
-          certifications: profileData.certifications || '',
-          services_offerts: profileData.services_offerts || []
+          certifications: Array.isArray(profileData.certifications)
+            ? profileData.certifications
+            : (typeof profileData.certifications === 'string' && profileData.certifications.startsWith('['))
+              ? JSON.parse(profileData.certifications)
+              : profileData.certifications ? [profileData.certifications] : [],
+          services_offerts: Array.isArray(profileData.services_offerts)
+            ? profileData.services_offerts
+            : (typeof profileData.services_offerts === 'string' && profileData.services_offerts.startsWith('['))
+              ? JSON.parse(profileData.services_offerts)
+              : profileData.services_offerts ? [profileData.services_offerts] : [],
         });
       }
     } catch (err) {
@@ -115,16 +127,38 @@ export default function GestionnaireDashboard() {
               <div className="space-y-3">
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 text-gray-400 mr-3" />
-                  <span>{profile.zone_intervention}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.zone_intervention.length === 0 ? (
+                      <span className="text-gray-400 text-xs">Non renseigné</span>
+                    ) : (
+                      profile.zone_intervention.map((zone) => (
+                        <span key={zone} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">{zone}</span>
+                      ))
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center">
                   <CurrencyEur className="h-5 w-5 text-gray-400 mr-3" />
                   <span>{profile.tarif_base}€/mois</span>
                 </div>
-                {profile.certifications && (
+                {profile.certifications.length > 0 && (
                   <div className="flex items-start">
                     <Medal className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                    <span className="text-sm">{profile.certifications}</span>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.certifications.map((cert) => (
+                        <span key={cert} className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">{cert}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {profile.services_offerts.length > 0 && (
+                  <div className="flex items-start">
+                    <span className="font-medium text-gray-700 mr-2">Services :</span>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.services_offerts.map((service) => (
+                        <span key={service} className="px-2 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs">{service}</span>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
