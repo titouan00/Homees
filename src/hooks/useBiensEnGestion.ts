@@ -34,6 +34,10 @@ export interface BienEnGestion {
   taux_occupation?: number;
   prochaine_echeance?: string;
   created_at: string;
+  supprime?: boolean;
+  date_suppression?: string;
+  notes_gestion?: string;
+  revenue_mensuel_custom?: number;
 }
 
 interface StatistiquesGestion {
@@ -67,128 +71,146 @@ export const useBiensEnGestion = (gestionnaireId: string) => {
       setLoading(true);
       setError(null);
 
-      // Vérifier la connexion avec une requête simple
-      const { data: gestionnaireData, error: gestError } = await supabase
-        .from('utilisateurs')
-        .select('nom')
-        .eq('id', gestionnaireId)
-        .single();
+      // Récupérer les biens en gestion via les demandes acceptées
+      const { data: demandesData, error: demandesError } = await supabase
+        .from('demande')
+        .select(`
+          id,
+          statut,
+          "créé_le",
+          propriete:propriete_id (
+            id,
+            adresse,
+            ville,
+            type_bien,
+            surface_m2,
+            loyer_indicatif,
+            statut_occupation,
+            nb_pieces,
+            nb_chambres,
+            etage,
+            balcon,
+            parking,
+            charges_mensuelles,
+            "créé_le"
+          ),
+          proprietaire:proprietaire_id (
+            nom,
+            email
+          )
+        `)
+        .eq('gestionnaire_id', gestionnaireId)
+        .eq('statut', 'acceptee')
+        .not('propriete_id', 'is', null);
 
-      if (gestError) {
-        throw gestError;
+      if (demandesError) {
+        console.error('Erreur requête demandes:', demandesError);
+        throw demandesError;
       }
 
-      // Pour l'instant, utiliser des données simulées car les colonnes accentuées posent problème
-      // TODO: Résoudre les problèmes de colonnes avec accents dans Supabase
-      const biensSimules: BienEnGestion[] = [
-        {
-          id: 'bien-1',
-          adresse: '15 rue de la Paix',
-          ville: 'Paris 1er',
-          type_bien: 'appartement',
-          surface_m2: 45,
-          loyer_indicatif: 1800,
-          statut_occupation: 'occupe',
-          nb_pieces: 2,
-          nb_chambres: 1,
-          etage: 3,
-          balcon: false,
-          parking: false,
-          charges_mensuelles: 150,
-          proprietaire: {
-            nom: 'Marie Dubois',
-            email: 'marie.dubois@email.com',
-            telephone: '06 12 34 56 78'
-          },
-          contrat: {
-            montant: 1800,
-            date_debut: '2024-01-01'
-          },
-          demande: {
-            statut: 'acceptee',
-            date_creation: '2024-01-15T10:30:00Z'
-          },
-          rentabilite: 4.2,
-          taux_occupation: 100,
-          prochaine_echeance: '2024-12-31',
-          created_at: '2024-01-15T10:30:00Z'
-        },
-        {
-          id: 'bien-2',
-          adresse: '8 avenue des Champs',
-          ville: 'Paris 8ème',
-          type_bien: 'studio',
-          surface_m2: 25,
-          loyer_indicatif: 1200,
-          statut_occupation: 'libre',
-          nb_pieces: 1,
-          nb_chambres: 0,
-          etage: 2,
-          balcon: true,
-          parking: false,
-          charges_mensuelles: 80,
-          proprietaire: {
-            nom: 'Jean Martin',
-            email: 'jean.martin@email.com'
-          },
-          demande: {
-            statut: 'acceptee',
-            date_creation: '2024-01-10T09:15:00Z'
-          },
-          rentabilite: 3.8,
-          taux_occupation: 0,
-          created_at: '2024-01-10T09:15:00Z'
-        },
-        {
-          id: 'bien-3',
-          adresse: '22 boulevard Saint-Germain',
-          ville: 'Paris 5ème',
-          type_bien: 'appartement',
-          surface_m2: 75,
-          loyer_indicatif: 2500,
-          statut_occupation: 'en_travaux',
-          nb_pieces: 3,
-          nb_chambres: 2,
-          etage: 4,
-          balcon: true,
-          parking: true,
-          charges_mensuelles: 200,
-          proprietaire: {
-            nom: 'Sophie Laurent',
-            email: 'sophie.laurent@email.com',
-            telephone: '07 98 76 54 32'
-          },
-          contrat: {
-            montant: 2500,
-            date_debut: '2024-02-01'
-          },
-          demande: {
-            statut: 'acceptee',
-            date_creation: '2024-01-05T14:20:00Z'
-          },
-          rentabilite: 5.1,
-          taux_occupation: 85,
-          prochaine_echeance: '2025-01-31',
-          created_at: '2024-01-05T14:20:00Z'
-        }
-      ];
+      if (!demandesData || demandesData.length === 0) {
+        console.log('Aucun bien en gestion trouvé pour le gestionnaire:', gestionnaireId);
+        setBiens([]);
+        setStatistiques({
+          total_biens: 0,
+          biens_occupes: 0,
+          biens_libres: 0,
+          biens_travaux: 0,
+          revenus_mensuels: 0,
+          taux_occupation_global: 0,
+          rentabilite_moyenne: 0
+        });
+        return;
+      }
 
-      setBiens(biensSimules);
+      // Récupérer les téléphones des propriétaires
+      const proprietaireIds = demandesData.map(d => (d.proprietaire as any)?.id).filter(Boolean);
+      const { data: profilsData } = await supabase
+        .from('profil_proprietaire')
+        .select('utilisateur_id, telephone')
+        .in('utilisateur_id', proprietaireIds);
 
-      // Calculer les statistiques
+      // Créer un map des téléphones par utilisateur
+      const telephoneMap = new Map(
+        profilsData?.map(p => [p.utilisateur_id, p.telephone]) || []
+      );
+
+      // Transformer les données en format BienEnGestion
+      const biensTransformes: BienEnGestion[] = demandesData
+        .filter(demande => demande.propriete) // S'assurer que la propriété existe
+        .map(demande => {
+          const propriete = demande.propriete as any;
+          const proprietaire = demande.proprietaire as any;
+          
+          const bien = {
+            id: propriete.id,
+            adresse: propriete.adresse,
+            ville: propriete.ville || '',
+            type_bien: propriete.type_bien,
+            surface_m2: propriete.surface_m2 || 0,
+            loyer_indicatif: Number(propriete.loyer_indicatif) || 0,
+            statut_occupation: propriete.statut_occupation,
+            nb_pieces: propriete.nb_pieces,
+            nb_chambres: propriete.nb_chambres,
+            etage: propriete.etage,
+            balcon: propriete.balcon || false,
+            parking: propriete.parking || false,
+            charges_mensuelles: Number(propriete.charges_mensuelles) || 0,
+            proprietaire: {
+              nom: proprietaire?.nom || 'Propriétaire inconnu',
+              email: proprietaire?.email || '',
+              telephone: telephoneMap.get(proprietaire?.id) || undefined
+            },
+            demande: {
+              statut: demande.statut,
+              date_creation: demande["créé_le"] || ''
+            },
+            // Calculer la rentabilité (exemple simple)
+            rentabilite: propriete.loyer_indicatif ? 
+              Math.round(((Number(propriete.loyer_indicatif) * 12) / (Number(propriete.loyer_indicatif) * 12 * 20)) * 100 * 10) / 10 : 0,
+            taux_occupation: propriete.statut_occupation === 'occupe' ? 100 : 0,
+            created_at: propriete["créé_le"] || '',
+            supprime: false,
+            date_suppression: undefined,
+            notes_gestion: '',
+            revenue_mensuel_custom: 0
+          };
+
+          // Appliquer les modifications localStorage
+          const bienModifications = JSON.parse(localStorage.getItem('bienModifications') || '{}');
+          const modifications = bienModifications[bien.id];
+          if (modifications) {
+            Object.assign(bien, modifications);
+          }
+
+          return bien;
+        });
+
+      setBiens(biensTransformes);
+
+      // Calculer les statistiques (exclure les biens supprimés)
+      const biensActifs = biensTransformes.filter(b => !b.supprime);
       const stats: StatistiquesGestion = {
-        total_biens: biensSimules.length,
-        biens_occupes: biensSimules.filter(b => b.statut_occupation === 'occupe').length,
-        biens_libres: biensSimules.filter(b => b.statut_occupation === 'libre').length,
-        biens_travaux: biensSimules.filter(b => b.statut_occupation === 'en_travaux').length,
-        revenus_mensuels: biensSimules.reduce((sum, b) => sum + (b.loyer_indicatif || 0), 0),
-        taux_occupation_global: biensSimules.length > 0 ? 
-          Math.round((biensSimules.filter(b => b.statut_occupation === 'occupe').length / biensSimules.length) * 100 * 10) / 10 : 0,
-        rentabilite_moyenne: biensSimules.length > 0 ?
-          Math.round((biensSimules.reduce((sum, b) => sum + (b.rentabilite || 0), 0) / biensSimules.length) * 10) / 10 : 0
+        total_biens: biensActifs.length,
+        biens_occupes: biensActifs.filter(b => b.statut_occupation === 'occupe').length,
+        biens_libres: biensActifs.filter(b => b.statut_occupation === 'libre').length,
+        biens_travaux: biensActifs.filter(b => b.statut_occupation === 'en_travaux').length,
+        revenus_mensuels: biensActifs.reduce((sum, b) => {
+          // Utiliser le revenu personnalisé s'il existe, sinon le loyer indicatif
+          const revenu = b.revenue_mensuel_custom && b.revenue_mensuel_custom > 0 
+            ? b.revenue_mensuel_custom 
+            : (b.loyer_indicatif || 0);
+          return sum + revenu;
+        }, 0),
+        taux_occupation_global: biensActifs.length > 0 ? 
+          Math.round((biensActifs.filter(b => b.statut_occupation === 'occupe').length / biensActifs.length) * 100 * 10) / 10 : 0,
+        rentabilite_moyenne: biensActifs.length > 0 ?
+          Math.round((biensActifs.reduce((sum, b) => sum + (b.rentabilite || 0), 0) / biensActifs.length) * 10) / 10 : 0
       };
 
       setStatistiques(stats);
+
+      console.log(`✅ Chargé ${biensTransformes.length} biens en gestion pour le gestionnaire`);
 
     } catch (err) {
       console.error('Erreur lors du chargement des biens en gestion:', err);
@@ -211,11 +233,99 @@ export const useBiensEnGestion = (gestionnaireId: string) => {
   }, [gestionnaireId]);
 
   useEffect(() => {
-    fetchBiensEnGestion();
-  }, [fetchBiensEnGestion]);
+    if (gestionnaireId) {
+      fetchBiensEnGestion();
+    }
+  }, [fetchBiensEnGestion, gestionnaireId]);
 
   const refreshBiens = () => {
     fetchBiensEnGestion();
+  };
+
+  // Fonction pour modifier un bien
+  const modifierBien = async (bienId: string, modifications: Partial<BienEnGestion>) => {
+    try {
+      // Mettre à jour localement d'abord
+      setBiens(prev => prev.map(bien => 
+        bien.id === bienId ? { ...bien, ...modifications } : bien
+      ));
+
+      // Ici on pourrait ajouter une vraie mise à jour en base de données
+      // Pour l'instant, on stocke en localStorage comme cache local
+      const bienModifications = JSON.parse(localStorage.getItem('bienModifications') || '{}');
+      bienModifications[bienId] = { ...bienModifications[bienId], ...modifications };
+      localStorage.setItem('bienModifications', JSON.stringify(bienModifications));
+
+      console.log('✅ Bien modifié avec succès:', bienId, modifications);
+      return true;
+    } catch (error) {
+      console.error('❌ Erreur lors de la modification du bien:', error);
+      // Recharger les données en cas d'erreur
+      fetchBiensEnGestion();
+      return false;
+    }
+  };
+
+  // Fonction pour supprimer un bien (soft delete)
+  const supprimerBien = async (bienId: string) => {
+    try {
+      const dateSuppression = new Date().toISOString();
+      
+      // Mettre à jour localement
+      setBiens(prev => prev.map(bien => 
+        bien.id === bienId ? { 
+          ...bien, 
+          supprime: true, 
+          date_suppression: dateSuppression 
+        } : bien
+      ));
+
+      // Stocker en localStorage
+      const bienModifications = JSON.parse(localStorage.getItem('bienModifications') || '{}');
+      bienModifications[bienId] = { 
+        ...bienModifications[bienId], 
+        supprime: true, 
+        date_suppression: dateSuppression 
+      };
+      localStorage.setItem('bienModifications', JSON.stringify(bienModifications));
+
+      console.log('✅ Bien supprimé avec succès:', bienId);
+      return true;
+    } catch (error) {
+      console.error('❌ Erreur lors de la suppression du bien:', error);
+      fetchBiensEnGestion();
+      return false;
+    }
+  };
+
+  // Fonction pour restaurer un bien supprimé
+  const restaurerBien = async (bienId: string) => {
+    try {
+      // Mettre à jour localement
+      setBiens(prev => prev.map(bien => 
+        bien.id === bienId ? { 
+          ...bien, 
+          supprime: false, 
+          date_suppression: undefined 
+        } : bien
+      ));
+
+      // Stocker en localStorage
+      const bienModifications = JSON.parse(localStorage.getItem('bienModifications') || '{}');
+      bienModifications[bienId] = { 
+        ...bienModifications[bienId], 
+        supprime: false, 
+        date_suppression: undefined 
+      };
+      localStorage.setItem('bienModifications', JSON.stringify(bienModifications));
+
+      console.log('✅ Bien restauré avec succès:', bienId);
+      return true;
+    } catch (error) {
+      console.error('❌ Erreur lors de la restauration du bien:', error);
+      fetchBiensEnGestion();
+      return false;
+    }
   };
 
   return {
@@ -223,6 +333,9 @@ export const useBiensEnGestion = (gestionnaireId: string) => {
     statistiques,
     loading,
     error,
-    refreshBiens
+    refreshBiens,
+    modifierBien,
+    supprimerBien,
+    restaurerBien
   };
 }; 

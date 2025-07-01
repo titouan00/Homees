@@ -120,39 +120,106 @@ export function useProprietes(params: UseProprietesParams): UseProprietesReturn 
         return;
       }
 
-      // Récupérer les informations de gestion pour chaque propriété
-      const proprietesAvecGestion: ProprieteAvecGestion[] = [];
+      console.log('🚀 Starting useProprietes hook, proprietaireId:', proprietaireId);
+      console.log('📦 Proprietes raw data:', proprietesData);
 
-      for (const propriete of proprietesData) {
-        // Vérifier s'il y a un contrat actif pour cette propriété
-        const { data: contratData } = await supabase
-          .from('contrat')
-          .select(`
-            statut,
-            "créé_le",
-            gestionnaire_id,
-            profil_gestionnaire(nom_agence)
-          `)
-          .eq('propriete_id', propriete.id)
-          .eq('statut', 'actif')
-          .order('créé_le', { ascending: false })
-          .limit(1)
-          .single();
+      // Nouvelle approche inspirée de useBiensEnGestion : récupérer toutes les demandes acceptées d'un coup
+      console.log('🔍 Querying demandes with proprietaireId:', proprietaireId, 'type:', typeof proprietaireId);
+      
+      // Test 1: requête simple sans filtre
+      const { data: testData, error: testError } = await supabase
+        .from('demande')
+        .select('id, proprietaire_id, statut')
+        .limit(5);
+      console.log('🧪 Test simple query result:', { testData, testError });
+      
+      // Test 2: avec filtre proprietaire seulement
+      const { data: testData2, error: testError2 } = await supabase
+        .from('demande')
+        .select('id, proprietaire_id, statut')
+        .eq('proprietaire_id', proprietaireId)
+        .limit(5);
+      console.log('🧪 Test with proprietaire filter:', { testData2, testError2 });
 
-        const proprieteAvecGestion: ProprieteAvecGestion = {
+      const { data: demandesAcceptees, error: demandesError } = await supabase
+        .from('demande')
+        .select(`propriete_id, gestionnaire_id, "créé_le"`)
+        .eq('proprietaire_id', proprietaireId)
+        .eq('statut', 'acceptee');
+
+      console.log('🔍 Demandes acceptées trouvées:', { demandesAcceptees, demandesError });
+      console.log('🔍 Query params were:', { proprietaire_id: proprietaireId, statut: 'acceptee' });
+
+      // Récupérer les profils gestionnaires pour les demandes trouvées
+      let profilsGestionnaires: { utilisateur_id: string; nom_agence: string }[] = [];
+      if (demandesAcceptees && demandesAcceptees.length > 0) {
+        // Filtrer les demandes qui ont un propriete_id valide
+        const demandesValides = demandesAcceptees.filter(d => d.propriete_id !== null);
+        console.log('🔍 Demandes valides (avec propriete_id):', demandesValides);
+        
+        const gestionnaireIds = [...new Set(demandesValides.map(d => d.gestionnaire_id))];
+        console.log('👥 Gestionnaire IDs à chercher:', gestionnaireIds);
+        
+        const { data: profilsData, error: profilsError } = await supabase
+          .from('profil_gestionnaire')
+          .select('utilisateur_id, nom_agence')
+          .in('utilisateur_id', gestionnaireIds);
+        
+        console.log('👥 Profils gestionnaires trouvés:', { profilsData, profilsError });
+        profilsGestionnaires = profilsData || [];
+      }
+
+      // Créer un map des demandes par propriété pour un accès rapide
+      const demandesMap = new Map();
+      const gestionnaireProfilsMap = new Map();
+      
+      // Map des profils gestionnaires par utilisateur_id
+      profilsGestionnaires.forEach(profil => {
+        gestionnaireProfilsMap.set(profil.utilisateur_id, profil);
+      });
+      
+      if (demandesAcceptees) {
+        // Ne traiter que les demandes avec un propriete_id valide
+        demandesAcceptees.filter(d => d.propriete_id !== null).forEach(demande => {
+          const profilGestionnaire = gestionnaireProfilsMap.get(demande.gestionnaire_id);
+          demandesMap.set(demande.propriete_id, {
+            ...demande,
+            nom_agence: profilGestionnaire?.nom_agence || 'Agence inconnue'
+          });
+        });
+      }
+
+      // Appliquer les informations de gestion à chaque propriété
+      const proprietesAvecGestion: ProprieteAvecGestion[] = proprietesData.map(propriete => {
+        const demande = demandesMap.get(propriete.id);
+        
+        console.log('📋 Processing propriete:', {
+          id: propriete.id,
+          adresse: propriete.adresse,
+          hasDemande: !!demande,
+          demande: demande,
+          nom_agence: demande?.nom_agence
+        });
+
+        return {
           ...propriete,
-          gestion: contratData ? {
+          gestion: demande ? {
             en_gestion: true,
-            nom_agence: (contratData.profil_gestionnaire as any)?.nom_agence || 'Agence inconnue',
-            gestionnaire_id: contratData.gestionnaire_id,
-            date_debut_gestion: contratData.créé_le
+            nom_agence: demande.nom_agence,
+            gestionnaire_id: demande.gestionnaire_id,
+            date_debut_gestion: demande["créé_le"]
           } : {
             en_gestion: false
           }
         };
+      });
 
-        proprietesAvecGestion.push(proprieteAvecGestion);
-      }
+      console.log('🏁 Final result with all proprietes:', proprietesAvecGestion.map(p => ({
+        id: p.id,
+        adresse: p.adresse,
+        en_gestion: p.gestion?.en_gestion || false,
+        nom_agence: p.gestion?.nom_agence
+      })));
 
       setProprietes(proprietesAvecGestion);
       setTotalCount(count || 0);

@@ -81,32 +81,32 @@ export default function GestionnaireDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Statistiques */}
+        {/* Statistiques */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div key={stat.name} className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center">
-                <div className={`${stat.bg} rounded-lg p-3`}>
-                  <Icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+          {stats.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <div key={stat.name} className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center">
+                  <div className={`${stat.bg} rounded-lg p-3`}>
+                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">{stat.name}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      {/* Contenu principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Profil gestionnaire */}
-        <div className="bg-white rounded-lg shadow p-6">
+        {/* Contenu principal */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Profil gestionnaire */}
+          <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Mon Profil</h2>
-          
+            
           {loading ? (
             <div className="animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
@@ -124,6 +124,14 @@ export default function GestionnaireDashboard() {
                 </p>
               </div>
 
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <MapPin className="h-5 w-5 text-gray-400 mr-3" />
+                    <span>{profile.zone_intervention}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CurrencyEur className="h-5 w-5 text-gray-400 mr-3" />
+                    <span>{profile.tarif_base}€/mois</span>
               <div className="space-y-3">
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 text-gray-400 mr-3" />
@@ -160,7 +168,12 @@ export default function GestionnaireDashboard() {
                       ))}
                     </div>
                   </div>
-                )}
+                  {profile.certifications && (
+                    <div className="flex items-start">
+                      <Medal className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                      <span className="text-sm">{profile.certifications}</span>
+                    </div>
+                  )}
               </div>
 
               <div className="mt-4">
@@ -171,30 +184,65 @@ export default function GestionnaireDashboard() {
                   Modifier mon profil →
                 </Link>
               </div>
-            </div>
-          ) : (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                </div>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <p className="text-yellow-800 text-sm mb-2">
-                Votre profil gestionnaire n'est pas encore complété.
-              </p>
-              <Link
-                href="/dashboard/gestionnaire/profil"
-                className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
-              >
-                Compléter mon profil →
-              </Link>
-            </div>
-          )}
-        </div>
+                    Votre profil gestionnaire n'est pas encore complété.
+                  </p>
+                  <Link
+                    href="/dashboard/gestionnaire/profil"
+                    className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
+                  >
+                    Compléter mon profil →
+                  </Link>
+                </div>
+              )}
+          </div>
 
-        {/* Actions rapides */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Actions rapides</h2>
-          
-          <div className="space-y-3">
-            <Link
-              href="/dashboard/gestionnaire/biens"
+          {/* Actions rapides */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Actions rapides</h2>
+            
+            <div className="space-y-3">
+              <Link
+                href="/dashboard/gestionnaire/biens"
               className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+               >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Buildings className="h-5 w-5 text-emerald-600 mr-3" />
+                  <span className="font-medium">Gérer mes biens</span>
+                </div>
+                <span className="text-sm text-gray-400 group-hover:text-gray-600">24 biens</span>
+                </div>
+              </Link>
+              
+              <Link
+                href="/dashboard/gestionnaire/demandes"
+              className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Users className="h-5 w-5 text-blue-600 mr-3" />
+                  <span className="font-medium">Nouvelles demandes</span>
+                </div>
+                <span className="text-sm text-gray-400 group-hover:text-gray-600">8 en attente</span>
+                </div>
+              </Link>
+              
+              <Link
+              href="/dashboard/gestionnaire/messages"
+              className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <TrendUp className="h-5 w-5 text-purple-600 mr-3" />
+                  <span className="font-medium">Messages</span>
+                </div>
+                <span className="text-sm text-gray-400 group-hover:text-gray-600">3 non lus</span>
+                </div>
+              </Link>
             >
               <div className="flex items-center">
                 <Buildings className="h-5 w-5 text-emerald-600 mr-3" />

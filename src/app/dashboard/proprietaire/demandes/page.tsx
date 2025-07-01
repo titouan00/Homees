@@ -230,24 +230,24 @@ export default function MesDemandesPage() {
                     <div className="flex items-center gap-3">
                       <div className={`p-2 rounded-lg ${statutConfig.bgClass}`}>
                         <StatutIcon className={`h-5 w-5 ${statutConfig.iconClass}`} />
-                      </div>
+                        </div>
                       <div>
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${statutConfig.badgeClass}`}>
                           {statutConfig.label}
                         </span>
                         <p className="text-xs text-gray-500 mt-1">{statutConfig.description}</p>
                       </div>
-                    </div>
+                        </div>
                     <div className="text-right">
                       <p className="text-sm text-gray-500">Envoyée le</p>
                       <p className="text-sm font-medium text-gray-900">{formatDate(demande.créé_le)}</p>
-                      {demande.mis_a_jour_le !== demande.créé_le && (
-                        <p className="text-xs text-gray-500">
+                          {demande.mis_a_jour_le !== demande.créé_le && (
+                            <p className="text-xs text-gray-500">
                           Mise à jour le {formatDate(demande.mis_a_jour_le)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                            </p>
+                          )}
+                        </div>
+                      </div>
 
                   {/* Informations du gestionnaire */}
                   {demande.gestionnaire && (
@@ -265,18 +265,18 @@ export default function MesDemandesPage() {
 
                       {/* Propriété associée */}
                       {demande.propriete && (
-                        <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-3">
                           <div className="p-2 bg-purple-100 rounded-lg">
                             <MapPin className="h-4 w-4 text-purple-600" />
-                          </div>
-                          <div className="min-w-0">
+                        </div>
+                        <div className="min-w-0">
                             <p className="text-sm font-medium text-gray-900">Propriété</p>
                             <p className="text-sm text-gray-600">{demande.propriete.adresse}</p>
                             <p className="text-xs text-gray-500">{demande.propriete.ville} • {demande.propriete.type_bien}</p>
                           </div>
                         </div>
                       )}
-                    </div>
+                      </div>
                   )}
 
                   {/* Message initial */}
@@ -302,13 +302,13 @@ export default function MesDemandesPage() {
                         </button>
                       )}
                       
-                      {demande.gestionnaire && (
+                    {demande.gestionnaire && (
                         <button
-                          onClick={() => handleViewProfile(demande.gestionnaire)}
+                        onClick={() => handleViewProfile(demande.gestionnaire)}
                           className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium"
-                        >
+                      >
                           <Eye className="h-4 w-4 mr-1" />
-                          Voir profil
+                        Voir profil
                         </button>
                       )}
                     </div>
