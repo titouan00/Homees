@@ -196,12 +196,9 @@ export default function GestionnaireDashboard() {
               href="/dashboard/gestionnaire/biens"
               className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Buildings className="h-5 w-5 text-emerald-600 mr-3" />
-                  <span className="font-medium">Gérer mes biens</span>
-                </div>
-                <span className="text-sm text-gray-400 group-hover:text-gray-600">24 biens</span>
+              <div className="flex items-center">
+                <Buildings className="h-5 w-5 text-emerald-600 mr-3" />
+                <span className="font-medium">Gérer mes biens</span>
               </div>
             </Link>
             
@@ -209,12 +206,9 @@ export default function GestionnaireDashboard() {
               href="/dashboard/gestionnaire/demandes"
               className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Users className="h-5 w-5 text-blue-600 mr-3" />
-                  <span className="font-medium">Nouvelles demandes</span>
-                </div>
-                <span className="text-sm text-gray-400 group-hover:text-gray-600">8 en attente</span>
+              <div className="flex items-center">
+                <Users className="h-5 w-5 text-blue-600 mr-3" />
+                <span className="font-medium">Nouvelles demandes</span>
               </div>
             </Link>
             
@@ -222,12 +216,9 @@ export default function GestionnaireDashboard() {
               href="/dashboard/gestionnaire/messages"
               className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <TrendUp className="h-5 w-5 text-purple-600 mr-3" />
-                  <span className="font-medium">Messages</span>
-                </div>
-                <span className="text-sm text-gray-400 group-hover:text-gray-600">3 non lus</span>
+              <div className="flex items-center">
+                <TrendUp className="h-5 w-5 text-purple-600 mr-3" />
+                <span className="font-medium">Messages</span>
               </div>
             </Link>
           </div>
