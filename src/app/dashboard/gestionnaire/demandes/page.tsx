@@ -30,7 +30,6 @@ import {
 // Types pour les filtres
 interface FiltresState {
   statut: string[];
-  priorite: string[];
   recherche: string;
 }
 
@@ -44,7 +43,6 @@ export default function GestionDemandesPage() {
   const [loading, setLoading] = useState(true);
   const [filtres, setFiltres] = useState<FiltresState>({
     statut: [],
-    priorite: [],
     recherche: ''
   });
 
@@ -81,12 +79,6 @@ export default function GestionDemandesPage() {
       if (filtres.statut.length > 0 && !filtres.statut.includes(demande.statut)) {
         return false;
       }
-
-      // Filtre par priorité
-      if (filtres.priorite.length > 0 && !filtres.priorite.includes(demande.priorite)) {
-        return false;
-      }
-
       // Filtre par recherche
       if (filtres.recherche.trim()) {
         const recherche = filtres.recherche.toLowerCase();
@@ -94,12 +86,10 @@ export default function GestionDemandesPage() {
         const matchEmail = demande.proprietaire.email.toLowerCase().includes(recherche);
         const matchAdresse = demande.bien?.adresse?.toLowerCase().includes(recherche) || false;
         const matchVille = demande.bien?.ville?.toLowerCase().includes(recherche) || false;
-        
         if (!matchNom && !matchEmail && !matchAdresse && !matchVille) {
           return false;
         }
       }
-
       return true;
     });
   }, [demandes, filtres]);
@@ -256,21 +246,9 @@ export default function GestionDemandesPage() {
             onChange={(values) => setFiltres({ ...filtres, statut: values })}
           />
 
-          {/* Dropdown Priorité */}
-          <DropdownFilter
-            label="Priorité"
-            options={[
-              { value: 'haute', label: 'Haute', color: 'bg-red-100 text-red-800' },
-              { value: 'moyenne', label: 'Moyenne', color: 'bg-yellow-100 text-yellow-800' },
-              { value: 'basse', label: 'Basse', color: 'bg-green-100 text-green-800' }
-            ]}
-            selectedValues={filtres.priorite}
-            onChange={(values) => setFiltres({ ...filtres, priorite: values })}
-          />
-
           {/* Bouton reset filtres */}
           <button
-            onClick={() => setFiltres({ statut: [], priorite: [], recherche: '' })}
+            onClick={() => setFiltres({ statut: [], recherche: '' })}
             className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
           >
             <XCircle className="h-4 w-4" />
@@ -279,7 +257,7 @@ export default function GestionDemandesPage() {
         </div>
 
         {/* Filtres actifs */}
-        {(filtres.statut.length > 0 || filtres.priorite.length > 0 || filtres.recherche) && (
+        {(filtres.statut.length > 0 || filtres.recherche) && (
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm text-gray-500">Filtres actifs:</span>
@@ -289,17 +267,6 @@ export default function GestionDemandesPage() {
                   <button
                     onClick={() => setFiltres({ ...filtres, statut: filtres.statut.filter(s => s !== statut) })}
                     className="ml-1 text-blue-600 hover:text-blue-800"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-              {filtres.priorite.map(priorite => (
-                <span key={priorite} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">
-                  {priorite}
-                  <button
-                    onClick={() => setFiltres({ ...filtres, priorite: filtres.priorite.filter(p => p !== priorite) })}
-                    className="ml-1 text-yellow-600 hover:text-yellow-800"
                   >
                     ×
                   </button>
@@ -328,7 +295,7 @@ export default function GestionDemandesPage() {
             <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune demande trouvée</h3>
             <p className="text-gray-500">
-              {filtres.recherche || filtres.statut.length > 0 || filtres.priorite.length > 0
+              {filtres.recherche || filtres.statut.length > 0
                 ? 'Aucune demande ne correspond à vos critères'
                 : 'Vous n\'avez pas encore reçu de demande'
               }
@@ -466,25 +433,10 @@ function CarteDemande({ demande, onViewDetails, onContact, onChangeStatut, forma
         return { label: statut, color: 'bg-gray-100 text-gray-800', icon: Clock };
     }
   };
-
-  const getPrioriteColor = (priorite: string) => {
-    switch (priorite) {
-      case 'haute':
-        return 'border-l-red-500';
-      case 'moyenne':
-        return 'border-l-yellow-500';
-      case 'basse':
-        return 'border-l-green-500';
-      default:
-        return 'border-l-gray-500';
-    }
-  };
-
   const statutConfig = getStatutConfig(demande.statut);
   const StatutIcon = statutConfig.icon;
-
   return (
-    <div className={`bg-white rounded-lg border-l-4 ${getPrioriteColor(demande.priorite)} shadow-sm p-6 hover:shadow-md transition-shadow`}>
+    <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
@@ -496,23 +448,14 @@ function CarteDemande({ demande, onViewDetails, onContact, onChangeStatut, forma
               <StatutIcon className="h-3 w-3 mr-1" />
               {statutConfig.label}
             </span>
-            <span className={`px-2 py-1 text-xs rounded-full ${
-              demande.priorite === 'haute' ? 'bg-red-100 text-red-800' :
-              demande.priorite === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-green-100 text-green-800'
-            }`}>
-              Priorité {demande.priorite}
-            </span>
           </div>
           <p className="text-sm text-gray-600">{demande.proprietaire.email}</p>
         </div>
-        
         <div className="text-right">
           <p className="text-sm text-gray-500">Reçue le</p>
           <p className="text-sm font-medium text-gray-900">{formatDate(demande.created_at)}</p>
         </div>
       </div>
-
       {/* Informations du bien */}
       {demande.bien && (
         <div className="bg-gray-50 rounded-lg p-4 mb-4">
@@ -548,7 +491,6 @@ function CarteDemande({ demande, onViewDetails, onContact, onChangeStatut, forma
           )}
         </div>
       )}
-
       {/* Message initial */}
       <div className="mb-4">
         <h4 className="font-medium text-gray-900 mb-2">Message initial</h4>
@@ -556,7 +498,6 @@ function CarteDemande({ demande, onViewDetails, onContact, onChangeStatut, forma
           {demande.message_initial}
         </p>
       </div>
-
       {/* Actions */}
       <div className="flex items-center justify-between pt-4 border-t border-gray-200">
         <div className="flex items-center gap-4">
@@ -567,7 +508,6 @@ function CarteDemande({ demande, onViewDetails, onContact, onChangeStatut, forma
             <Eye className="h-4 w-4 mr-1" />
             Voir détails
           </button>
-          
           <button
             onClick={() => onContact(demande)}
             className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700"
@@ -575,7 +515,6 @@ function CarteDemande({ demande, onViewDetails, onContact, onChangeStatut, forma
             <ChatCircle className="h-4 w-4 mr-1" />
             Contacter ({demande.nombre_messages})
           </button>
-
           {demande.proprietaire.telephone && (
             <a
               href={`tel:${demande.proprietaire.telephone}`}
@@ -586,7 +525,6 @@ function CarteDemande({ demande, onViewDetails, onContact, onChangeStatut, forma
             </a>
           )}
         </div>
-
         {/* Actions de changement de statut */}
         <div className="flex gap-2">
           {demande.statut === 'ouverte' && (
@@ -605,7 +543,6 @@ function CarteDemande({ demande, onViewDetails, onContact, onChangeStatut, forma
               </button>
             </>
           )}
-          
           {demande.statut === 'acceptee' && (
             <button
               onClick={() => onChangeStatut(demande, 'terminee')}

@@ -10,15 +10,54 @@ import { ArrowRight, Users, Home, Star, TrendingUp, MessageCircle, ShieldCheck, 
 // Images libres (pexels/unsplash)
 const heroImg = "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=1200&q=80";
 const heroImg2 = "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=900&q=80";
-const testimonialImg1 = "https://randomuser.me/api/portraits/women/44.jpg";
-const testimonialImg2 = "https://randomuser.me/api/portraits/men/32.jpg";
-const dashboardImg = "/non.jpg";
-const partnerLogos = [
-  "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",
-  "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
-  "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png",
-  "https://upload.wikimedia.org/wikipedia/commons/9/96/Supabase_logo.png"
+// Tableau d'avis dynamiques
+const testimonials = [
+  {
+    img: "https://randomuser.me/api/portraits/women/44.jpg",
+    name: "Claire M.",
+    city: "Lyon",
+    text: "Grâce à Homees, j'ai trouvé un gestionnaire fiable en 48h. L'interface est claire et le support au top !"
+  },
+  {
+    img: "https://randomuser.me/api/portraits/men/32.jpg",
+    name: "Marc D.",
+    city: "Paris",
+    text: "La comparaison des offres est super simple, et j'ai pu discuter avec plusieurs gestionnaires avant de choisir."
+  },
+  {
+    img: "https://randomuser.me/api/portraits/men/45.jpg",
+    name: "Julien T.",
+    city: "Marseille",
+    text: "Le suivi des loyers et la messagerie intégrée me font gagner un temps fou. Je recommande à tous les propriétaires !"
+  },
+  {
+    img: "https://randomuser.me/api/portraits/women/65.jpg",
+    name: "Sophie L.",
+    city: "Bordeaux",
+    text: "Service client très réactif, plateforme intuitive, et gestionnaire trouvé en moins de 24h. Bravo Homees !"
+  },
+  {
+    img: "https://randomuser.me/api/portraits/men/76.jpg",
+    name: "Antoine P.",
+    city: "Toulouse",
+    text: "J'ai pu comparer les tarifs et les services en toute transparence. Homees m'a permis d'économiser sur mes frais de gestion."
+  },
 ];
+
+// Fonction pour tirer 2 avis aléatoires (hors SSR)
+function pickRandomTestimonials() {
+  const arr = [...testimonials];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, 2);
+}
+
+// Ajout d'un composant pour l'effet glow
+const Glow = () => (
+  <div className="absolute -inset-2 rounded-2xl blur-2xl opacity-40 bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 animate-pulse pointer-events-none z-0" />
+);
 
 export default function HomePage() {
   // KPIs dynamiques
@@ -91,6 +130,12 @@ export default function HomePage() {
     return <span>{display}</span>;
   };
 
+  // Hydratation safe : initialiser avec les deux premiers, puis shuffle côté client
+  const [randomTestimonials, setRandomTestimonials] = useState(() => testimonials.slice(0, 2));
+  useEffect(() => {
+    setRandomTestimonials(pickRandomTestimonials());
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50">
       {/* HERO */}
@@ -104,21 +149,31 @@ export default function HomePage() {
           <div className="mb-4 flex gap-2 items-center">
             <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">Nouveau !</span>
             <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">Plateforme SaaS</span>
+            {/* Badge animé utilisateurs */}
+            <span className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow animate-bounce ml-2">
+              + de 1000 utilisateurs satisfaits
+            </span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight">
             Gérez vos biens <span className="text-emerald-600">en toute confiance</span>
-            </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-xl">
-            La plateforme nouvelle génération pour propriétaires et gestionnaires immobiliers exigeants. Transparence, efficacité, simplicité.<br/>
-            <span className="inline-block mt-2 text-emerald-700 font-semibold">Essayez gratuitement, sans engagement.</span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-4 max-w-xl">
+            <span className="inline-block text-emerald-700 font-semibold mb-1">La gestion immobilière nouvelle génération</span><br/>
+            Plateforme tout-en-un pour propriétaires et gestionnaires exigeants. Transparence, efficacité, simplicité.
           </p>
-              <Link 
-                href="/signup" 
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg font-semibold text-lg animate-glow"
-              >
-            Créer mon compte
-            <ArrowRight className="h-5 w-5" />
-              </Link>
+          <div className="mb-8">
+            <span className="inline-block text-emerald-700 font-semibold">Essayez gratuitement, sans engagement.</span>
+          </div>
+          <div className="relative inline-block group">
+            <Glow />
+            <Link 
+              href="/signup" 
+              className="relative z-10 inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg font-semibold text-lg animate-glow"
+            >
+              Créer mon compte
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+          </div>
         </motion.div>
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -141,30 +196,59 @@ export default function HomePage() {
       {/* KPIs */}
       <section className="py-12 bg-gradient-to-br from-blue-50 to-emerald-50">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-xl shadow p-6 flex flex-col items-center border-b-4 border-emerald-100 hover:scale-105 hover:shadow-xl transition-all">
-            <Users className="h-8 w-8 text-emerald-600 mb-2" />
-            <div className="text-3xl font-bold text-gray-900">
+          {/* Gestionnaires inscrits */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="relative bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 flex flex-col items-center border-b-4 border-emerald-100 hover:scale-105 hover:shadow-2xl transition-all group overflow-hidden"
+          >
+            {/* Mini-graphique décoratif */}
+            <svg className="absolute top-2 right-2 w-10 h-6 opacity-20" viewBox="0 0 40 24" fill="none"><path d="M0 20 Q10 10 20 20 T40 20" stroke="#10b981" strokeWidth="2" fill="none"/></svg>
+            <Users className="h-8 w-8 text-emerald-600 mb-2 animate-bounce group-hover:animate-spin" />
+            <div className="text-3xl font-bold text-gray-900 group-hover:animate-pulse transition-all duration-200">
               {loading ? "-" : <AnimatedNumber value={kpis.gestionnaires} />}+
-          </div>
+            </div>
             <div className="text-sm text-gray-500 mt-1">Gestionnaires inscrits</div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-xl shadow p-6 flex flex-col items-center border-b-4 border-blue-100 hover:scale-105 hover:shadow-xl transition-all">
-            <Users className="h-8 w-8 text-blue-600 mb-2" />
-            <div className="text-3xl font-bold text-gray-900">
+          {/* Propriétaires inscrits */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="relative bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 flex flex-col items-center border-b-4 border-blue-100 hover:scale-105 hover:shadow-2xl transition-all group overflow-hidden"
+          >
+            <svg className="absolute top-2 right-2 w-10 h-6 opacity-20" viewBox="0 0 40 24" fill="none"><path d="M0 20 Q10 10 20 20 T40 20" stroke="#3b82f6" strokeWidth="2" fill="none"/></svg>
+            <Users className="h-8 w-8 text-blue-600 mb-2 animate-bounce group-hover:animate-spin" />
+            <div className="text-3xl font-bold text-gray-900 group-hover:animate-pulse transition-all duration-200">
               {loading ? "-" : <AnimatedNumber value={kpis.proprietaires} />}+
             </div>
             <div className="text-sm text-gray-500 mt-1">Propriétaires inscrits</div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white rounded-xl shadow p-6 flex flex-col items-center border-b-4 border-emerald-100 hover:scale-105 hover:shadow-xl transition-all">
-            <Home className="h-8 w-8 text-emerald-500 mb-2" />
-            <div className="text-3xl font-bold text-gray-900">
+          {/* Biens gérés */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="relative bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 flex flex-col items-center border-b-4 border-emerald-100 hover:scale-105 hover:shadow-2xl transition-all group overflow-hidden"
+          >
+            <svg className="absolute top-2 right-2 w-10 h-6 opacity-20" viewBox="0 0 40 24" fill="none"><path d="M0 20 Q10 10 20 20 T40 20" stroke="#10b981" strokeWidth="2" fill="none"/></svg>
+            <Home className="h-8 w-8 text-emerald-500 mb-2 animate-bounce group-hover:animate-spin" />
+            <div className="text-3xl font-bold text-gray-900 group-hover:animate-pulse transition-all duration-200">
               {loading ? "-" : <AnimatedNumber value={kpis.biens} />}+
             </div>
             <div className="text-sm text-gray-500 mt-1">Biens gérés</div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white rounded-xl shadow p-6 flex flex-col items-center border-b-4 border-yellow-100 hover:scale-105 hover:shadow-xl transition-all">
-            <Star className="h-8 w-8 text-yellow-400 mb-2" />
-            <div className="text-3xl font-bold text-gray-900">
+          {/* Note moyenne */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="relative bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 flex flex-col items-center border-b-4 border-yellow-100 hover:scale-105 hover:shadow-2xl transition-all group overflow-hidden"
+          >
+            <svg className="absolute top-2 right-2 w-10 h-6 opacity-20" viewBox="0 0 40 24" fill="none"><path d="M0 20 Q10 10 20 20 T40 20" stroke="#facc15" strokeWidth="2" fill="none"/></svg>
+            <Star className="h-8 w-8 text-yellow-400 mb-2 animate-bounce group-hover:animate-spin" />
+            <div className="text-3xl font-bold text-gray-900 group-hover:animate-pulse transition-all duration-200">
               {loading ? "-" : kpis.note}
             </div>
             <div className="text-sm text-gray-500 mt-1">Note moyenne</div>
@@ -172,62 +256,81 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* APERÇU DASHBOARD */}
+      {/* FONCTIONNALITÉS CLÉS */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-0 flex flex-col md:flex-row items-center gap-12">
-          <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }} className="flex-1 max-w-xl px-6">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Aperçu du dashboard propriétaire
-            </h2>
-            <p className="text-lg text-gray-600 mb-6">
-              Visualisez et pilotez tous vos biens, demandes et revenus en temps réel. Un tableau de bord moderne, intuitif et sécurisé.
-            </p>
-            <ul className="mb-8 space-y-2 text-gray-700">
-              <li className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-emerald-600" /> Sécurité et confidentialité garanties</li>
-              <li className="flex items-center gap-2"><Building2 className="h-5 w-5 text-blue-600" /> Vue synthétique de votre portefeuille</li>
-              <li className="flex items-center gap-2"><Smile className="h-5 w-5 text-yellow-500" /> Expérience utilisateur fluide</li>
-            </ul>
-            <Link href="/signup" className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-emerald-700 hover:to-blue-700 transition-all shadow font-semibold animate-pulse">
-              Découvrir gratuitement
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="flex-1 w-full">
-            <div className="relative w-full max-w-full h-72 md:h-[32rem] rounded-3xl overflow-hidden shadow-2xl border-4 border-emerald-100 group mx-auto">
-              <Image
-                src={dashboardImg}
-                alt="Aperçu du dashboard Homees"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-emerald-50/80 to-transparent pointer-events-none" />
-            </div>
-          </motion.div>
-            </div>
-      </section>
-
-      {/* COMMENT CA MARCHE */}
-      <section className="py-20 bg-gradient-to-br from-emerald-50 to-blue-50">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 text-center mb-12">
+            Fonctionnalités clés de Homees
+          </h2>
+          <div className="grid md:grid-cols-4 gap-10">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-t-4 border-emerald-200 hover:scale-105 hover:shadow-xl transition-all group">
+              <ShieldCheck className="h-10 w-10 text-emerald-600 mb-4 group-hover:animate-bounce" />
+              <h3 className="text-xl font-semibold mb-2">Gestion centralisée</h3>
+              <p className="text-gray-600 text-center">Pilotez tous vos biens, locataires et documents depuis une seule plateforme intuitive.</p>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-gradient-to-br from-blue-50 to-emerald-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-t-4 border-blue-200 hover:scale-105 hover:shadow-xl transition-all group">
+              <MessageCircle className="h-10 w-10 text-blue-600 mb-4 group-hover:animate-bounce" />
+              <h3 className="text-xl font-semibold mb-2">Messagerie sécurisée</h3>
+              <p className="text-gray-600 text-center">Discutez en temps réel avec vos gestionnaires ou propriétaires, en toute confidentialité.</p>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-t-4 border-emerald-200 hover:scale-105 hover:shadow-xl transition-all group">
+              <TrendingUp className="h-10 w-10 text-emerald-500 mb-4 group-hover:animate-bounce" />
+              <h3 className="text-xl font-semibold mb-2">Statistiques en temps réel</h3>
+              <p className="text-gray-600 text-center">Suivez vos revenus, vos demandes et l'état de vos biens en un clin d'œil.</p>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-gradient-to-br from-blue-50 to-emerald-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-t-4 border-blue-200 hover:scale-105 hover:shadow-xl transition-all group">
+              <Smile className="h-10 w-10 text-yellow-500 mb-4 group-hover:animate-bounce" />
+              <h3 className="text-xl font-semibold mb-2">Support premium</h3>
+              <p className="text-gray-600 text-center">Une équipe dédiée pour vous accompagner à chaque étape, 7j/7.</p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* COMMENT CA MARCHE - TIMELINE MODERNE */}
+      <section className="py-20 bg-gradient-to-br from-emerald-50 to-blue-50">
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 text-center mb-16">
             Comment ça marche ?
           </h2>
-          <div className="grid md:grid-cols-3 gap-10">
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-t-4 border-emerald-100 hover:scale-105 hover:shadow-xl transition-all">
-              <TrendingUp className="h-10 w-10 text-emerald-600 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Inscrivez-vous gratuitement</h3>
-              <p className="text-gray-600 text-center">Créez votre compte en quelques clics et accédez à votre espace personnalisé.</p>
+          <div className="relative flex flex-col items-center">
+            {/* Connecteur vertical */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-12 bottom-12 w-1 bg-gradient-to-b from-emerald-300 via-blue-200 to-emerald-100 rounded-full z-0 animate-pulse" />
+            {/* Étape 1 */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative z-10 flex flex-col items-center mb-16 group">
+              <div className="bg-gradient-to-br from-emerald-400 to-blue-400 rounded-full p-4 shadow-lg mb-4 group-hover:scale-110 transition-transform">
+                <TrendingUp className="h-14 w-14 text-white" />
+              </div>
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl px-8 py-6 shadow-xl text-center">
+                <span className="text-2xl font-bold text-emerald-600 mb-2 block">1</span>
+                <h3 className="text-xl font-semibold mb-2">Inscrivez-vous gratuitement</h3>
+                <p className="text-gray-600">Créez votre compte en quelques clics et accédez à votre espace personnalisé.</p>
+              </div>
             </motion.div>
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-t-4 border-blue-100 hover:scale-105 hover:shadow-xl transition-all">
-              <MessageCircle className="h-10 w-10 text-blue-600 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Comparez & échangez</h3>
-              <p className="text-gray-600 text-center">Trouvez le gestionnaire idéal, comparez les offres et discutez en toute sécurité.</p>
+            {/* Connecteur pointillé animé */}
+            <div className="w-1 h-10 bg-gradient-to-b from-emerald-300 to-blue-200 rounded-full animate-pulse" />
+            {/* Étape 2 */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative z-10 flex flex-col items-center mb-16 group">
+              <div className="bg-gradient-to-br from-blue-400 to-emerald-400 rounded-full p-4 shadow-lg mb-4 group-hover:scale-110 transition-transform">
+                <MessageCircle className="h-14 w-14 text-white" />
+              </div>
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl px-8 py-6 shadow-xl text-center">
+                <span className="text-2xl font-bold text-blue-600 mb-2 block">2</span>
+                <h3 className="text-xl font-semibold mb-2">Comparez & échangez</h3>
+                <p className="text-gray-600">Trouvez le gestionnaire idéal, comparez les offres et discutez en toute sécurité.</p>
+              </div>
             </motion.div>
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-t-4 border-emerald-100 hover:scale-105 hover:shadow-xl transition-all">
-              <Home className="h-10 w-10 text-emerald-500 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Gérez vos biens simplement</h3>
-              <p className="text-gray-600 text-center">Suivez vos biens, vos demandes et vos revenus en temps réel depuis votre dashboard.</p>
+            <div className="w-1 h-10 bg-gradient-to-b from-blue-200 to-emerald-200 rounded-full animate-pulse" />
+            {/* Étape 3 */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="relative z-10 flex flex-col items-center group">
+              <div className="bg-gradient-to-br from-emerald-400 to-blue-400 rounded-full p-4 shadow-lg mb-4 group-hover:scale-110 transition-transform">
+                <Home className="h-14 w-14 text-white" />
+              </div>
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl px-8 py-6 shadow-xl text-center">
+                <span className="text-2xl font-bold text-emerald-600 mb-2 block">3</span>
+                <h3 className="text-xl font-semibold mb-2">Gérez vos biens simplement</h3>
+                <p className="text-gray-600">Suivez vos biens, vos demandes et vos revenus en temps réel depuis votre dashboard.</p>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -237,26 +340,75 @@ export default function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 text-center mb-12">
-            Pourquoi choisir Homees ?
-            </h2>
-          <div className="grid md:grid-cols-3 gap-10">
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-l-4 border-emerald-200 hover:scale-105 hover:shadow-xl transition-all">
-              <Star className="h-10 w-10 text-yellow-400 mb-4" />
+            Pourquoi choisir Homees&nbsp;?
+          </h2>
+          <div className="grid md:grid-cols-4 gap-8 mb-12">
+            {/* Transparence totale */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative bg-gradient-to-br from-yellow-50 to-emerald-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-l-4 border-yellow-300 hover:scale-105 hover:shadow-xl transition-all group">
+              <Star className="h-10 w-10 text-yellow-400 mb-4 group-hover:animate-spin" />
               <h3 className="text-xl font-semibold mb-2">Transparence totale</h3>
               <p className="text-gray-600 text-center">Tarifs clairs, avis vérifiés, aucune mauvaise surprise. Vous savez toujours à quoi vous attendre.</p>
             </motion.div>
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-gradient-to-br from-blue-50 to-emerald-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-l-4 border-blue-200 hover:scale-105 hover:shadow-xl transition-all">
-              <Users className="h-10 w-10 text-emerald-600 mb-4" />
+            {/* Communauté engagée */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative bg-gradient-to-br from-blue-50 to-emerald-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-l-4 border-blue-300 hover:scale-105 hover:shadow-xl transition-all group">
+              <Users className="h-10 w-10 text-emerald-600 mb-4 group-hover:animate-bounce" />
               <h3 className="text-xl font-semibold mb-2">Communauté engagée</h3>
               <p className="text-gray-600 text-center">Des gestionnaires et propriétaires actifs, une équipe support réactive et à l'écoute.</p>
             </motion.div>
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-l-4 border-emerald-200 hover:scale-105 hover:shadow-xl transition-all">
-              <TrendingUp className="h-10 w-10 text-blue-600 mb-4" />
+            {/* Outils puissants */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="relative bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-l-4 border-emerald-300 hover:scale-105 hover:shadow-xl transition-all group">
+              <TrendingUp className="h-10 w-10 text-blue-600 mb-4 group-hover:animate-bounce" />
               <h3 className="text-xl font-semibold mb-2">Outils puissants</h3>
               <p className="text-gray-600 text-center">Dashboard intuitif, messagerie intégrée, statistiques avancées pour piloter votre activité.</p>
             </motion.div>
+            {/* Confiance & sécurité */}
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="relative bg-gradient-to-br from-emerald-100 to-blue-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-l-4 border-emerald-400 hover:scale-105 hover:shadow-xl transition-all group">
+              <ShieldCheck className="h-10 w-10 text-emerald-700 mb-4 group-hover:animate-bounce" />
+              <h3 className="text-xl font-semibold mb-2">Confiance & sécurité</h3>
+              <p className="text-gray-600 text-center">Plateforme notée 5/5 par nos utilisateurs. Données protégées et support premium.</p>
+            </motion.div>
           </div>
-                </div>
+          {/* Comparatif visuel rapide */}
+          <div className="mt-10 max-w-2xl mx-auto">
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <span className="bg-emerald-600 text-white px-4 py-2 rounded-full font-bold text-sm shadow">Homees</span>
+              <span className="text-gray-400 font-bold">vs.</span>
+              <span className="bg-gray-100 text-gray-700 px-4 py-2 rounded-full font-bold text-sm shadow">Agence classique</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-center text-sm">
+              <div className="bg-emerald-50 rounded-xl p-4 shadow border border-emerald-100">
+                <span className="font-bold text-emerald-700">100% digital</span><br/>
+                <span className="text-emerald-500">Accès 24/7</span>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4 shadow border border-gray-100">
+                <span className="font-bold text-gray-700">RDV physique</span><br/>
+                <span className="text-gray-400">Horaires limités</span>
+              </div>
+              <div className="bg-emerald-50 rounded-xl p-4 shadow border border-emerald-100">
+                <span className="font-bold text-emerald-700">Tarifs transparents</span><br/>
+                <span className="text-emerald-500">Sans frais cachés</span>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4 shadow border border-gray-100">
+                <span className="font-bold text-gray-700">Frais opaques</span><br/>
+                <span className="text-gray-400">Surprises fréquentes</span>
+              </div>
+              <div className="bg-emerald-50 rounded-xl p-4 shadow border border-emerald-100">
+                <span className="font-bold text-emerald-700">Support 7j/7</span><br/>
+                <span className="text-emerald-500">Réponse rapide</span>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4 shadow border border-gray-100">
+                <span className="font-bold text-gray-700">Support lent</span><br/>
+                <span className="text-gray-400">Délais importants</span>
+              </div>
+            </div>
+            <div className="flex justify-center mt-6">
+              <span className="inline-flex items-center gap-1 bg-white border border-emerald-200 rounded-full px-4 py-2 text-emerald-700 font-bold shadow">
+                <Star className="h-4 w-4 text-yellow-400" />
+                Noté 5/5 sur Trustpilot
+              </span>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* TEMOIGNAGES */}
@@ -266,54 +418,22 @@ export default function HomePage() {
             Ils nous font confiance
           </h2>
           <div className="grid md:grid-cols-2 gap-8">
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-b-4 border-emerald-100 hover:scale-105 hover:shadow-xl transition-all">
-              <Image src={testimonialImg1} alt="Claire M." width={64} height={64} className="rounded-full mb-4" />
-              <p className="text-lg text-gray-700 mb-4">“Grâce à Homees, j'ai trouvé un gestionnaire fiable en 48h. L'interface est claire et le support au top !”</p>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900">Claire M.</span>
-                <span className="text-gray-500 text-sm">Propriétaire à Lyon</span>
-              </div>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-b-4 border-blue-100 hover:scale-105 hover:shadow-xl transition-all">
-              <Image src={testimonialImg2} alt="Marc D." width={64} height={64} className="rounded-full mb-4" />
-              <p className="text-lg text-gray-700 mb-4">“La comparaison des offres est super simple, et j'ai pu discuter avec plusieurs gestionnaires avant de choisir.”</p>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900">Marc D.</span>
-                <span className="text-gray-500 text-sm">Propriétaire à Paris</span>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-3xl mx-auto px-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 text-center mb-12">
-            FAQ
-          </h2>
-          <div className="space-y-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex items-start gap-4">
-              <HelpCircle className="h-8 w-8 text-emerald-600 flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Est-ce que Homees est vraiment gratuit ?</h3>
-                <p className="text-gray-600">Oui, l'inscription et l'utilisation de base sont gratuites pour tous les propriétaires et gestionnaires. Des options avancées sont disponibles en abonnement Pro.</p>
-              </div>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-start gap-4">
-              <HelpCircle className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Comment sont sélectionnés les gestionnaires ?</h3>
-                <p className="text-gray-600">Tous les gestionnaires sont vérifiés et notés par la communauté. Vous pouvez consulter les avis et comparer les offres en toute transparence.</p>
-              </div>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex items-start gap-4">
-              <HelpCircle className="h-8 w-8 text-yellow-500 flex-shrink-0 mt-1" />
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Puis-je gérer plusieurs biens avec un seul compte ?</h3>
-                <p className="text-gray-600">Absolument ! Homees est conçu pour gérer un ou plusieurs biens, que vous soyez particulier ou professionnel.</p>
-            </div>
-            </motion.div>
+            {randomTestimonials.map((t, i) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * (i + 1) }}
+                className={`bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-b-4 ${i % 2 === 0 ? 'border-emerald-100' : 'border-blue-100'} hover:scale-105 hover:shadow-xl transition-all`}
+              >
+                <Image src={t.img} alt={t.name} width={64} height={64} className="rounded-full mb-4" />
+                <p className="text-lg text-gray-700 mb-4">“{t.text}”</p>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-900">{t.name}</span>
+                  <span className="text-gray-500 text-sm">Propriétaire à {t.city}</span>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>

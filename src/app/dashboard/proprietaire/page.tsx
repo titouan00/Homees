@@ -106,13 +106,6 @@ export default function ProprietaireDashboard() {
 
   return (
     <div className="p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Tableau de bord</h1>
-        <p className="text-gray-600">Gérez vos biens et trouvez les meilleurs gestionnaires</p>
-        {user && <p className="text-sm text-gray-500 mt-1">Bienvenue, {user.nom}</p>}
-      </div>
-
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {[...Array(4)].map((_, i) => (
@@ -225,28 +218,6 @@ export default function ProprietaireDashboard() {
                 <p className="text-gray-600">
                   Trouvez le gestionnaire parfait pour vos biens immobiliers
                 </p>
-                
-                {dashboardStats.nombreGestionnaires > 0 && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div className="flex items-center">
-                      <Users className="h-5 w-5 text-blue-500 mr-3" />
-                      <span className="text-blue-700 font-medium">
-                        {dashboardStats.nombreGestionnaires} gestionnaire{dashboardStats.nombreGestionnaires > 1 ? 's' : ''} contacté{dashboardStats.nombreGestionnaires > 1 ? 's' : ''}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {dashboardStats.nombreDemandesAcceptees > 0 && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                    <div className="flex items-center">
-                      <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                      <span className="text-green-700 font-medium">
-                        {dashboardStats.nombreDemandesAcceptees} demande{dashboardStats.nombreDemandesAcceptees > 1 ? 's' : ''} acceptée{dashboardStats.nombreDemandesAcceptees > 1 ? 's' : ''}
-                      </span>
-                    </div>
-                  </div>
-                )}
                 
                 <div className="space-y-3">
                   <Link

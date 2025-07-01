@@ -69,28 +69,19 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
       name: 'Mes biens',
       href: `/dashboard/${userProfile.role}/biens`,
       icon: Buildings,
-      current: pathname.includes('/biens'),
-      isSpecialBadge: userProfile.role === 'proprietaire',
-      specialBadgeCount: userProfile.role === 'proprietaire' ? biensCount : undefined,
-      specialBadgeLoading: userProfile.role === 'proprietaire' ? biensLoading : false
+      current: pathname.includes('/biens')
     },
     {
       name: 'Demandes',
       href: `/dashboard/${userProfile.role}/demandes`,
       icon: FileText,
-      current: pathname.includes('/demandes'),
-      isSpecialBadge: userProfile.role === 'proprietaire',
-      specialBadgeCount: demandesCount,
-      specialBadgeLoading: demandesLoading
+      current: pathname.includes('/demandes')
     },
     {
       name: 'Messages',
       href: `/dashboard/messages`,
       icon: ChatCircle,
-      current: pathname.includes('/messages'),
-      isSpecialBadge: true,
-      specialBadgeCount: messagesCount,
-      specialBadgeLoading: messagesLoading
+      current: pathname.includes('/messages')
     }
   ];
 
@@ -151,9 +142,6 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   href={item.href}
                   icon={item.icon}
                   current={item.current}
-                  isSpecialBadge={item.isSpecialBadge}
-                  specialBadgeCount={item.specialBadgeCount}
-                  specialBadgeLoading={item.specialBadgeLoading}
                 />
               ))}
             </div>

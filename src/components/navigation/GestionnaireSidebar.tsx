@@ -54,7 +54,6 @@ export default function GestionnaireSidebar({ userProfile }: GestionnaireSidebar
       href: `/dashboard/gestionnaire/biens`,
       icon: Buildings,
       current: pathname.includes('/biens'),
-      badge: 24,
       description: 'Portefeuille immobilier'
     },
     {
@@ -62,7 +61,6 @@ export default function GestionnaireSidebar({ userProfile }: GestionnaireSidebar
       href: `/dashboard/gestionnaire/demandes`,
       icon: Funnel,
       current: pathname.includes('/demandes'),
-      badge: 8,
       description: 'Pipeline de prospects'
     },
     {
@@ -70,9 +68,6 @@ export default function GestionnaireSidebar({ userProfile }: GestionnaireSidebar
       href: `/dashboard/gestionnaire/messages`,
       icon: ChatCircle,
       current: pathname.includes('/messages'),
-      isSpecialBadge: true,
-      specialBadgeCount: messagesCount,
-      specialBadgeLoading: messagesLoading,
       description: 'Centre de messagerie unifié'
     }
   ];
@@ -142,10 +137,6 @@ export default function GestionnaireSidebar({ userProfile }: GestionnaireSidebar
                   href={item.href}
                   icon={item.icon}
                   current={item.current}
-                  badge={item.badge}
-                  isSpecialBadge={item.isSpecialBadge}
-                  specialBadgeCount={item.specialBadgeCount}
-                  specialBadgeLoading={item.specialBadgeLoading}
                 />
               ))}
             </div>
@@ -171,22 +162,6 @@ export default function GestionnaireSidebar({ userProfile }: GestionnaireSidebar
             </div>
           </div>
         </nav>
-
-        {/* Stats rapides */}
-        <div className="px-4 py-3 border-t border-gray-100">
-          <div className="bg-gradient-to-r from-emerald-50 to-blue-50 rounded-lg p-3">
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div>
-                <p className="text-lg font-bold text-emerald-700">24</p>
-                <p className="text-xs text-gray-600">Biens gérés</p>
-              </div>
-              <div>
-                <p className="text-lg font-bold text-blue-700">4.8</p>
-                <p className="text-xs text-gray-600">Note moyenne</p>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Profil utilisateur en bas */}
         <div className="flex-shrink-0 border-t border-gray-200 p-4">
