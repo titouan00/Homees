@@ -1,346 +1,337 @@
-'use client'
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { 
-  Search, 
-  MessageSquare, 
-  BarChart3, 
-  House, 
-  Shield, 
-  ArrowRight, 
-  Play,
-  Star,
-  Clock,
-  UserPlus,
-  Eye,
-  Timer,
-} from 'lucide-react';
-import Image from 'next/image';
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { supabase } from "@/lib/supabase-client";
+import { motion } from "framer-motion";
+import { ArrowRight, Users, Home, Star, TrendingUp, MessageCircle, ShieldCheck, Building2, Smile, HelpCircle } from "lucide-react";
+
+// Images libres (pexels/unsplash)
+const heroImg = "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=1200&q=80";
+const heroImg2 = "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=900&q=80";
+const testimonialImg1 = "https://randomuser.me/api/portraits/women/44.jpg";
+const testimonialImg2 = "https://randomuser.me/api/portraits/men/32.jpg";
+const dashboardImg = "/non.jpg";
+const partnerLogos = [
+  "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",
+  "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+  "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png",
+  "https://upload.wikimedia.org/wikipedia/commons/9/96/Supabase_logo.png"
+];
 
 export default function HomePage() {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  // KPIs dynamiques
+  const [kpis, setKpis] = useState({
+    gestionnaires: 0,
+    proprietaires: 0,
+    biens: 0,
+    note: 4.8,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchKpis() {
+      setLoading(true);
+      // Nombre de gestionnaires
+      const { count: gestionnaires } = await supabase
+        .from("utilisateurs")
+        .select("id", { count: "exact" })
+        .eq("rôle", "gestionnaire");
+      // Nombre de propriétaires
+      const { count: proprietaires } = await supabase
+        .from("utilisateurs")
+        .select("id", { count: "exact" })
+        .eq("rôle", "proprietaire");
+      // Nombre de biens
+      const { count: biens } = await supabase
+        .from("propriete")
+        .select("id", { count: "exact" });
+      // Note moyenne (fictive si pas d'avis)
+      const { data: avis } = await supabase
+        .from("avis")
+        .select("note");
+      let note = 4.8;
+      if (avis && avis.length > 0) {
+        note = Number((
+          avis.reduce((acc, a) => acc + (a.note || 0), 0) / avis.length
+        ).toFixed(1));
+      }
+      setKpis({
+        gestionnaires: gestionnaires || 0,
+        proprietaires: proprietaires || 0,
+        biens: biens || 0,
+        note: note as number,
+      });
+      setLoading(false);
+    }
+    fetchKpis();
+  }, []);
+
+  // Animation des compteurs
+  const AnimatedNumber = ({ value }: { value: number }) => {
+    const [display, setDisplay] = useState(0);
+    useEffect(() => {
+      let start = 0;
+      const end = value;
+      if (start === end) return;
+      let increment = end / 40;
+      let current = start;
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= end) {
+          setDisplay(end);
+          clearInterval(timer);
+        } else {
+          setDisplay(Math.round(current));
+        }
+      }, 20);
+      return () => clearInterval(timer);
+    }, [value]);
+    return <span>{display}</span>;
+  };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header clair et impactant */}
-      <section className="relative min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 overflow-hidden pt-16">
-        <div className="container mx-auto px-6 py-20 md:py-32 relative z-10">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-8">
-              Comparez. Choisissez.<br/>
-              <span className="bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
-                Déléguez votre bien en toute confiance.
-              </span>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50">
+      {/* HERO */}
+      <section className="relative flex flex-col md:flex-row items-center justify-between px-6 py-20 md:py-32 max-w-7xl mx-auto gap-12">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="flex-1 z-10"
+        >
+          <div className="mb-4 flex gap-2 items-center">
+            <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">Nouveau !</span>
+            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">Plateforme SaaS</span>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            Gérez vos biens <span className="text-emerald-600">en toute confiance</span>
             </h1>
-            
-            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-              La première plateforme qui met en relation propriétaires et gestionnaires immobiliers avec transparence totale.
-            </p>
-            
-            {/* Boutons d'action */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+          <p className="text-xl text-gray-600 mb-8 max-w-xl">
+            La plateforme nouvelle génération pour propriétaires et gestionnaires immobiliers exigeants. Transparence, efficacité, simplicité.<br/>
+            <span className="inline-block mt-2 text-emerald-700 font-semibold">Essayez gratuitement, sans engagement.</span>
+          </p>
               <Link 
                 href="/signup" 
-                className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold inline-flex items-center justify-center group text-lg"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg font-semibold text-lg animate-glow"
               >
-                Je trouve mon gestionnaire
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            Créer mon compte
+            <ArrowRight className="h-5 w-5" />
               </Link>
-              <Link 
-                href="/signup" 
-                className="bg-white border-2 border-emerald-600 text-emerald-600 px-8 py-4 rounded-xl hover:bg-emerald-50 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold inline-flex items-center justify-center group text-lg"
-              >
-                Tester gratuitement
-                <Play className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-              </Link>
-            </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="flex-1 flex flex-col gap-6 items-center"
+        >
+          <div className="relative w-full max-w-xl h-64 md:h-96 rounded-3xl overflow-hidden shadow-2xl border-4 border-emerald-100 group">
+            <Image
+              src={heroImg}
+              alt="Maison moderne Homees"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              priority
+            />
           </div>
+        </motion.div>
+      </section>
+
+      {/* KPIs */}
+      <section className="py-12 bg-gradient-to-br from-blue-50 to-emerald-50">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-xl shadow p-6 flex flex-col items-center border-b-4 border-emerald-100 hover:scale-105 hover:shadow-xl transition-all">
+            <Users className="h-8 w-8 text-emerald-600 mb-2" />
+            <div className="text-3xl font-bold text-gray-900">
+              {loading ? "-" : <AnimatedNumber value={kpis.gestionnaires} />}+
+          </div>
+            <div className="text-sm text-gray-500 mt-1">Gestionnaires inscrits</div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-xl shadow p-6 flex flex-col items-center border-b-4 border-blue-100 hover:scale-105 hover:shadow-xl transition-all">
+            <Users className="h-8 w-8 text-blue-600 mb-2" />
+            <div className="text-3xl font-bold text-gray-900">
+              {loading ? "-" : <AnimatedNumber value={kpis.proprietaires} />}+
+            </div>
+            <div className="text-sm text-gray-500 mt-1">Propriétaires inscrits</div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white rounded-xl shadow p-6 flex flex-col items-center border-b-4 border-emerald-100 hover:scale-105 hover:shadow-xl transition-all">
+            <Home className="h-8 w-8 text-emerald-500 mb-2" />
+            <div className="text-3xl font-bold text-gray-900">
+              {loading ? "-" : <AnimatedNumber value={kpis.biens} />}+
+            </div>
+            <div className="text-sm text-gray-500 mt-1">Biens gérés</div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white rounded-xl shadow p-6 flex flex-col items-center border-b-4 border-yellow-100 hover:scale-105 hover:shadow-xl transition-all">
+            <Star className="h-8 w-8 text-yellow-400 mb-2" />
+            <div className="text-3xl font-bold text-gray-900">
+              {loading ? "-" : kpis.note}
+            </div>
+            <div className="text-sm text-gray-500 mt-1">Note moyenne</div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Section 1 – Ce que vous résolvez */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              La gestion locative ne devrait pas être un casse-tête.
-            </h2>
-            <p className="text-xl text-gray-600">
-              Pourtant, plus de 50% des propriétaires rencontrent les mêmes difficultés
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="h-8 w-8 text-red-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Difficulté de comparer les agences</h3>
-              <p className="text-gray-600">Chaque gestionnaire a ses propres grilles tarifaires et services. Impossible de s'y retrouver.</p>
-            </div>
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Eye className="h-8 w-8 text-red-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Manque de transparence</h3>
-              <p className="text-gray-600">Frais cachés, services flous, pas d'avis clients vérifiés. Vous signez à l'aveugle.</p>
-            </div>
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Timer className="h-8 w-8 text-red-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Perte de temps pour les proprios</h3>
-              <p className="text-gray-600">Des heures passées à chercher, appeler, comparer... sans garantie de faire le bon choix.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 2 – Comment ça marche ? */}
+      {/* APERÇU DASHBOARD */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-16">
+        <div className="max-w-7xl mx-auto px-0 flex flex-col md:flex-row items-center gap-12">
+          <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }} className="flex-1 max-w-xl px-6">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Comment ça marche ?
+              Aperçu du dashboard propriétaire
             </h2>
-            <p className="text-xl text-gray-600">
-              En 3 étapes simples, trouvez le gestionnaire parfait pour votre bien
+            <p className="text-lg text-gray-600 mb-6">
+              Visualisez et pilotez tous vos biens, demandes et revenus en temps réel. Un tableau de bord moderne, intuitif et sécurisé.
             </p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="text-center p-8 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl hover:shadow-lg transition-all">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500 rounded-full mb-6">
-                <UserPlus className="h-8 w-8 text-white" />
-              </div>
-              <div className="inline-flex items-center justify-center w-8 h-8 bg-emerald-600 rounded-full text-white font-bold text-sm mb-4">1</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Créez votre compte en 2 minutes</h3>
-              <p className="text-gray-600">Renseignez votre bien et vos critères de gestion. C'est rapide et gratuit.</p>
-            </div>
-            <div className="text-center p-8 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl hover:shadow-lg transition-all">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-600 rounded-full mb-6">
-                <BarChart3 className="h-8 w-8 text-white" />
-              </div>
-              <div className="inline-flex items-center justify-center w-8 h-8 bg-emerald-600 rounded-full text-white font-bold text-sm mb-4">2</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Comparez les gestionnaires selon vos critères</h3>
-              <p className="text-gray-600">Prix, services, avis clients, zone géographique... Tout est transparent.</p>
-            </div>
-            <div className="text-center p-8 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl hover:shadow-lg transition-all">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-700 rounded-full mb-6">
-                <MessageSquare className="h-8 w-8 text-white" />
-              </div>
-              <div className="inline-flex items-center justify-center w-8 h-8 bg-emerald-600 rounded-full text-white font-bold text-sm mb-4">3</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Discutez et choisissez en confiance</h3>
-              <p className="text-gray-600">Échangez directement avec les gestionnaires et signez avec celui qui vous convient.</p>
-            </div>
-          </div>
-
-          {/* CTA milieu de page */}
-          <div className="text-center mt-16">
-            <Link 
-              href="/signup" 
-              className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-700 hover:to-emerald-800 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold inline-flex items-center group text-lg"
-            >
-              Trouver mon gestionnaire maintenant
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            <ul className="mb-8 space-y-2 text-gray-700">
+              <li className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-emerald-600" /> Sécurité et confidentialité garanties</li>
+              <li className="flex items-center gap-2"><Building2 className="h-5 w-5 text-blue-600" /> Vue synthétique de votre portefeuille</li>
+              <li className="flex items-center gap-2"><Smile className="h-5 w-5 text-yellow-500" /> Expérience utilisateur fluide</li>
+            </ul>
+            <Link href="/signup" className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-emerald-700 hover:to-blue-700 transition-all shadow font-semibold animate-pulse">
+              Découvrir gratuitement
+              <ArrowRight className="h-4 w-4" />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 3 – Les bénéfices */}
-      <section className="py-20 bg-gradient-to-br from-emerald-50 to-emerald-100">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Pourquoi utiliser HOMEES ?
-            </h2>
-            <p className="text-xl text-gray-600">
-              Les avantages qui font la différence
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-8 mb-12">
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Clock className="h-6 w-6 text-emerald-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">✅ Gagnez du temps</h3>
-                  <p className="text-gray-600">Fini les recherches interminables. Tous les gestionnaires qualifiés au même endroit.</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Eye className="h-6 w-6 text-emerald-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">✅ Comparez en toute transparence</h3>
-                  <p className="text-gray-600">Tarifs clairs, services détaillés, aucun frais caché. Vous savez exactement ce que vous payez.</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Star className="h-6 w-6 text-emerald-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">✅ Lisez des avis réels</h3>
-                  <p className="text-gray-600">Témoignages vérifiés de vrais propriétaires. Pas de faux avis, que de l'authentique.</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Shield className="h-6 w-6 text-emerald-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">✅ Gardez le contrôle</h3>
-                  <p className="text-gray-600">Dashboard en temps réel pour suivre votre bien. Vous restez informé de tout.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Screenshot placeholder */}
-          <div className="bg-white p-8 rounded-2xl shadow-xl">
-            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl h-96 flex items-center justify-center relative overflow-hidden">
+          </motion.div>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="flex-1 w-full">
+            <div className="relative w-full max-w-full h-72 md:h-[32rem] rounded-3xl overflow-hidden shadow-2xl border-4 border-emerald-100 group mx-auto">
               <Image
-                src="/non.jpg"
-                alt="Aperçu du dashboard HOMEES"
+                src={dashboardImg}
+                alt="Aperçu du dashboard Homees"
                 fill
-                className="object-cover rounded-xl"
-                style={{ objectPosition: 'center' }}
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
                 priority
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-50/80 to-transparent pointer-events-none" />
             </div>
-            <div className="text-center mt-4">
-              <p className="text-gray-500 font-medium">Aperçu du dashboard HOMEES</p>
-              <p className="text-gray-400 text-sm">Interface de comparaison des gestionnaires</p>
+          </motion.div>
             </div>
+      </section>
+
+      {/* COMMENT CA MARCHE */}
+      <section className="py-20 bg-gradient-to-br from-emerald-50 to-blue-50">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 text-center mb-12">
+            Comment ça marche ?
+          </h2>
+          <div className="grid md:grid-cols-3 gap-10">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-t-4 border-emerald-100 hover:scale-105 hover:shadow-xl transition-all">
+              <TrendingUp className="h-10 w-10 text-emerald-600 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Inscrivez-vous gratuitement</h3>
+              <p className="text-gray-600 text-center">Créez votre compte en quelques clics et accédez à votre espace personnalisé.</p>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-t-4 border-blue-100 hover:scale-105 hover:shadow-xl transition-all">
+              <MessageCircle className="h-10 w-10 text-blue-600 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Comparez & échangez</h3>
+              <p className="text-gray-600 text-center">Trouvez le gestionnaire idéal, comparez les offres et discutez en toute sécurité.</p>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-t-4 border-emerald-100 hover:scale-105 hover:shadow-xl transition-all">
+              <Home className="h-10 w-10 text-emerald-500 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Gérez vos biens simplement</h3>
+              <p className="text-gray-600 text-center">Suivez vos biens, vos demandes et vos revenus en temps réel depuis votre dashboard.</p>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Section 4 – Témoignages */}
+      {/* AVANTAGES */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Ils nous font confiance
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 text-center mb-12">
+            Pourquoi choisir Homees ?
             </h2>
-            <p className="text-xl text-gray-600">
-              Les premiers retours de nos bêta testeurs
-            </p>
+          <div className="grid md:grid-cols-3 gap-10">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-l-4 border-emerald-200 hover:scale-105 hover:shadow-xl transition-all">
+              <Star className="h-10 w-10 text-yellow-400 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Transparence totale</h3>
+              <p className="text-gray-600 text-center">Tarifs clairs, avis vérifiés, aucune mauvaise surprise. Vous savez toujours à quoi vous attendre.</p>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-gradient-to-br from-blue-50 to-emerald-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-l-4 border-blue-200 hover:scale-105 hover:shadow-xl transition-all">
+              <Users className="h-10 w-10 text-emerald-600 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Communauté engagée</h3>
+              <p className="text-gray-600 text-center">Des gestionnaires et propriétaires actifs, une équipe support réactive et à l'écoute.</p>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl shadow-lg p-8 flex flex-col items-center border-l-4 border-emerald-200 hover:scale-105 hover:shadow-xl transition-all">
+              <TrendingUp className="h-10 w-10 text-blue-600 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Outils puissants</h3>
+              <p className="text-gray-600 text-center">Dashboard intuitif, messagerie intégrée, statistiques avancées pour piloter votre activité.</p>
+            </motion.div>
           </div>
+                </div>
+      </section>
 
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-8 rounded-2xl">
-              <div className="flex items-center mb-4">
-                <div className="flex text-emerald-500">
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                </div>
+      {/* TEMOIGNAGES */}
+      <section className="py-20 bg-gradient-to-br from-emerald-50 to-blue-50">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 text-center mb-12">
+            Ils nous font confiance
+          </h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-b-4 border-emerald-100 hover:scale-105 hover:shadow-xl transition-all">
+              <Image src={testimonialImg1} alt="Claire M." width={64} height={64} className="rounded-full mb-4" />
+              <p className="text-lg text-gray-700 mb-4">“Grâce à Homees, j'ai trouvé un gestionnaire fiable en 48h. L'interface est claire et le support au top !”</p>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-gray-900">Claire M.</span>
+                <span className="text-gray-500 text-sm">Propriétaire à Lyon</span>
               </div>
-              <blockquote className="text-lg text-gray-700 mb-4">
-                "Grâce à HOMEES, j'ai enfin pu déléguer mon bien sans stress. La comparaison était claire et j'ai trouvé le gestionnaire parfait en 2 jours !"
-              </blockquote>
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center mr-4">
-                  <span className="text-emerald-700 font-semibold">C</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Claire M.</p>
-                  <p className="text-gray-600 text-sm">Propriétaire à Lyon</p>
-                </div>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center border-b-4 border-blue-100 hover:scale-105 hover:shadow-xl transition-all">
+              <Image src={testimonialImg2} alt="Marc D." width={64} height={64} className="rounded-full mb-4" />
+              <p className="text-lg text-gray-700 mb-4">“La comparaison des offres est super simple, et j'ai pu discuter avec plusieurs gestionnaires avant de choisir.”</p>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-gray-900">Marc D.</span>
+                <span className="text-gray-500 text-sm">Propriétaire à Paris</span>
               </div>
-            </div>
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-2xl">
-              <div className="flex items-center mb-4">
-                <div className="flex text-blue-500">
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                  <Star className="h-5 w-5 fill-current" />
-                </div>
-              </div>
-              <blockquote className="text-lg text-gray-700 mb-4">
-                "Enfin une plateforme qui met de la transparence dans ce secteur ! Les tarifs sont clairs et les avis m'ont aidé à faire le bon choix."
-              </blockquote>
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center mr-4">
-                  <span className="text-blue-700 font-semibold">M</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Marc D.</p>
-                  <p className="text-gray-600 text-sm">Propriétaire à Paris</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <div className="inline-flex items-center bg-gray-100 px-6 py-3 rounded-full">
-              <span className="text-gray-600 mr-2">Bientôt disponible sur</span>
-              <div className="flex items-center space-x-2">
-                <Star className="h-5 w-5 text-yellow-500" />
-                <span className="font-semibold text-gray-900">Trustpilot</span>
-              </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Section 5 – Bloc gestionnaire */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-white p-12 rounded-2xl shadow-xl">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <House className="h-8 w-8 text-blue-600" />
+      {/* FAQ */}
+      <section className="py-20 bg-white">
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 text-center mb-12">
+            FAQ
+          </h2>
+          <div className="space-y-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex items-start gap-4">
+              <HelpCircle className="h-8 w-8 text-emerald-600 flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Est-ce que Homees est vraiment gratuit ?</h3>
+                <p className="text-gray-600">Oui, l'inscription et l'utilisation de base sont gratuites pour tous les propriétaires et gestionnaires. Des options avancées sont disponibles en abonnement Pro.</p>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Vous êtes gestionnaire immobilier ?
-              </h2>
-              <p className="text-xl text-gray-600 mb-8">
-                Rejoignez la plateforme et développez votre portefeuille client avec des propriétaires qualifiés.
-              </p>
-              <Link 
-                href="/gestionnaire-signup" 
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold inline-flex items-center group text-lg"
-              >
-                Créer mon profil gratuitement
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-start gap-4">
+              <HelpCircle className="h-8 w-8 text-blue-600 flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Comment sont sélectionnés les gestionnaires ?</h3>
+                <p className="text-gray-600">Tous les gestionnaires sont vérifiés et notés par la communauté. Vous pouvez consulter les avis et comparer les offres en toute transparence.</p>
+              </div>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex items-start gap-4">
+              <HelpCircle className="h-8 w-8 text-yellow-500 flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Puis-je gérer plusieurs biens avec un seul compte ?</h3>
+                <p className="text-gray-600">Absolument ! Homees est conçu pour gérer un ou plusieurs biens, que vous soyez particulier ou professionnel.</p>
             </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* CTA Final */}
-      <section className="py-20 bg-gradient-to-r from-emerald-600 to-emerald-700">
+      {/* CTA FINAL */}
+      <section className="py-20 bg-gradient-to-r from-emerald-600 to-blue-600">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Prêt à déléguer votre bien en toute confiance ?
+            Prêt à gérer vos biens autrement ?
           </h2>
           <p className="text-xl text-emerald-100 mb-8 max-w-2xl mx-auto">
-            Rejoignez les propriétaires qui ont déjà trouvé leur gestionnaire idéal sur HOMEES.
+            Rejoignez la communauté Homees et découvrez une nouvelle façon de gérer votre patrimoine immobilier.
           </p>
           <Link 
             href="/signup" 
-            className="bg-white text-emerald-700 px-8 py-4 rounded-xl hover:bg-emerald-50 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold inline-flex items-center group text-lg"
+            className="bg-white text-emerald-700 px-8 py-4 rounded-xl hover:bg-emerald-50 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold inline-flex items-center group text-lg animate-glow"
           >
-            Trouver mon gestionnaire maintenant
+            Créer mon compte
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

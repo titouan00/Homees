@@ -19,7 +19,9 @@ const nextConfig = {
       'via.placeholder.com',
       // Domaines locaux pour le développement
       'localhost',
-      '127.0.0.1'
+      '127.0.0.1',
+      'randomuser.me',
+      'upload.wikimedia.org',
     ],
     remotePatterns: [
       {
