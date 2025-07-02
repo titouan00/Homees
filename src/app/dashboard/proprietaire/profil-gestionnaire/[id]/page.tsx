@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Star, ChatCircle, Envelope, User, MapPin, Phone, Globe, CircleNotch, WarningCircle, ArrowLeft, X, Check, PencilSimple } from '@phosphor-icons/react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { useGestionnaire } from '@/hooks/useGestionnaire';
 import { useCreateDemande } from '@/hooks/useCreateDemande';
 import { useAuth } from '@/hooks/useAuth';
-import { useBiensProprietaire, useBiensEnGestion, useAvisGestionnaireSimple } from '@/hooks';
+import { useBiensProprietaire, useAvisGestionnaireSimple } from '@/hooks';
+import { supabase } from '@/lib/supabase-client';
 
 const containerStyle = {
   width: '100%',
@@ -132,14 +133,12 @@ Cordialement`;
 }
 
 // Modal pour laisser un avis
-function ModalLaisserAvis({ isOpen, onClose, gestionnaire, hasBiensEnGestion, onSubmit, isSubmitting }: any) {
+function ModalLaisserAvis({ isOpen, onClose, gestionnaire, onSubmit, isSubmitting }: any) {
   const [note, setNote] = useState(5);
   const [commentaire, setCommentaire] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hasBiensEnGestion) return;
-    
     onSubmit({
       gestionnaire_id: gestionnaire?.gestionnaire_id || gestionnaire?.id,
       note,
@@ -162,97 +161,75 @@ function ModalLaisserAvis({ isOpen, onClose, gestionnaire, hasBiensEnGestion, on
             <X className="h-5 w-5" />
           </button>
         </div>
-
-        {!hasBiensEnGestion ? (
-          <div className="text-center py-6">
-            <WarningCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">
-              Aucun bien en gestion
-            </h4>
-            <p className="text-gray-600 mb-4">
-              Vous devez avoir au moins un bien en gestion avec ce gestionnaire pour pouvoir laisser un avis.
-            </p>
+        <form onSubmit={handleSubmit}>
+          {/* Note */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Note *
+            </label>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setNote(star)}
+                  className={`p-1 ${star <= note ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-500`}
+                  disabled={isSubmitting}
+                >
+                  <Star className="h-6 w-6" />
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Commentaire */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Commentaire (optionnel)
+            </label>
+            <textarea
+              value={commentaire}
+              onChange={(e) => setCommentaire(e.target.value)}
+              placeholder="Votre retour sur ce gestionnaire..."
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              rows={4}
+              disabled={isSubmitting}
+            />
+          </div>
+          {/* Boutons */}
+          <div className="flex gap-3">
             <button
+              type="button"
               onClick={onClose}
-              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200"
+              className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50"
+              disabled={isSubmitting}
             >
-              Fermer
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <CircleNotch className="h-4 w-4 animate-spin" />
+                  Envoi...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4" />
+                  Envoyer l'avis
+                </>
+              )}
             </button>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            {/* Note */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Note *
-              </label>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setNote(star)}
-                    className={`p-1 ${star <= note ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-500`}
-                    disabled={isSubmitting}
-                  >
-                    <Star className="h-6 w-6" />
-                  </button>
-                ))}
-                <span className="ml-2 text-sm text-gray-600">{note}/5</span>
-              </div>
-            </div>
-
-            {/* Commentaire */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Commentaire (optionnel)
-              </label>
-              <textarea
-                value={commentaire}
-                onChange={(e) => setCommentaire(e.target.value)}
-                placeholder="Partagez votre expérience avec ce gestionnaire..."
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                rows={4}
-                disabled={isSubmitting}
-              />
-            </div>
-
-            {/* Boutons */}
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50"
-                disabled={isSubmitting}
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                className="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 disabled:opacity-50 flex items-center justify-center gap-2"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <CircleNotch className="h-4 w-4 animate-spin" />
-                    Envoi...
-                  </>
-                ) : (
-                  <>
-                    <Check className="h-4 w-4" />
-                    Publier l'avis
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        )}
+        </form>
       </div>
     </div>
   );
 }
 
-function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis, onLaisserAvis, hasBiensEnGestion }: any) {
+function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis, onLaisserAvis }: any) {
   if (!gestionnaire) return null;
 
   return (
@@ -320,13 +297,35 @@ function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis, on
   );
 }
 
+function useNombreBiensGeres(gestionnaireId: string) {
+  const [count, setCount] = useState<number | null>(null);
+  useEffect(() => {
+    if (!gestionnaireId) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from('demande')
+        .select('propriete_id')
+        .eq('gestionnaire_id', gestionnaireId)
+        .eq('statut', 'acceptee');
+      if (data) {
+        const uniqueBiens = Array.from(new Set(data.map((d: any) => d.propriete_id)));
+        setCount(uniqueBiens.length);
+      } else {
+        setCount(0);
+      }
+    })();
+  }, [gestionnaireId]);
+  return count;
+}
+
 function StatsGestionnaire({ gestionnaire }: any) {
   if (!gestionnaire) return null;
 
+  const nombreBiensGeres = useNombreBiensGeres(gestionnaire.gestionnaire_id);
   const stats = [
     {
       label: 'Lots gérés',
-      value: gestionnaire.lots_geres || 'N/A'
+      value: nombreBiensGeres === null ? '...' : nombreBiensGeres
     },
     {
       label: 'Création',
@@ -540,9 +539,8 @@ export default function PageProfilGestionnaire() {
   // Hooks pour les données
   const { gestionnaire, loading: gestionnaireLoading, error: gestionnaireError } = useGestionnaire(gestionnaireId);
   const { avis, loading: avisLoading, error: avisError, createAvis, canCreateAvis } = useAvisGestionnaireSimple(gestionnaireId);
-  const { hasBiensEnGestion, loading: biensLoading } = useBiensEnGestion(user?.id, gestionnaireId);
-  const { createDemande, isCreating } = useCreateDemande(user?.id || '');
   const { biens } = useBiensProprietaire(user?.id || '');
+  const { createDemande, isCreating } = useCreateDemande(user?.id || '');
 
   const handleContact = async () => {
     if (!gestionnaire) return;
@@ -629,7 +627,6 @@ export default function PageProfilGestionnaire() {
         onContact={handleContact}
         onDemanderDevis={handleDemanderDevis}
         onLaisserAvis={handleLaisserAvis}
-        hasBiensEnGestion={hasBiensEnGestion}
       />
       <StatsGestionnaire gestionnaire={gestionnaire} />
       <ServicesTarifs gestionnaire={gestionnaire} />
@@ -658,7 +655,6 @@ export default function PageProfilGestionnaire() {
         isOpen={isAvisModalOpen}
         onClose={() => setIsAvisModalOpen(false)}
         gestionnaire={gestionnaire}
-        hasBiensEnGestion={hasBiensEnGestion}
         onSubmit={handleSubmitAvis}
         isSubmitting={isCreatingAvis}
       />
