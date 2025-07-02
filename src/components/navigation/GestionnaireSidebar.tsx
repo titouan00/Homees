@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase-client';
-import { useUnreadMessages } from '@/hooks';
+import { useUnreadMessages, useHydrationSafeDate } from '@/hooks';
 import { NavigationItem } from './NavigationItem';
 import { UserProfile } from '@/lib/auth-server';
 import {
@@ -34,11 +34,19 @@ export default function GestionnaireSidebar({ userProfile }: GestionnaireSidebar
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   
+  // Hook pour les comparaisons de dates hydratation-safe
+  const { isDateInFuture } = useHydrationSafeDate();
+  
   // Hook pour récupérer le nombre de messages non lus
   const { unreadCount: messagesCount, isLoading: messagesLoading } = useUnreadMessages(
     userProfile.id,
     'gestionnaire'
   );
+
+  // Vérification hydratation-safe de l'abonnement
+  const isProActive = userProfile.abonnement === 'pro' && 
+    userProfile.abonnement_expiration && 
+    isDateInFuture(userProfile.abonnement_expiration);
 
   // Navigation Général - Section principale pour les fonctionnalités métier
   const generalNavigation = [
@@ -185,11 +193,11 @@ export default function GestionnaireSidebar({ userProfile }: GestionnaireSidebar
                     {userProfile.nom}
                   </p>
                   <p className={`text-xs font-bold truncate mt-0.5 ${
-                    userProfile.abonnement === 'pro' && userProfile.abonnement_expiration && new Date(userProfile.abonnement_expiration) > new Date()
+                    isProActive
                       ? 'text-emerald-600'
                       : 'text-gray-400'
                   }`}>
-                    {userProfile.abonnement === 'pro' && userProfile.abonnement_expiration && new Date(userProfile.abonnement_expiration) > new Date()
+                    {isProActive
                       ? 'Gestionnaire Pro'
                       : 'Gestionnaire Free'}
                   </p>

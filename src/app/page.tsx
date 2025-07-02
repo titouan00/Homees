@@ -44,16 +44,6 @@ const testimonials = [
   },
 ];
 
-// Fonction pour tirer 2 avis aléatoires (hors SSR)
-function pickRandomTestimonials() {
-  const arr = [...testimonials];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr.slice(0, 2);
-}
-
 // Ajout d'un composant pour l'effet glow
 const Glow = () => (
   <div className="absolute -inset-2 rounded-2xl blur-2xl opacity-40 bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 animate-pulse pointer-events-none z-0" />
@@ -130,10 +120,22 @@ export default function HomePage() {
     return <span>{display}</span>;
   };
 
-  // Hydratation safe : initialiser avec les deux premiers, puis shuffle côté client
-  const [randomTestimonials, setRandomTestimonials] = useState(() => testimonials.slice(0, 2));
+  // Hydratation safe : utiliser les mêmes témoignages côté serveur et client
+  const [randomTestimonials, setRandomTestimonials] = useState(testimonials.slice(0, 2));
+  const [isClient, setIsClient] = useState(false);
+
   useEffect(() => {
-    setRandomTestimonials(pickRandomTestimonials());
+    setIsClient(true);
+    // Seulement côté client, mélanger les témoignages
+    const shuffleTestimonials = () => {
+      const arr = [...testimonials];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr.slice(0, 2);
+    };
+    setRandomTestimonials(shuffleTestimonials());
   }, []);
 
   return (
