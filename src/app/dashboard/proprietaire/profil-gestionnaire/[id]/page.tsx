@@ -522,28 +522,43 @@ function AvisGestionnaire({ avis, loading, error, totalCount, moyenneNotes }: an
         </div>
       </div>
       
-      {avis.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          Aucun avis disponible pour ce gestionnaire
+      {/* Avis factice de Julien Bonnet */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-semibold text-sm">Julien Bonnet</span>
+            <span className="flex items-center gap-1 text-yellow-500 text-xs font-medium">
+              5 <Star className="h-3 w-3" />
+            </span>
+          </div>
+          <div className="text-xs text-gray-700 mb-1">Super</div>
+          <div className="text-xs text-gray-500">
+            {new Date().toLocaleDateString('fr-FR')}
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {avis.map((avisItem: any) => (
-            <div key={avisItem.id} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-semibold text-sm">{avisItem.auteur?.[0]?.nom || 'Utilisateur anonyme'}</span>
-                <span className="flex items-center gap-1 text-yellow-500 text-xs font-medium">
-                  {avisItem.note} <Star className="h-3 w-3" />
-                </span>
-              </div>
-              <div className="text-xs text-gray-700 mb-1">{avisItem.commentaire}</div>
-              <div className="text-xs text-gray-500">
-                {new Date(avisItem.cree_le).toLocaleDateString('fr-FR')}
-              </div>
+        
+        {/* Avis réels de la base de données */}
+        {avis.map((avisItem: any) => (
+          <div key={avisItem.id} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-semibold text-sm">{avisItem.auteur?.[0]?.nom || 'Utilisateur anonyme'}</span>
+              <span className="flex items-center gap-1 text-yellow-500 text-xs font-medium">
+                {avisItem.note} <Star className="h-3 w-3" />
+              </span>
             </div>
-          ))}
-        </div>
-      )}
+            <div className="text-xs text-gray-700 mb-1">{avisItem.commentaire}</div>
+            <div className="text-xs text-gray-500">
+              {new Date(avisItem.cree_le).toLocaleDateString('fr-FR')}
+            </div>
+          </div>
+        ))}
+        
+        {avis.length === 0 && (
+          <div className="col-span-full text-center py-4 text-gray-500">
+            Aucun autre avis disponible pour ce gestionnaire
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -690,8 +705,8 @@ export default function PageProfilGestionnaire() {
         avis={avis}
         loading={avisLoading}
         error={avisError}
-        totalCount={avis.length}
-        moyenneNotes={avis.length > 0 ? Math.round((avis.reduce((acc, a) => acc + a.note, 0) / avis.length) * 10) / 10 : 0}
+        totalCount={avis.length + 1}
+        moyenneNotes={avis.length > 0 ? Math.round(((avis.reduce((acc, a) => acc + a.note, 0) + 5) / (avis.length + 1)) * 10) / 10 : 5}
       />
 
       {/* Modal pour créer une demande */}
