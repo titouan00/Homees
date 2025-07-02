@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase-client';
 import Link from 'next/link';
 import { MapPin, CurrencyEur, Medal, Users, TrendUp, Buildings } from '@phosphor-icons/react';
+import { useGestionnaireStats } from '@/hooks/useGestionnaireStats';
 
 interface GestionnaireProfile {
   nom_agence: string;
@@ -21,6 +22,7 @@ interface GestionnaireProfile {
 export default function GestionnaireDashboard() {
   const [profile, setProfile] = useState<GestionnaireProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     loadGestionnaireProfile();
@@ -30,9 +32,9 @@ export default function GestionnaireDashboard() {
     try {
       // Récupérer l'utilisateur connecté (déjà vérifié par le layout)
       const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      setUserId(user.id);
       
-      if (!user) return; // Normalement impossible car layout fait la vérification
-
       // Charger le profil gestionnaire
       const { data: profileData, error: profileError } = await supabase
         .from('profil_gestionnaire')
@@ -71,12 +73,14 @@ export default function GestionnaireDashboard() {
     }
   };
 
-  // Statistiques fictives pour la démo
+  // Récupérer les stats dynamiques
+  const statsData = useGestionnaireStats(userId);
+
   const stats = [
-    { name: 'Biens gérés', value: '24', icon: Buildings, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-    { name: 'Demandes reçues', value: '16', icon: TrendUp, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { name: 'Revenus ce mois', value: '3,250€', icon: CurrencyEur, color: 'text-yellow-600', bg: 'bg-yellow-100' },
-    { name: 'Note moyenne', value: '4.8/5', icon: Medal, color: 'text-purple-600', bg: 'bg-purple-100' }
+    { name: 'Biens gérés', value: statsData.loading ? '...' : statsData.biens, icon: Buildings, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { name: 'Demandes reçues', value: statsData.loading ? '...' : statsData.demandes, icon: TrendUp, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { name: 'Revenus ce mois', value: statsData.loading ? '...' : `${statsData.revenus.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`, icon: CurrencyEur, color: 'text-yellow-600', bg: 'bg-yellow-100' },
+    { name: 'Note moyenne', value: statsData.loading ? '...' : `${statsData.note.toFixed(1)}/5`, icon: Medal, color: 'text-purple-600', bg: 'bg-purple-100' }
   ];
 
   return (

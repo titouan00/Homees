@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
 import { useBiensEnGestion, type BienEnGestion } from '@/hooks/useBiensEnGestion';
 import { useGestionnaire } from '@/hooks/useGestionnaire';
+import { useGestionnaireStats } from '@/hooks/useGestionnaireStats';
 import { 
   Buildings, 
   MagnifyingGlass, 
@@ -402,6 +403,9 @@ export default function GestionBiensPage() {
     });
   }, [biens, filtres, showDeleted, biensSupprimes, biensActifs]);
 
+  // Récupérer les stats dynamiques du gestionnaire (dont revenus mensuels)
+  const statsData = useGestionnaireStats(gestionnaireId);
+
   const handleContact = (bien: BienEnGestion) => {
     router.push(`/dashboard/gestionnaire/messages?contact=${bien.proprietaire.email}`);
   };
@@ -521,7 +525,7 @@ export default function GestionBiensPage() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Revenus mensuels</p>
-              <p className="text-2xl font-bold text-gray-900">{statistiques.revenus_mensuels.toLocaleString()}€</p>
+              <p className="text-2xl font-bold text-gray-900">{statsData.loading ? '...' : `${statsData.revenus.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`}</p>
             </div>
           </div>
         </div>
