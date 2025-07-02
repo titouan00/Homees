@@ -43,12 +43,37 @@ export default function ContactPage() {
       return;
     }
     
-    setTimeout(() => {
+    // Envoi au webhook Discord
+    try {
+      const discordPayload = {
+        username: 'Contact Homees',
+        embeds: [
+          {
+            title: 'Nouveau message de contact',
+            color: 5814783,
+            fields: [
+              { name: 'Nom', value: formData.nom, inline: true },
+              { name: 'Email', value: formData.email, inline: true },
+              { name: 'Type utilisateur', value: formData.typeUtilisateur, inline: true },
+              { name: 'Message', value: formData.message, inline: false },
+            ],
+            timestamp: new Date().toISOString(),
+          }
+        ]
+      };
+      await fetch('https://discord.com/api/webhooks/1389896725010976850/TVZC8Bv7SqQib9wYWsNboj86-VfaqGcPw85Vixiv7d9QhOq3-z1vYTkVzaKKddrW75Ow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(discordPayload),
+      });
       setLoading(false);
       setSuccess(true);
       setFormData({ nom: '', email: '', typeUtilisateur: '', message: '' });
       setTimeout(() => setSuccess(false), 5000);
-    }, 1000);
+    } catch (err) {
+      setError("Erreur lors de l'envoi du message Discord");
+      setLoading(false);
+    }
   };
 
   return (
