@@ -17,9 +17,11 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-2 rounded-lg">
-              <House className="h-6 w-6 text-white" />
-            </div>
+            <img
+              src="/images/Logo_Homees_Noir.png"
+              alt="Logo Homees"
+              className="h-14 w-14 object-contain"
+            />
             <span className="text-xl font-bold text-gray-900">Homees</span>
           </Link>
 

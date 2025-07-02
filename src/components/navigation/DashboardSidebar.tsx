@@ -121,7 +121,11 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center h-16 px-6 border-b border-gray-200">
         <Link href="/dashboard" className="flex items-center space-x-2">
-          <House className="h-8 w-8 text-emerald-600" />
+          <img
+            src="/images/Logo_Homees_Noir.png"
+            alt="Logo Homees"
+            className="h-14 w-14 object-contain"
+          />
           <span className="text-xl font-bold text-gray-900">Homees</span>
         </Link>
       </div>

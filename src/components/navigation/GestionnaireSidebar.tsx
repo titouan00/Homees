@@ -111,7 +111,11 @@ export default function GestionnaireSidebar({ userProfile }: GestionnaireSidebar
       {/* Logo avec badge gestionnaire */}
       <div className="flex items-center h-16 px-6 border-b border-gray-200">
         <Link href="/dashboard/gestionnaire" className="flex items-center space-x-2">
-          <House className="h-8 w-8 text-emerald-600" />
+          <img
+            src="/images/Logo_Homees_Noir.png"
+            alt="Logo Homees"
+            className="h-14 w-14 object-contain"
+          />
           <div>
             <span className="text-xl font-bold text-gray-900">Homees</span>
             <span className="block text-xs text-emerald-600 font-medium">Gestionnaire</span>

@@ -6,7 +6,6 @@ import { Star, ChatCircle, Envelope, User, MapPin, Phone, Globe, CircleNotch, Wa
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { useGestionnaire } from '@/hooks/useGestionnaire';
 import { useCreateDemande } from '@/hooks/useCreateDemande';
-import { useAuth } from '@/hooks/useAuth';
 import { useBiensProprietaire, useAvisGestionnaireSimple } from '@/hooks';
 import { supabase } from '@/lib/supabase-client';
 
@@ -533,14 +532,11 @@ export default function PageProfilGestionnaire() {
   const [isAvisModalOpen, setIsAvisModalOpen] = useState(false);
   const [isCreatingAvis, setIsCreatingAvis] = useState(false);
 
-  // Auth sans redirection (gérée par le layout parent)
-  const { user } = useAuth(false);
-  
   // Hooks pour les données
   const { gestionnaire, loading: gestionnaireLoading, error: gestionnaireError } = useGestionnaire(gestionnaireId);
   const { avis, loading: avisLoading, error: avisError, createAvis, canCreateAvis } = useAvisGestionnaireSimple(gestionnaireId);
-  const { biens } = useBiensProprietaire(user?.id || '');
-  const { createDemande, isCreating } = useCreateDemande(user?.id || '');
+  const { biens } = useBiensProprietaire('');
+  const { createDemande, isCreating } = useCreateDemande('');
 
   const handleContact = async () => {
     if (!gestionnaire) return;
