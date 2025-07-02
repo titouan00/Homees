@@ -13,6 +13,7 @@ interface GestionnaireProfile {
   tarif_base: number;
   certifications: string[];
   services_offerts: string[];
+  tarif_gestion_locative?: number;
 }
 
 /**
@@ -64,6 +65,7 @@ export default function GestionnaireDashboard() {
             : (typeof profileData.services_offerts === 'string' && profileData.services_offerts.startsWith('['))
               ? JSON.parse(profileData.services_offerts)
               : profileData.services_offerts ? [profileData.services_offerts] : [],
+          tarif_gestion_locative: profileData.tarif_gestion_locative,
         });
       }
     } catch (err) {
@@ -137,7 +139,11 @@ export default function GestionnaireDashboard() {
                 </div>
                 <div className="flex items-center">
                   <CurrencyEur className="h-5 w-5 text-gray-400 mr-3" />
-                  <span>{profile.tarif_base}€/mois</span>
+                  <span>
+                    {profile && typeof profile.tarif_gestion_locative === 'number'
+                      ? `${profile.tarif_gestion_locative}% du loyer`
+                      : 'Non renseigné'}
+                  </span>
                 </div>
                 {profile.certifications.length > 0 && (
                   <div className="flex items-start">
