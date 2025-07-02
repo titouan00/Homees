@@ -6,6 +6,7 @@ import { Star, ChatCircle, Envelope, User, MapPin, Phone, Globe, CircleNotch, Wa
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { useGestionnaire } from '@/hooks/useGestionnaire';
 import { useCreateDemande } from '@/hooks/useCreateDemande';
+import { useAuth } from '@/hooks/useAuth';
 import { useBiensProprietaire, useAvisGestionnaireSimple } from '@/hooks';
 import { supabase } from '@/lib/supabase-client';
 
@@ -227,8 +228,36 @@ function ModalLaisserAvis({ isOpen, onClose, gestionnaire, onSubmit, isSubmittin
     </div>
   );
 }
+// Fonction utilitaire pour formater les zones d'intervention
+const formatZonesIntervention = (zones: any): string => {
+  if (!zones) return 'Zone non spécifiée';
+  
+  // Si c'est un string
+  if (typeof zones === 'string') {
+    // Vérifier si c'est du JSON
+    if (zones.startsWith('[') && zones.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(zones);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(zone => zone && typeof zone === 'string').join(', ');
+        }
+      } catch (e) {
+        // Si le parsing échoue, retourner le string tel quel
+        return zones;
+      }
+    }
+    return zones;
+  }
+  
+  // Si c'est un array
+  if (Array.isArray(zones)) {
+    return zones.filter(zone => zone && typeof zone === 'string').join(', ');
+  }
+  
+  return 'Zone non spécifiée';
+};
 
-function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis, onLaisserAvis }: any) {
+function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis, onLaisserAvis, hasBiensEnGestion }: any) {
   if (!gestionnaire) return null;
 
   return (
@@ -241,7 +270,7 @@ function HeaderProfilGestionnaire({ gestionnaire, onContact, onDemanderDevis, on
           </span>
           <span className="text-gray-500 text-sm">basé sur {gestionnaire.nombre_avis} avis clients</span>
         </div>
-        <div className="text-gray-700 mb-2">{gestionnaire.adresse || gestionnaire.zone_intervention}</div>
+        <div className="text-gray-700 mb-2">{gestionnaire.adresse || formatZonesIntervention(gestionnaire.zone_intervention)}</div>
         <div className="text-gray-500 text-sm mb-2">{gestionnaire.description}</div>
         
         {/* Informations de contact */}
@@ -442,7 +471,7 @@ function CarteZoneIntervention({ gestionnaire }: any) {
     <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
       <div className="font-semibold mb-2">Zone d'intervention</div>
       <div className="text-gray-600 text-sm mb-4">
-        {gestionnaire.zone_intervention || 'Zone non spécifiée'}
+        {formatZonesIntervention(gestionnaire.zone_intervention)}
       </div>
       {isLoaded ? (
         <GoogleMap
@@ -532,11 +561,40 @@ export default function PageProfilGestionnaire() {
   const [isAvisModalOpen, setIsAvisModalOpen] = useState(false);
   const [isCreatingAvis, setIsCreatingAvis] = useState(false);
 
+  // Auth sans redirection (gérée par le layout parent)
+  const { user } = useAuth(false);
+  
   // Hooks pour les données
   const { gestionnaire, loading: gestionnaireLoading, error: gestionnaireError } = useGestionnaire(gestionnaireId);
   const { avis, loading: avisLoading, error: avisError, createAvis, canCreateAvis } = useAvisGestionnaireSimple(gestionnaireId);
-  const { biens } = useBiensProprietaire('');
-  const { createDemande, isCreating } = useCreateDemande('');
+  const { createDemande, isCreating } = useCreateDemande(user?.id || '');
+  const { biens } = useBiensProprietaire(user?.id || '');
+  
+  // Vérifier si l'utilisateur a des biens gérés par ce gestionnaire
+  const [hasBiensEnGestion, setHasBiensEnGestion] = useState(false);
+  
+  useEffect(() => {
+    const checkBiensEnGestion = async () => {
+      if (!user?.id || !gestionnaireId) return;
+      
+      try {
+        const { data } = await supabase
+          .from('demande')
+          .select('id')
+          .eq('proprietaire_id', user.id)
+          .eq('gestionnaire_id', gestionnaireId)
+          .eq('statut', 'acceptee')
+          .limit(1);
+        
+        setHasBiensEnGestion(!!(data && data.length > 0));
+      } catch (error) {
+        console.error('Erreur lors de la vérification des biens en gestion:', error);
+        setHasBiensEnGestion(false);
+      }
+    };
+    
+    checkBiensEnGestion();
+  }, [user?.id, gestionnaireId]);
 
   const handleContact = async () => {
     if (!gestionnaire) return;
