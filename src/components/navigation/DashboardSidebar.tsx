@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase-client';
-import { useProprietesCount, useUnreadMessages, useDemandesCount, useHydrationSafeDate } from '@/hooks';
+import { useProprietesCount, useUnreadMessages, useDemandesCount } from '@/hooks';
 import { NavigationItem } from './NavigationItem';
 import { UserProfile } from '@/lib/auth-server';
 import {
@@ -35,9 +35,6 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   
-  // Hook pour les comparaisons de dates hydratation-safe
-  const { isDateInFuture } = useHydrationSafeDate();
-  
   // Hook pour récupérer le nombre de biens
   const { count: biensCount, loading: biensLoading } = useProprietesCount(
     userProfile.role === 'proprietaire' ? userProfile.id : undefined
@@ -53,11 +50,6 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
   const { count: demandesCount, loading: demandesLoading } = useDemandesCount(
     userProfile.role === 'proprietaire' ? userProfile.id : undefined
   );
-
-  // Vérification hydratation-safe de l'abonnement
-  const isProActive = userProfile.abonnement === 'pro' && 
-    userProfile.abonnement_expiration && 
-    isDateInFuture(userProfile.abonnement_expiration);
 
   // Navigation principale - Section "Général"
   const generalNavigation = [
@@ -201,11 +193,11 @@ export default function DashboardSidebar({ userProfile }: SidebarProps) {
                   {/* Affichage dynamique du statut d'abonnement */}
                   {userProfile.role === 'gestionnaire' && (
                     <span className={`mt-1 inline-block font-bold text-xs rounded px-2 py-0.5 ${
-                      isProActive
+                      userProfile.abonnement === 'pro' && userProfile.abonnement_expiration && new Date(userProfile.abonnement_expiration) > new Date()
                         ? 'bg-emerald-100 text-emerald-700'
                         : 'bg-gray-100 text-gray-500'
                     }`}>
-                      {isProActive
+                      {userProfile.abonnement === 'pro' && userProfile.abonnement_expiration && new Date(userProfile.abonnement_expiration) > new Date()
                         ? 'Gestionnaire Pro'
                         : 'Gestionnaire Free'}
                     </span>

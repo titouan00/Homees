@@ -27,5 +27,4 @@ export { useBiensProprietaire } from './useBiensProprietaire';
 export { useDemandesProprietaire } from './useDemandesProprietaire';
 export { useDashboardProprietaire } from './useDashboardProprietaire';
 export { useDemandesCount } from './useDemandesCount';
-export { useHydrationSafeDate } from './useHydrationSafeDate';
 

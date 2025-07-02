@@ -77,7 +77,7 @@ Cordialement`
     };
 
     handleAutoCreateConversation();
-  }, [gestionnaireParam, user?.id, user?.role]); // Stabiliser les dépendances
+  }, [gestionnaireParam, user, createDemande, router, isCreatingConversation]);
 
   if (isLoading || isCreatingConversation) {
     return (
