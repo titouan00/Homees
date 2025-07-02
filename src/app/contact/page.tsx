@@ -61,7 +61,7 @@ export default function ContactPage() {
           }
         ]
       };
-      await fetch('https://discord.com/api/webhooks/1389896725010976850/TVZC8Bv7SqQib9wYWsNboj86-VfaqGcPw85Vixiv7d9QhOq3-z1vYTkVzaKKddrW75Ow', {
+      await fetch('https://discord.com/api/webhooks/1389899795488837672/WXfoyBkJnIc-xjH38_4qKSre2rQBMvy2MlaX-Dwn1dcs2iB5-OwpQGQUjqwgjb1M9ECM', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(discordPayload),
